@@ -1,0 +1,174 @@
+<div class="register-page">
+  <!-- Theme Toggle -->
+  <app-theme-toggle></app-theme-toggle>
+
+  <main class="register-main" id="main-content">
+    <div class="register-card">
+      <!-- Brand -->
+      <app-brand></app-brand>
+
+      <!-- Success State -->
+      @if (isSuccess()) {
+        <div class="success-state" role="status" aria-live="polite">
+          <div class="success-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect width="20" height="16" x="2" y="4" rx="2"/>
+              <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+            </svg>
+          </div>
+          <h2 class="success-title">Verify your email</h2>
+          <p class="success-message">
+            We've sent a verification link to your email address. Please check your inbox and click the link to activate your account.
+          </p>
+          <div class="success-actions">
+            <a routerLink="/login" class="pa-btn pa-btn--primary success-btn">
+              Back to sign in
+            </a>
+          </div>
+        </div>
+      } @else {
+        <!-- Header -->
+        <div class="register-header">
+          <h2>Create your account</h2>
+          <p>Get started with Phone Accessories today.</p>
+        </div>
+
+        <!-- Error Alert -->
+         @if (errorMessage()) {
+          <div
+            class="register-error"
+            role="alert"
+            aria-live="polite"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="8" x2="12" y2="12"/>
+              <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+            <span>{{ errorMessage() }}</span>
+          </div>
+         }
+
+        <!-- Form -->
+        <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="register-form" novalidate>
+          <!-- Name Row -->
+          <div class="name-row">
+            <!-- First Name -->
+            <app-input-field
+              inputId="firstName"
+              label="First name"
+              placeholder="John"
+              autocomplete="given-name"
+              [control]="$any(registerForm.get('firstName'))"
+              [errorMessages]="{
+                'required': 'First name is required',
+                'minlength': 'Must be at least 2 characters',
+                'maxlength': 'Must be 50 characters or less'
+              }">
+            </app-input-field>
+
+            <!-- Last Name -->
+            <app-input-field
+              inputId="lastName"
+              label="Last name"
+              placeholder="Doe"
+              autocomplete="family-name"
+              [control]="$any(registerForm.get('lastName'))"
+              [errorMessages]="{
+                'required': 'Last name is required',
+                'minlength': 'Must be at least 2 characters',
+                'maxlength': 'Must be 50 characters or less'
+              }">
+            </app-input-field>
+          </div>
+
+          <!-- Email -->
+          <app-input-field
+            inputId="email"
+            type="email"
+            label="Email address"
+            placeholder="you@example.com"
+            autocomplete="email"
+            [control]="$any(registerForm.get('email'))"
+            [errorMessages]="{
+              'required': 'Email is required',
+              'email': 'Please enter a valid email address'
+            }">
+          </app-input-field>
+
+          <!-- Password -->
+          <app-password-input
+          [control]="$any(registerForm.get('password'))"
+          placeholder="Create a strong password"
+          passwordHint="Must be at least 8 characters with uppercase, lowercase, number, and special character."
+          [passwordStrengthIndicator]="true"
+          passwordAutocomplete="new-password"
+          ></app-password-input>
+
+          <!-- Confirm Password -->
+          <app-password-input
+          inputId="confirmPassword"
+          [control]="$any(registerForm.get('confirmPassword'))"
+          label="Confirm password"
+          placeholder="Re-enter your password"
+          passwordAutocomplete="new-password"
+          passwordRequiredMessage="Please confirm your password"
+          ></app-password-input>
+
+          <!-- Terms -->
+          <div class="form-terms">
+            <label class="checkbox-wrapper" [class.has-error]="termsAccepted?.invalid && termsAccepted?.touched">
+              <input
+                type="checkbox"
+                formControlName="termsAccepted"
+                class="checkbox-input"
+                [attr.aria-invalid]="termsAccepted?.invalid && termsAccepted?.touched"
+              />
+              <span class="checkbox-checkmark" aria-hidden="true">
+                @if (registerForm.value.termsAccepted) {
+                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"/>
+                  </svg>
+                }
+              </span>
+              <span class="checkbox-label">
+                I agree to the
+                <a routerLink="/terms" class="terms-link">Terms of Service</a>
+                and
+                <a routerLink="/privacy" class="terms-link">Privacy Policy</a>
+              </span>
+            </label>
+            @if (termsAccepted?.invalid && termsAccepted?.touched) {
+              <div
+                class="field-error terms-error"
+                role="alert"
+              >
+                You must agree to the Terms of Service and Privacy Policy to continue.
+              </div>
+            }
+          </div>
+
+          <!-- Submit -->
+          <button
+            type="submit"
+            class="pa-btn pa-btn--primary register-submit"
+            [disabled]="isLoading()"
+            [attr.aria-busy]="isLoading()"
+          >
+            @if (isLoading()) {
+              <span class="spinner" aria-hidden="true"></span>
+            }
+            
+            <span>{{ isLoading() ? 'Creating account...' : 'Create account' }}</span>
+          </button>
+        </form>
+
+        <!-- Footer -->
+        <div class="register-footer">
+          <p>Already have an account? <a routerLink="/login" class="footer-link">Sign in</a></p>
+        </div>
+      }
+
+    </div>
+  </main>
+</div>
