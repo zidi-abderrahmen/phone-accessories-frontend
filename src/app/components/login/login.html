@@ -1,0 +1,94 @@
+<div class="login-page">
+  <!-- Theme Toggle -->
+  <app-theme-toggle></app-theme-toggle>
+
+  <main class="login-main" id="main-content">
+    <div class="login-card">
+      <!-- Brand -->
+      <app-brand></app-brand>
+
+      <!-- Heading -->
+      <div class="login-header">
+        <h2>Welcome back</h2>
+        <p>Sign in to your account to continue</p>
+      </div>
+
+      <!-- Error Alert -->
+      @if (errorMessage()) {
+        <div
+          class="login-error"
+          role="alert"
+          aria-live="polite"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="8" x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          <span>{{ errorMessage() }}</span>
+        </div>
+      }
+      
+
+      <!-- Form -->
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form" novalidate>
+        <!-- Email -->
+        <app-input-field
+          inputId="email"
+          type="email"
+          label="Email address"
+          placeholder="you@example.com"
+          autocomplete="email"
+          [control]="$any(loginForm.get('email'))"
+          [errorMessages]="{
+            'required': 'Email is required',
+            'email': 'Please enter a valid email address'
+          }">
+        </app-input-field>
+
+        <!-- Password -->
+        <app-password-input
+        [control]="$any(loginForm.get('password'))"
+        passwordAutocomplete="current-password"
+        forgotPasswordRoute="/forgot-password"
+        ></app-password-input>
+
+        <!-- Remember Me -->
+        <div class="form-remember">
+          <label class="checkbox-wrapper">
+            <input
+              type="checkbox"
+              formControlName="rememberMe"
+              class="checkbox-input"
+            />
+            <span class="checkbox-checkmark" aria-hidden="true">
+              @if (loginForm.value.rememberMe) {
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+              }
+              
+            </span>
+            <span class="checkbox-label">Keep me signed in</span>
+          </label>
+        </div>
+
+        <!-- Submit -->
+        <button
+          type="submit"
+          class="pa-btn pa-btn--primary login-submit"
+          [disabled]="isLoading()"
+          [attr.aria-busy]="isLoading()"
+        >
+          @if (isLoading()) {<span class="spinner" aria-hidden="true"></span>}
+          <span>{{ isLoading() ? 'Signing in...' : 'Sign in' }}</span>
+        </button>
+      </form>
+
+      <!-- Footer -->
+      <div class="login-footer">
+        <p>Don't have an account? <a routerLink="/register" class="footer-link">Create one</a></p>
+      </div>
+    </div>
+  </main>
+</div>
