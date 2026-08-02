@@ -1,13 +1,165 @@
 <!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <title>Frontend</title>
-  <base href="/">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" type="image/x-icon" href="favicon.ico">
-</head>
-<body>
-  <app-root></app-root>
-</body>
+<html lang="en" dir="ltr" data-system-theme="light">
+  <head>
+    <meta charset="utf-8">
+    <title>Phone Accessories | Premium Mobile Gear & Smartphone Essentials</title>
+    <base href="/">
+
+    <!-- Viewport & Theme -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#0a0a0a" media="(prefers-color-scheme: dark)">
+    <meta name="color-scheme" content="light dark">
+
+    <!-- SEO -->
+    <meta name="description" content="Discover premium phone accessories at Phone Accessories. Shop chargers, cables, cases, screen protectors, power banks, and audio gear with fast shipping.">
+    <meta name="keywords" content="phone accessories, smartphone chargers, USB cables, phone cases, screen protectors, power banks, wireless earbuds, mobile gear">
+    <meta name="author" content="Phone Accessories">
+    <meta name="robots" content="index, follow, max-image-preview:large">
+    <link rel="canonical" href="https://phoneaccessories.example.com">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Phone Accessories">
+    <meta property="og:title" content="Phone Accessories | Premium Mobile Gear">
+    <meta property="og:description" content="Premium phone accessories, cases, chargers, screen protectors and mobile gear.">
+    <meta property="og:url" content="https://phoneaccessories.example.com">
+    <meta property="og:image" content="https://phoneaccessories.example.com/assets/og-image.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:locale" content="en_US">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@phoneaccessories">
+    <meta name="twitter:creator" content="@phoneaccessories">
+    <meta name="twitter:title" content="Phone Accessories | Premium Mobile Gear">
+    <meta name="twitter:description" content="Premium phone accessories, cases, chargers, screen protectors and mobile gear.">
+    <meta name="twitter:image" content="https://phoneaccessories.example.com/assets/og-image.jpg">
+
+    <!-- Preconnect -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com">
+
+    <!-- Preload Critical Fonts -->
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" as="style">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="assets/logo-icon.svg">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
+    <link rel="manifest" href="assets/manifest.json">
+
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Phone Accessories",
+      "url": "https://phoneaccessories.example.com",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://phoneaccessories.example.com/search?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
+
+    <!-- Anti-Flicker Theme -->
+    <script>
+      (function() {
+        try {
+          const saved = localStorage.getItem('pa-theme');
+          const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          const isDark = saved === 'dark' || (!saved && systemDark);
+          const html = document.documentElement;
+
+          if (isDark) {
+            html.classList.add('dark-theme');
+            html.style.colorScheme = 'dark';
+          } else {
+            html.style.colorScheme = 'light';
+          }
+
+          if (!saved) {
+            html.setAttribute('data-system-theme', systemDark ? 'dark' : 'light');
+          }
+
+          // Update theme-color meta dynamically
+          const themeMeta = document.querySelector('meta[name="theme-color"]');
+          if (themeMeta && isDark) {
+            themeMeta.setAttribute('content', '#0a0a0a');
+          }
+        } catch (e) {
+          document.documentElement.classList.add('dark-theme');
+        }
+      })();
+    </script>
+
+    <!-- Critical CSS -->
+    <style>
+      html { background-color: #fafafa; }
+      html.dark-theme { background-color: #0a0a0a; }
+      body { 
+        margin: 0; 
+        opacity: 0; 
+        animation: pa-body-fade 0.25s ease-out 0.05s forwards; 
+      }
+      @keyframes pa-body-fade { to { opacity: 1; } }
+
+      app-root:empty::before {
+        content: '';
+        display: block;
+        width: 32px;
+        height: 32px;
+        border: 2.5px solid rgba(79, 70, 229, 0.15);
+        border-top-color: #4f46e5;
+        border-radius: 50%;
+        animation: pa-spin 0.7s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+      html.dark-theme app-root:empty::before {
+        border-color: rgba(129, 140, 248, 0.15);
+        border-top-color: #818cf8;
+      }
+      @keyframes pa-spin { 
+        to { transform: translate(-50%, -50%) rotate(360deg); } 
+      }
+
+      .skip-link {
+        position: absolute;
+        top: -40px;
+        left: 0;
+        background: #4f46e5;
+        color: white;
+        padding: 8px 16px;
+        text-decoration: none;
+        font-family: Inter, system-ui, sans-serif;
+        font-weight: 500;
+        font-size: 14px;
+        border-radius: 0 0 8px 0;
+        z-index: 10000;
+        transition: top 0.2s;
+      }
+      .skip-link:focus { top: 0; }
+    </style>
+  <base target="_blank">
+  </head>
+  <body class="mat-typography">
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    <app-root></app-root>
+
+    <noscript>
+      <style>body { opacity: 1; }</style>
+      <div style="padding: 2rem; text-align: center; font-family: Inter, system-ui, sans-serif;">
+        <h1>JavaScript Required</h1>
+        <p>Phone Accessories requires JavaScript to provide the best shopping experience. Please enable JavaScript in your browser settings.</p>
+      </div>
+    </noscript>
+  </body>
 </html>

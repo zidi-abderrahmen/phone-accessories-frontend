@@ -1,1 +1,630 @@
-/* You can add global styles to this file, and also import other style files */
+// ============================================
+// PHONE ACCESSORIES - GLOBAL STYLES
+// Angular 20 | SCSS | 2026 Design System
+// ============================================
+
+// --------------------------------------------
+// 1. DESIGN TOKENS (CSS Custom Properties)
+// --------------------------------------------
+
+@use 'sass:map';
+
+:root {
+  // Typography
+  --pa-font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --pa-font-mono: 'SF Mono', 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+
+  // Radii
+  --pa-radius-sm: 6px;
+  --pa-radius-md: 10px;
+  --pa-radius-lg: 16px;
+  --pa-radius-xl: 24px;
+  --pa-radius-full: 9999px;
+
+  // Spacing (4px base)
+  --pa-space-1: 0.25rem;   // 4px
+  --pa-space-2: 0.5rem;    // 8px
+  --pa-space-3: 0.75rem;   // 12px
+  --pa-space-4: 1rem;      // 16px
+  --pa-space-5: 1.25rem;   // 20px
+  --pa-space-6: 1.5rem;    // 24px
+  --pa-space-8: 2rem;      // 32px
+  --pa-space-10: 2.5rem;   // 40px
+  --pa-space-12: 3rem;     // 48px
+  --pa-space-16: 4rem;     // 64px
+  --pa-space-20: 5rem;     // 80px
+  --pa-space-24: 6rem;     // 96px
+
+  // Easing curves
+  --pa-ease-default: cubic-bezier(0.4, 0, 0.2, 1);
+  --pa-ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --pa-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  // Transitions
+  --pa-transition-fast: 150ms var(--pa-ease-default);
+  --pa-transition-base: 200ms var(--pa-ease-default);
+  --pa-transition-slow: 300ms var(--pa-ease-default);
+
+  // Z-index scale
+  --pa-z-dropdown: 1000;
+  --pa-z-sticky: 1020;
+  --pa-z-fixed: 1030;
+  --pa-z-modal-backdrop: 1040;
+  --pa-z-modal: 1050;
+  --pa-z-popover: 1060;
+  --pa-z-tooltip: 1070;
+  --pa-z-toast: 1080;
+
+  // === LIGHT MODE (Default) ===
+  --pa-bg: #fafafa;
+  --pa-bg-sunken: #f5f5f5;
+  --pa-surface: #ffffff;
+  --pa-surface-elevated: #ffffff;
+  --pa-surface-hover: #fafafa;
+
+  --pa-text-primary: #171717;
+  --pa-text-secondary: #525252;
+  --pa-text-tertiary: #737373;
+  --pa-text-muted: #a3a3a3;
+  --pa-text-inverse: #ffffff;
+
+  --pa-border: #e5e5e5;
+  --pa-border-subtle: #f0f0f0;
+  --pa-border-strong: #d4d4d4;
+
+  --pa-primary: #4f46e5;
+  --pa-primary-hover: #4338ca;
+  --pa-primary-active: #3730a3;
+  --pa-primary-muted: #eef2ff;
+  --pa-primary-subtle: #e0e7ff;
+
+  --pa-success: #16a34a;
+  --pa-success-muted: #f0fdf4;
+  --pa-success-subtle: #dcfce7;
+  --pa-warning: #d97706;
+  --pa-warning-muted: #fffbeb;
+  --pa-warning-subtle: #fef3c7;
+  --pa-danger: #dc2626;
+  --pa-danger-muted: #fef2f2;
+  --pa-danger-subtle: #fee2e2;
+
+  // Shadows (subtle, colored for depth perception)
+  --pa-shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.03);
+  --pa-shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.06), 0 1px 2px -1px rgb(0 0 0 / 0.06);
+  --pa-shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+  --pa-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.05), 0 4px 6px -4px rgb(0 0 0 / 0.05);
+  --pa-shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.05), 0 8px 10px -6px rgb(0 0 0 / 0.05);
+  --pa-shadow-glow: 0 0 20px -5px rgb(79 70 229 / 0.25);
+
+  // Focus ring
+  --pa-focus-ring: 0 0 0 3px rgb(79 70 229 / 0.2);
+  --pa-focus-ring-offset: 2px;
+}
+
+// === DARK MODE ===
+.dark-theme,
+[data-theme="dark"] {
+  --pa-bg: #0a0a0a;
+  --pa-bg-sunken: #050505;
+  --pa-surface: #141414;
+  --pa-surface-elevated: #1a1a1a;
+  --pa-surface-hover: #1f1f1f;
+
+  --pa-text-primary: #fafafa;
+  --pa-text-secondary: #a3a3a3;
+  --pa-text-tertiary: #737373;
+  --pa-text-muted: #525252;
+  --pa-text-inverse: #0a0a0a;
+
+  --pa-border: #262626;
+  --pa-border-subtle: #1a1a1a;
+  --pa-border-strong: #404040;
+
+  --pa-primary: #818cf8;
+  --pa-primary-hover: #a5b4fc;
+  --pa-primary-active: #c7d2fe;
+  --pa-primary-muted: #1e1b4b;
+  --pa-primary-subtle: #312e81;
+
+  --pa-success: #22c55e;
+  --pa-success-muted: #052e16;
+  --pa-success-subtle: #14532d;
+  --pa-warning: #f59e0b;
+  --pa-warning-muted: #451a03;
+  --pa-warning-subtle: #78350f;
+  --pa-danger: #ef4444;
+  --pa-danger-muted: #450a0a;
+  --pa-danger-subtle: #7f1d1d;
+
+  --pa-shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.2);
+  --pa-shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3);
+  --pa-shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+  --pa-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.3);
+  --pa-shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.3), 0 8px 10px -6px rgb(0 0 0 / 0.3);
+  --pa-shadow-glow: 0 0 30px -5px rgb(129 140 248 / 0.2);
+
+  --pa-focus-ring: 0 0 0 3px rgb(129 140 248 / 0.25);
+}
+
+// --------------------------------------------
+// 2. SCSS CONFIGURATION
+// --------------------------------------------
+
+$breakpoints: (
+  sm: 640px,
+  md: 768px,
+  lg: 1024px,
+  xl: 1280px,
+  2xl: 1536px
+);
+
+@mixin respond-to($breakpoint) {
+  @if map.has-key($breakpoints, $breakpoint) {
+    @media (min-width: map.get($breakpoints, $breakpoint)) {
+      @content;
+    }
+  }
+}
+
+// --------------------------------------------
+// 3. RESET & BASE
+// --------------------------------------------
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-family: var(--pa-font-sans);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+  background-color: var(--pa-bg);
+  color: var(--pa-text-primary);
+  accent-color: var(--pa-primary);
+}
+
+body {
+  min-height: 100vh;
+  min-height: 100dvh;
+  background-color: var(--pa-bg);
+  color: var(--pa-text-primary);
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+}
+
+// Selection
+::selection {
+  background-color: var(--pa-primary-muted);
+  color: var(--pa-primary);
+}
+
+// Scrollbar (WebKit)
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--pa-text-muted);
+  border-radius: var(--pa-radius-full);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--pa-text-tertiary);
+}
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+// Firefox scrollbar
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--pa-text-muted) transparent;
+}
+
+// --------------------------------------------
+// 4. TYPOGRAPHY
+// --------------------------------------------
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+  color: var(--pa-text-primary);
+}
+
+h1 { font-size: clamp(2rem, 5vw, 3.5rem); letter-spacing: -0.03em; }
+h2 { font-size: clamp(1.75rem, 4vw, 2.5rem); }
+h3 { font-size: clamp(1.5rem, 3vw, 2rem); }
+h4 { font-size: clamp(1.25rem, 2vw, 1.5rem); letter-spacing: -0.02em; }
+h5 { font-size: 1.125rem; letter-spacing: -0.01em; }
+h6 { font-size: 1rem; letter-spacing: -0.01em; }
+
+p {
+  color: var(--pa-text-secondary);
+  line-height: 1.7;
+}
+
+a {
+  color: var(--pa-primary);
+  text-decoration: none;
+  transition: color var(--pa-transition-fast);
+
+  &:hover {
+    color: var(--pa-primary-hover);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--pa-focus-ring);
+    border-radius: var(--pa-radius-sm);
+  }
+}
+
+// --------------------------------------------
+// 5. FORM ELEMENTS
+// --------------------------------------------
+
+input, textarea, select {
+  font-family: inherit;
+  font-size: 1rem;
+  color: var(--pa-text-primary);
+  background-color: var(--pa-surface);
+  border: 1px solid var(--pa-border);
+  border-radius: var(--pa-radius-md);
+  padding: 0.625rem 0.875rem;
+  transition: border-color var(--pa-transition-fast), box-shadow var(--pa-transition-fast);
+  width: 100%;
+
+  &::placeholder {
+    color: var(--pa-text-muted);
+  }
+
+  &:hover {
+    border-color: var(--pa-border-strong);
+  }
+
+  &:focus {
+    outline: none;
+    border-color: var(--pa-primary);
+    box-shadow: var(--pa-focus-ring);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background-color: var(--pa-bg-sunken);
+  }
+}
+
+// --------------------------------------------
+// 6. BUTTON PRIMITIVES
+// --------------------------------------------
+
+.pa-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--pa-space-2);
+  font-family: inherit;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  line-height: 1.5;
+  padding: 0.625rem 1.25rem;
+  border-radius: var(--pa-radius-md);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all var(--pa-transition-fast);
+  white-space: nowrap;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--pa-focus-ring);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  // Variants
+  &--primary {
+    background-color: var(--pa-primary);
+    color: white;
+    border-color: var(--pa-primary);
+
+    &:hover:not(:disabled) {
+      background-color: var(--pa-primary-hover);
+      border-color: var(--pa-primary-hover);
+      transform: translateY(-1px);
+      box-shadow: var(--pa-shadow-md);
+    }
+
+    &:active:not(:disabled) {
+      transform: translateY(0);
+      background-color: var(--pa-primary-active);
+    }
+  }
+
+  &--secondary {
+    background-color: var(--pa-surface);
+    color: var(--pa-text-primary);
+    border-color: var(--pa-border);
+
+    &:hover:not(:disabled) {
+      background-color: var(--pa-surface-hover);
+      border-color: var(--pa-border-strong);
+    }
+  }
+
+  &--ghost {
+    background-color: transparent;
+    color: var(--pa-text-secondary);
+    border-color: transparent;
+
+    &:hover:not(:disabled) {
+      background-color: var(--pa-bg-sunken);
+      color: var(--pa-text-primary);
+    }
+  }
+
+  &--danger {
+    background-color: var(--pa-danger);
+    color: white;
+    border-color: var(--pa-danger);
+
+    &:hover:not(:disabled) {
+      filter: brightness(1.1);
+    }
+  }
+
+  // Sizes
+  &--sm {
+    font-size: 0.875rem;
+    padding: 0.375rem 0.75rem;
+    border-radius: var(--pa-radius-sm);
+  }
+
+  &--lg {
+    font-size: 1rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--pa-radius-lg);
+  }
+}
+
+// --------------------------------------------
+// 7. CARD PRIMITIVE
+// --------------------------------------------
+
+.pa-card {
+  background-color: var(--pa-surface);
+  border: 1px solid var(--pa-border);
+  border-radius: var(--pa-radius-lg);
+  padding: var(--pa-space-6);
+  transition: border-color var(--pa-transition-fast), box-shadow var(--pa-transition-fast);
+
+  &:hover {
+    border-color: var(--pa-border-strong);
+  }
+
+  &--elevated {
+    border-color: transparent;
+    box-shadow: var(--pa-shadow-sm);
+
+    &:hover {
+      box-shadow: var(--pa-shadow-md);
+    }
+  }
+
+  &--interactive {
+    cursor: pointer;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--pa-shadow-lg);
+    }
+  }
+}
+
+// --------------------------------------------
+// 8. UTILITY CLASSES
+// --------------------------------------------
+
+.pa-container {
+  width: 100%;
+  max-width: 1280px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--pa-space-4);
+  padding-right: var(--pa-space-4);
+
+  @include respond-to(md) {
+    padding-left: var(--pa-space-6);
+    padding-right: var(--pa-space-6);
+  }
+
+  @include respond-to(lg) {
+    padding-left: var(--pa-space-8);
+    padding-right: var(--pa-space-8);
+  }
+}
+
+.pa-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+// Text utilities
+.pa-text-primary { color: var(--pa-text-primary); }
+.pa-text-secondary { color: var(--pa-text-secondary); }
+.pa-text-tertiary { color: var(--pa-text-tertiary); }
+.pa-text-muted { color: var(--pa-text-muted); }
+.pa-text-success { color: var(--pa-success); }
+.pa-text-warning { color: var(--pa-warning); }
+.pa-text-danger { color: var(--pa-danger); }
+
+// Background utilities
+.pa-bg-surface { background-color: var(--pa-surface); }
+.pa-bg-sunken { background-color: var(--pa-bg-sunken); }
+
+// --------------------------------------------
+// 9. ANIMATIONS
+// --------------------------------------------
+
+@keyframes pa-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes pa-fade-up {
+  from { 
+    opacity: 0; 
+    transform: translateY(12px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
+}
+
+@keyframes pa-scale-in {
+  from { 
+    opacity: 0; 
+    transform: scale(0.96); 
+  }
+  to { 
+    opacity: 1; 
+    transform: scale(1); 
+  }
+}
+
+@keyframes pa-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.pa-animate-fade-in {
+  animation: pa-fade-in 0.3s var(--pa-ease-out) forwards;
+}
+
+.pa-animate-fade-up {
+  animation: pa-fade-up 0.4s var(--pa-ease-out) forwards;
+}
+
+.pa-animate-scale-in {
+  animation: pa-scale-in 0.3s var(--pa-ease-out) forwards;
+}
+
+// Stagger children
+.pa-stagger-children > * {
+  opacity: 0;
+  animation: pa-fade-up 0.4s var(--pa-ease-out) forwards;
+
+  @for $i from 1 through 12 {
+    &:nth-child(#{$i}) {
+      animation-delay: #{$i * 50}ms;
+    }
+  }
+}
+
+// Skeleton loading
+.pa-skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--pa-bg-sunken) 25%,
+    var(--pa-border) 50%,
+    var(--pa-bg-sunken) 75%
+  );
+  background-size: 200% 100%;
+  animation: pa-shimmer 1.5s infinite;
+  border-radius: var(--pa-radius-md);
+}
+
+// --------------------------------------------
+// 10. ACCESSIBILITY
+// --------------------------------------------
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+// Focus visible polyfill support
+.js-focus-visible :focus:not(.focus-visible) {
+  outline: none;
+  box-shadow: none;
+}
+
+// High contrast mode support
+@media (prefers-contrast: high) {
+  :root {
+    --pa-border: currentColor;
+    --pa-border-strong: currentColor;
+  }
+
+  .pa-btn--primary {
+    border: 2px solid currentColor;
+  }
+}
+
+// --------------------------------------------
+// 11. PRINT STYLES
+// --------------------------------------------
+
+@media print {
+  html {
+    background: white !important;
+    color: black !important;
+  }
+
+  body {
+    background: white !important;
+    color: black !important;
+  }
+
+  .pa-card {
+    border: 1px solid #ccc;
+    box-shadow: none !important;
+  }
+
+  a {
+    text-decoration: underline;
+    color: #000 !important;
+  }
+
+  .pa-btn {
+    border: 1px solid #000;
+    background: none !important;
+    color: #000 !important;
+  }
+}
