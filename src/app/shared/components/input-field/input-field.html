@@ -1,0 +1,26 @@
+<div class="form-field">
+  <label [for]="inputId" class="field-label">{{ label }}</label>
+  
+  <input
+    [id]="inputId"
+    [type]="type"
+    [formControl]="control"
+    [placeholder]="placeholder"
+    [autocomplete]="autocomplete"
+    [attr.aria-invalid]="control.invalid && control.touched"
+    [attr.aria-describedby]="control.invalid && control.touched ? inputId + '-error' : null"
+    class="field-input"
+  />
+  
+  @if (control.invalid && control.touched) {
+    <div
+      [id]="inputId + '-error'"
+      class="field-error"
+      role="alert"
+    >
+      @for (errorMsg of activeErrors; track errorMsg) {
+        <span>{{ errorMsg }}</span>
+      }
+    </div>
+  }
+</div>
