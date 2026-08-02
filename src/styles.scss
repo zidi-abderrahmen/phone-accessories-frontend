@@ -190,6 +190,7 @@ html {
   background-color: var(--pa-bg);
   color: var(--pa-text-primary);
   accent-color: var(--pa-primary);
+  transition: background-color var(--pa-transition-base), color var(--pa-transition-base);
 }
 
 body {
@@ -198,6 +199,7 @@ body {
   background-color: var(--pa-bg);
   color: var(--pa-text-primary);
   font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  transition: background-color var(--pa-transition-base), color var(--pa-transition-base);
 }
 
 // Selection
@@ -284,7 +286,10 @@ input, textarea, select {
   border: 1px solid var(--pa-border);
   border-radius: var(--pa-radius-md);
   padding: 0.625rem 0.875rem;
-  transition: border-color var(--pa-transition-fast), box-shadow var(--pa-transition-fast);
+  transition: border-color var(--pa-transition-fast), 
+              box-shadow var(--pa-transition-fast),
+              background-color var(--pa-transition-base),
+              color var(--pa-transition-base);
   width: 100%;
 
   &::placeholder {
@@ -414,7 +419,9 @@ input, textarea, select {
   border: 1px solid var(--pa-border);
   border-radius: var(--pa-radius-lg);
   padding: var(--pa-space-6);
-  transition: border-color var(--pa-transition-fast), box-shadow var(--pa-transition-fast);
+  transition: border-color var(--pa-transition-fast), 
+              box-shadow var(--pa-transition-fast),
+              background-color var(--pa-transition-base);
 
   &:hover {
     border-color: var(--pa-border-strong);
