@@ -21,6 +21,7 @@ export class AuthService {
     private apiUrl = `${environment.apiUrl}/auth`;
 
     private authState = new BehaviorSubject<boolean | null>(null);
+    
     authState$ = this.authState.asObservable().pipe(
         filter((val): val is boolean => val !== null)
     );
@@ -35,7 +36,10 @@ export class AuthService {
     login(credentials: LoginRequest): Observable<LoginResponse> {
         return this.http.post<LoginResponse>(`${this.apiUrl}/login`, credentials, { withCredentials: true })
         .pipe(
-            tap(() => this.authState.next(true)),
+            tap(() => {
+                this.authState.next(true);
+                localStorage.setItem('isAuthenticated', 'true');
+            }),
             catchError(this.handleError)
         );
     }
@@ -46,8 +50,7 @@ export class AuthService {
     }
 
     verifyEmail(data: VerifyEmailRequest): Observable<EmailResponse> {
-        const params = new HttpParams().set('token', data.token);
-        return this.http.get<EmailResponse>(`${this.apiUrl}/verify`, { params })
+        return this.http.post<EmailResponse>(`${this.apiUrl}/verify-email`, data, { withCredentials: true })
         .pipe(catchError(this.handleError));
     }
 
@@ -69,7 +72,10 @@ export class AuthService {
     logout(): Observable<void> {
         return this.http.post<void>(`${this.apiUrl}/logout`, {}, { withCredentials: true })
         .pipe(
-            tap(() => this.authState.next(false)),
+            tap(() => {
+                this.authState.next(false);
+                localStorage.removeItem('isAuthenticated');
+            }),
             catchError((err) => {
             this.authState.next(false);
             return this.handleError(err);
