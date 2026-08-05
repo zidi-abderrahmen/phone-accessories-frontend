@@ -1,0 +1,35 @@
+.brand {
+  text-align: center;
+  margin-bottom: var(--pa-space-8);
+}
+
+.brand-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: var(--pa-radius-lg);
+  background: linear-gradient(135deg, var(--pa-primary-muted), var(--pa-primary-subtle));
+  color: var(--pa-primary);
+  margin-bottom: var(--pa-space-4);
+
+  svg {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+.brand-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--pa-text-primary);
+  margin-bottom: var(--pa-space-1);
+}
+
+.brand-tagline {
+  font-size: 0.875rem;
+  color: var(--pa-text-muted);
+  margin: 0;
+}

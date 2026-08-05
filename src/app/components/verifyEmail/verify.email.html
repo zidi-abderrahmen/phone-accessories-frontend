@@ -1,0 +1,108 @@
+<div class="verify-page">
+  <!-- Theme Toggle -->
+  <app-theme-toggle></app-theme-toggle>
+
+  <main class="verify-main" id="main-content">
+    <div class="verify-card">
+      <!-- Brand -->
+      <app-brand></app-brand>
+
+      <!-- Loading State -->
+      @if (state() === 'loading') {
+        <div class="state-section loading-state" role="status" aria-live="polite">
+          <div class="state-icon loading-icon" aria-hidden="true">
+            <span class="spinner-large"></span>
+          </div>
+          <h2 class="state-title">Verifying your email</h2>
+          <p class="state-message">Please wait while we verify your email address...</p>
+        </div>
+      }
+
+      <!-- Success State -->
+      @if (state() === 'success') {
+        <div class="state-section success-state" role="status" aria-live="polite">
+          <div class="state-icon success-icon" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+              <polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+          </div>
+          <h2 class="state-title">Email verified</h2>
+          <p class="state-message">
+            Your email address has been verified successfully. You can now sign in to your account.
+          </p>
+          <div class="state-actions">
+            <a routerLink="/login" class="pa-btn pa-btn--primary state-btn">
+              Sign in
+            </a>
+          </div>
+          <p class="state-note">You will be redirected automatically in a few seconds.</p>
+        </div>
+      }
+
+      <!-- Invalid Token State -->
+      @if (state() === 'invalid') {
+        <div class="state-section error-state" role="alert">
+          <div class="state-icon error-icon" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="15" y1="9" x2="9" y2="15"/>
+              <line x1="9" y1="9" x2="15" y2="15"/>
+            </svg>
+          </div>
+          <h2 class="state-title">Invalid link</h2>
+          <p class="state-message">
+            The verification link is invalid, incomplete, or has already been used.
+          </p>
+          <div class="state-actions">
+            <a routerLink="/login" class="pa-btn pa-btn--primary state-btn">
+              Back to sign in
+            </a>
+          </div>
+        </div>
+      }
+
+      <!-- Expired Token State -->
+       @if (state() === 'expired') {
+        <div class="state-section error-state" role="alert">
+          <div class="state-icon warning-icon" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="8" x2="12" y2="12"/>
+              <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+          </div>
+          <h2 class="state-title">Link expired</h2>
+          <p class="state-message">
+            This verification link has expired. For security reasons, verification links are only valid for a limited time. Please request a new one.
+          </p>
+          <div class="state-actions state-actions--stacked">
+            <a routerLink="/login" class="pa-btn pa-btn--ghost state-btn-secondary">
+              Back to sign in
+            </a>
+          </div>
+        </div>
+       }
+
+      <!-- Server Error State -->
+       @if (state() === 'error') {
+        <div class="state-section error-state" role="alert">
+          <div class="state-icon error-icon" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="8" x2="12" y2="12"/>
+              <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+          </div>
+          <h2 class="state-title">Verification failed</h2>
+          <p class="state-message">{{ errorMessage() }}</p>
+          <div class="state-actions state-actions--stacked">
+            <a routerLink="/login" class="pa-btn pa-btn--ghost state-btn-secondary">
+              Back to sign in
+            </a>
+          </div>
+        </div>
+       }
+    </div>
+  </main>
+</div>

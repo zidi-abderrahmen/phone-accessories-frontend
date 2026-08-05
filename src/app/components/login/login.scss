@@ -1,0 +1,295 @@
+// ============================================
+// LOGIN COMPONENT
+// Phone Accessories
+// ============================================
+
+.login-page {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--pa-space-6) var(--pa-space-4);
+  background-color: var(--pa-bg);
+  position: relative;
+  animation: pa-fade-in 0.4s var(--pa-ease-out);
+}
+
+// --------------------------------------------
+// Main Layout
+// --------------------------------------------
+
+.login-main {
+  width: 100%;
+  max-width: 420px;
+  animation: pa-fade-up 0.5s var(--pa-ease-out) 0.05s both;
+}
+
+.login-card {
+  background-color: var(--pa-surface);
+  border: 1px solid var(--pa-border);
+  border-radius: var(--pa-radius-xl);
+  padding: var(--pa-space-8) var(--pa-space-6);
+
+  @media (min-width: 640px) {
+    padding: var(--pa-space-10) var(--pa-space-8);
+    box-shadow: var(--pa-shadow-sm);
+  }
+}
+
+// --------------------------------------------
+// Header
+// --------------------------------------------
+
+.login-header {
+  margin-bottom: var(--pa-space-6);
+
+  h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    letter-spacing: -0.025em;
+    color: var(--pa-text-primary);
+    margin-bottom: var(--pa-space-1);
+  }
+
+  p {
+    font-size: 0.9375rem;
+    color: var(--pa-text-secondary);
+    margin: 0;
+  }
+}
+
+// --------------------------------------------
+// Error Alert
+// --------------------------------------------
+
+.login-error {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--pa-space-2);
+  padding: var(--pa-space-3) var(--pa-space-4);
+  margin-bottom: var(--pa-space-5);
+  border-radius: var(--pa-radius-md);
+  background-color: var(--pa-danger-muted);
+  border: 1px solid var(--pa-danger-subtle);
+  color: var(--pa-danger);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  animation: pa-fade-up 0.25s var(--pa-ease-out);
+
+  svg {
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+}
+
+// --------------------------------------------
+// Form
+// --------------------------------------------
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pa-space-5);
+}
+
+// --------------------------------------------
+// Remember Me Checkbox
+// --------------------------------------------
+
+.form-remember {
+  margin-top: calc(var(--pa-space-1) * -1);
+}
+
+.checkbox-wrapper {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--pa-space-2);
+  cursor: pointer;
+  user-select: none;
+
+  &:hover .checkbox-checkmark {
+    border-color: var(--pa-border-strong);
+  }
+}
+
+.checkbox-input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+
+  &:focus-visible + .checkbox-checkmark {
+    box-shadow: var(--pa-focus-ring);
+  }
+
+  &:checked + .checkbox-checkmark {
+    background-color: var(--pa-primary);
+    border-color: var(--pa-primary);
+    color: white;
+  }
+}
+
+.checkbox-checkmark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: var(--pa-radius-sm);
+  border: 1.5px solid var(--pa-border);
+  background-color: var(--pa-surface);
+  color: transparent;
+  transition: all var(--pa-transition-fast);
+  flex-shrink: 0;
+
+  svg {
+    width: 12px;
+    height: 12px;
+  }
+}
+
+.checkbox-label {
+  font-size: 0.875rem;
+  color: var(--pa-text-secondary);
+}
+
+// --------------------------------------------
+// Submit Button
+// --------------------------------------------
+
+.login-submit {
+  width: 100%;
+  height: 44px;
+  margin-top: var(--pa-space-1);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  gap: var(--pa-space-2);
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none !important;
+  }
+}
+
+.spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: pa-spin 0.7s linear infinite;
+}
+
+@keyframes pa-spin {
+  to { transform: rotate(360deg); }
+}
+
+// --------------------------------------------
+// Footer
+// --------------------------------------------
+
+.login-footer {
+  margin-top: var(--pa-space-6);
+  padding-top: var(--pa-space-6);
+  border-top: 1px solid var(--pa-border);
+  text-align: center;
+
+  p {
+    font-size: 0.875rem;
+    color: var(--pa-text-secondary);
+    margin: 0;
+  }
+}
+
+.footer-link {
+  font-weight: 500;
+  color: var(--pa-primary);
+  text-decoration: none;
+  transition: color var(--pa-transition-fast);
+
+  &:hover {
+    color: var(--pa-primary-hover);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+}
+
+// --------------------------------------------
+// Responsive Adjustments
+// --------------------------------------------
+
+@media (max-width: 639px) {
+  .login-page {
+    padding: var(--pa-space-4);
+    align-items: flex-start;
+    padding-top: calc(var(--pa-space-16) + var(--pa-space-4));
+  }
+
+  .login-card {
+    border: none;
+    background: transparent;
+    padding: 0;
+    box-shadow: none;
+    border-radius: 0;
+  }
+
+  .brand-mark {
+    width: 48px;
+    height: 48px;
+
+    svg {
+      width: 28px;
+      height: 28px;
+    }
+  }
+
+  .brand-title {
+    font-size: 1.125rem;
+  }
+
+  .login-header h2 {
+    font-size: 1.375rem;
+  }
+}
+
+@media (min-width: 640px) and (max-width: 1023px) {
+  .login-main {
+    max-width: 400px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .login-page {
+    padding: var(--pa-space-8);
+  }
+
+  .login-main {
+    max-width: 440px;
+  }
+
+  .login-card {
+    padding: var(--pa-space-12) var(--pa-space-10);
+  }
+}
+
+// --------------------------------------------
+// Reduced Motion
+// --------------------------------------------
+
+@media (prefers-reduced-motion: reduce) {
+  .login-page,
+  .login-main,
+  .login-error{
+    animation: none;
+  }
+
+  .spinner {
+    animation: none;
+    border-top-color: transparent;
+    opacity: 0.5;
+  }
+}

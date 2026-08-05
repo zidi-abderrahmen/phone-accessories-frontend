@@ -1,0 +1,240 @@
+// ============================================
+// VERIFY EMAIL COMPONENT
+// Phone Accessories
+// ============================================
+
+.verify-page {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--pa-space-6) var(--pa-space-4);
+  background-color: var(--pa-bg);
+  position: relative;
+  animation: pa-fade-in 0.4s var(--pa-ease-out);
+}
+
+// --------------------------------------------
+// Main Layout
+// --------------------------------------------
+
+.verify-main {
+  width: 100%;
+  max-width: 420px;
+  animation: pa-fade-up 0.5s var(--pa-ease-out) 0.05s both;
+}
+
+.verify-card {
+  background-color: var(--pa-surface);
+  border: 1px solid var(--pa-border);
+  border-radius: var(--pa-radius-xl);
+  padding: var(--pa-space-8) var(--pa-space-6);
+
+  @media (min-width: 640px) {
+    padding: var(--pa-space-10) var(--pa-space-8);
+    box-shadow: var(--pa-shadow-sm);
+  }
+}
+
+// --------------------------------------------
+// State Section (shared across all states)
+// --------------------------------------------
+
+.state-section {
+  text-align: center;
+  animation: pa-fade-up 0.4s var(--pa-ease-out);
+  padding: var(--pa-space-2) 0;
+}
+
+.state-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: var(--pa-radius-full);
+  margin-bottom: var(--pa-space-5);
+
+  svg {
+    width: 28px;
+    height: 28px;
+  }
+}
+
+.state-title {
+  font-size: 1.375rem;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  color: var(--pa-text-primary);
+  margin-bottom: var(--pa-space-2);
+}
+
+.state-message {
+  font-size: 0.9375rem;
+  color: var(--pa-text-secondary);
+  line-height: 1.7;
+  margin: 0 auto var(--pa-space-6);
+  max-width: 320px;
+}
+
+.state-actions {
+  display: flex;
+  justify-content: center;
+
+  &--stacked {
+    flex-direction: column;
+    align-items: center;
+    gap: var(--pa-space-3);
+  }
+}
+
+.state-btn-secondary {
+  min-width: 180px;
+  height: 44px;
+}
+
+.state-note {
+  font-size: 0.8125rem;
+  color: var(--pa-text-muted);
+  margin-top: var(--pa-space-4);
+  margin-bottom: 0;
+}
+
+// --------------------------------------------
+// Loading State
+// --------------------------------------------
+
+.loading-state {
+  .loading-icon {
+    background-color: transparent;
+    margin-bottom: var(--pa-space-5);
+  }
+}
+
+.spinner-large {
+  display: inline-block;
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--pa-border);
+  border-top-color: var(--pa-primary);
+  border-radius: 50%;
+  animation: pa-spin 0.8s linear infinite;
+}
+
+@keyframes pa-spin {
+  to { transform: rotate(360deg); }
+}
+
+// --------------------------------------------
+// Success State
+// --------------------------------------------
+
+.success-state {
+  .success-icon {
+    background-color: var(--pa-success-muted);
+    color: var(--pa-success);
+  }
+}
+
+// --------------------------------------------
+// Error / Warning States
+// --------------------------------------------
+
+.error-state {
+  .error-icon {
+    background-color: var(--pa-danger-muted);
+    color: var(--pa-danger);
+  }
+
+  .warning-icon {
+    background-color: var(--pa-warning-muted);
+    color: var(--pa-warning);
+  }
+}
+
+// --------------------------------------------
+// Responsive Adjustments
+// --------------------------------------------
+
+@media (max-width: 639px) {
+  .verify-page {
+    padding: var(--pa-space-4);
+    align-items: flex-start;
+    padding-top: calc(var(--pa-space-16) + var(--pa-space-4));
+  }
+
+  .verify-card {
+    border: none;
+    background: transparent;
+    padding: 0;
+    box-shadow: none;
+    border-radius: 0;
+  }
+
+  .brand-mark {
+    width: 48px;
+    height: 48px;
+
+    svg {
+      width: 28px;
+      height: 28px;
+    }
+  }
+
+  .brand-title {
+    font-size: 1.125rem;
+  }
+
+  .state-title {
+    font-size: 1.25rem;
+  }
+
+  .state-actions--stacked {
+    width: 100%;
+  }
+
+  .state-btn,
+  .state-btn-secondary {
+    width: 100%;
+    min-width: unset;
+  }
+}
+
+@media (min-width: 640px) and (max-width: 1023px) {
+  .verify-main {
+    max-width: 400px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .verify-page {
+    padding: var(--pa-space-8);
+  }
+
+  .verify-main {
+    max-width: 440px;
+  }
+
+  .verify-card {
+    padding: var(--pa-space-12) var(--pa-space-10);
+  }
+}
+
+// --------------------------------------------
+// Reduced Motion
+// --------------------------------------------
+
+@media (prefers-reduced-motion: reduce) {
+  .verify-page,
+  .verify-main,
+  .state-section {
+    animation: none;
+  }
+
+  .spinner-large {
+    animation: none;
+    border-top-color: transparent;
+    opacity: 0.5;
+  }
+}

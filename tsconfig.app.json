@@ -10,5 +10,8 @@
 ,       "src/environments/environment.development.ts."  ],
   "exclude": [
     "src/**/*.spec.ts"
-  ]
+  ],
+  "angularCompilerOptions": {
+    "strictTemplates": true
+  }
 }
