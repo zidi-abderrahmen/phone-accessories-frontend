@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../core/services/auth/auth.service';
@@ -15,7 +15,7 @@ import { Brand } from "../../shared/components/brand/brand";
   templateUrl: './reset.password.html',
   styleUrl: './reset.password.scss',
 })
-export class ResetPassword {
+export class ResetPassword implements OnInit, OnDestroy {
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
   private readonly route = inject(ActivatedRoute);
@@ -77,7 +77,7 @@ export class ResetPassword {
       const hasUpper = /[A-Z]/.test(value);
       const hasLower = /[a-z]/.test(value);
       const hasNumber = /[0-9]/.test(value);
-      const hasSpecial = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(value);
+      const hasSpecial = /[!@#$%^&*()_+\-=\[\]{};':"\|,.<>\/?]/.test(value);
 
       const valid = hasUpper && hasLower && hasNumber && hasSpecial;
       return valid ? null : { passwordStrength: true };
@@ -91,19 +91,19 @@ export class ResetPassword {
       const confirm = confirmControl?.value;
 
       if (password && confirm && password !== confirm) {
-        confirmControl?.setErrors({ 
-          ...(confirmControl.errors || {}), 
-          passwordsMismatch: true 
+        confirmControl?.setErrors({
+          ...(confirmControl.errors || {}),
+          passwordsMismatch: true
         });
         return { passwordsMismatch: true };
-      } 
-      
+      }
+
       if (confirmControl?.hasError('passwordsMismatch')) {
         const errors = { ...confirmControl.errors };
         delete errors['passwordsMismatch'];
         confirmControl.setErrors(Object.keys(errors).length > 0 ? errors : null);
       }
-      
+
       return null;
     };
   }
@@ -123,7 +123,7 @@ export class ResetPassword {
     if (/[a-z]/.test(value)) score++;
     if (/[A-Z]/.test(value)) score++;
     if (/[0-9]/.test(value)) score++;
-    if (/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(value)) score++;
+    if (/[!@#$%^&*()_+\-=\[\]{};':"\|,.<>\/?]/.test(value)) score++;
 
     const labels = ['Too short', 'Weak', 'Fair', 'Good', 'Strong'];
     return { score, label: labels[Math.min(score, 4)] };

@@ -17,7 +17,7 @@ import { InputField } from "../../shared/components/input-field/input-field";
   styleUrl: './login.scss',
 })
 export class Login implements OnInit, OnDestroy {
-private readonly fb = inject(FormBuilder);
+  private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   private readonly destroy$ = new Subject<void>();
@@ -47,7 +47,7 @@ private readonly fb = inject(FormBuilder);
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => {
         if (this.errorMessage()) {
-          this.errorMessage = signal(null);
+          this.errorMessage.set(null);
         }
       });
   }
@@ -59,7 +59,7 @@ private readonly fb = inject(FormBuilder);
     }
 
     this.isLoading.set(true);
-    this.errorMessage = signal(null);
+    this.errorMessage.set(null);
 
     const credentials: LoginRequest = {
       email: this.loginForm.value.email.trim().toLowerCase(),
@@ -84,15 +84,15 @@ private readonly fb = inject(FormBuilder);
 
   private handleLoginError(err: any): void {
     if (err.status === 401) {
-      this.errorMessage = signal('Invalid email or password. Please try again.');
+      this.errorMessage.set('Invalid email or password. Please try again.');
     } else if (err.status === 403) {
-      this.errorMessage = signal('Your account is not verified. Check your email.');
+      this.errorMessage.set('Your account is not verified. Check your email.');
     } else if (err.status === 0) {
-      this.errorMessage = signal('Unable to connect to the server. Please check your connection.');
+      this.errorMessage.set('Unable to connect to the server. Please check your connection.');
     } else if (err.error?.message) {
-      this.errorMessage = signal(err.error.message);
+      this.errorMessage.set(err.error.message);
     } else {
-      this.errorMessage = signal('Something went wrong. Please try again later.');
+      this.errorMessage.set('Something went wrong. Please try again later.');
     }
   }
 

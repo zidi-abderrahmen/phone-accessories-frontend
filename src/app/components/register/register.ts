@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { AuthService } from '../../core/services/auth/auth.service';
 import { RouterModule } from '@angular/router';
@@ -16,7 +16,7 @@ import { InputField } from "../../shared/components/input-field/input-field";
   templateUrl: './register.html',
   styleUrl: './register.scss',
 })
-export class Register {
+export class Register implements OnInit, OnDestroy {
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
   private readonly destroy$ = new Subject<void>();
@@ -66,7 +66,7 @@ export class Register {
       const hasUpper = /[A-Z]/.test(value);
       const hasLower = /[a-z]/.test(value);
       const hasNumber = /[0-9]/.test(value);
-      const hasSpecial = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(value);
+      const hasSpecial = /[!@#$%^&*()_+\-=\[\]{};':"\|,.<>\/?]/.test(value);
 
       const valid = hasUpper && hasLower && hasNumber && hasSpecial;
       return valid ? null : { passwordStrength: true };
@@ -80,19 +80,19 @@ export class Register {
       const confirm = confirmControl?.value;
 
       if (password && confirm && password !== confirm) {
-        confirmControl?.setErrors({ 
-          ...(confirmControl.errors || {}), 
-          passwordsMismatch: true 
+        confirmControl?.setErrors({
+          ...(confirmControl.errors || {}),
+          passwordsMismatch: true
         });
         return { passwordsMismatch: true };
-      } 
-      
+      }
+
       if (confirmControl?.hasError('passwordsMismatch')) {
         const errors = { ...confirmControl.errors };
         delete errors['passwordsMismatch'];
         confirmControl.setErrors(Object.keys(errors).length > 0 ? errors : null);
       }
-      
+
       return null;
     };
   }
@@ -112,7 +112,7 @@ export class Register {
     if (/[a-z]/.test(value)) score++;
     if (/[A-Z]/.test(value)) score++;
     if (/[0-9]/.test(value)) score++;
-    if (/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(value)) score++;
+    if (/[!@#$%^&*()_+\-=\[\]{};':"\|,.<>\/?]/.test(value)) score++;
 
     const labels = ['Too short', 'Weak', 'Fair', 'Good', 'Strong'];
     return { score, label: labels[Math.min(score, 4)] };

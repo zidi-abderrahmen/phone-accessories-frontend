@@ -1,35 +1,205 @@
-.brand {
-  text-align: center;
-  margin-bottom: var(--pa-space-8);
-}
+// ============================================
+// BRAND COMPONENT
+// Phone Accessories | Angular E-Commerce
+// Reusable app-brand component with configurable
+// size, layout, and link behavior.
+// ============================================
 
-.brand-mark {
+.pa-brand {
   display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 56px;
-  height: 56px;
-  border-radius: var(--pa-radius-lg);
-  background: linear-gradient(135deg, var(--pa-primary-muted), var(--pa-primary-subtle));
-  color: var(--pa-primary);
-  margin-bottom: var(--pa-space-4);
 
-  svg {
-    width: 32px;
-    height: 32px;
+  &__inner,
+  &__link {
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  // --------------------------------------------
+  // Mark (Logo Icon)
+  // --------------------------------------------
+
+  &__mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border-radius: var(--pa-radius-lg);
+    background-color: var(--pa-primary-muted);
+    color: var(--pa-primary);
+    border: 1px solid var(--pa-primary-subtle);
+    transition: background-color var(--pa-transition-fast),
+                border-color var(--pa-transition-fast),
+                transform var(--pa-transition-fast),
+                box-shadow var(--pa-transition-fast);
+
+    svg {
+      display: block;
+    }
+  }
+
+  // --------------------------------------------
+  // Text Block
+  // --------------------------------------------
+
+  &__text {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__title {
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--pa-text-primary);
+    line-height: 1.2;
+    margin: 0;
+  }
+
+  &__tagline {
+    color: var(--pa-text-muted);
+    line-height: 1.4;
+    margin: 0;
+  }
+
+  // --------------------------------------------
+  // Size Variants
+  // --------------------------------------------
+
+  &--sm {
+    .pa-brand__mark {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--pa-radius-md);
+
+      svg {
+        width: 20px;
+        height: 20px;
+      }
+    }
+
+    .pa-brand__title {
+      font-size: 1rem;
+    }
+
+    .pa-brand__tagline {
+      font-size: 0.75rem;
+    }
+  }
+
+  &--md {
+    .pa-brand__mark {
+      width: 52px;
+      height: 52px;
+
+      svg {
+        width: 28px;
+        height: 28px;
+      }
+    }
+
+    .pa-brand__title {
+      font-size: 1.125rem;
+    }
+
+    .pa-brand__tagline {
+      font-size: 0.8125rem;
+    }
+  }
+
+  &--lg {
+    .pa-brand__mark {
+      width: 64px;
+      height: 64px;
+
+      svg {
+        width: 32px;
+        height: 32px;
+      }
+    }
+
+    .pa-brand__title {
+      font-size: 1.25rem;
+    }
+
+    .pa-brand__tagline {
+      font-size: 0.875rem;
+    }
+  }
+
+  // --------------------------------------------
+  // Layout Variants
+  // --------------------------------------------
+
+  &--vertical {
+    .pa-brand__inner,
+    .pa-brand__link {
+      flex-direction: column;
+      text-align: center;
+      gap: var(--pa-space-3);
+    }
+
+    .pa-brand__text {
+      align-items: center;
+      gap: var(--pa-space-1);
+    }
+  }
+
+  &--horizontal {
+    .pa-brand__inner,
+    .pa-brand__link {
+      flex-direction: row;
+      text-align: left;
+      gap: var(--pa-space-3);
+    }
+
+    .pa-brand__text {
+      gap: 2px;
+    }
+
+    .pa-brand__tagline {
+      max-width: 28ch;
+    }
+  }
+
+  // --------------------------------------------
+  // Linked State (Interactive)
+  // --------------------------------------------
+
+  &--linked {
+    .pa-brand__link {
+      cursor: pointer;
+
+      &:hover .pa-brand__mark {
+        background-color: var(--pa-primary-subtle);
+        border-color: var(--pa-primary);
+        transform: translateY(-1px);
+        box-shadow: var(--pa-shadow-sm);
+      }
+
+      &:active .pa-brand__mark {
+        transform: translateY(0) scale(0.98);
+        transition-duration: 50ms;
+      }
+
+      &:focus-visible {
+        outline: none;
+        border-radius: var(--pa-radius-md);
+
+        .pa-brand__mark {
+          box-shadow: var(--pa-focus-ring);
+        }
+      }
+    }
   }
 }
 
-.brand-title {
-  font-size: 1.25rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  color: var(--pa-text-primary);
-  margin-bottom: var(--pa-space-1);
-}
+// --------------------------------------------
+// Reduced Motion
+// --------------------------------------------
 
-.brand-tagline {
-  font-size: 0.875rem;
-  color: var(--pa-text-muted);
-  margin: 0;
+@media (prefers-reduced-motion: reduce) {
+  .pa-brand__mark {
+    transition: none !important;
+  }
 }

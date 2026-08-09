@@ -1,167 +1,386 @@
 // ============================================
 // VERIFY EMAIL COMPONENT
-// Phone Accessories
+// Phone Accessories | Angular E-Commerce
+// Reuses global design tokens (--pa-*) and shared
+// primitives from the application design system.
 // ============================================
 
+// --------------------------------------------
+// Page Layout
+// --------------------------------------------
+
 .verify-page {
-  min-height: 100vh;
   min-height: 100dvh;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--pa-space-6) var(--pa-space-4);
   background-color: var(--pa-bg);
   position: relative;
   animation: pa-fade-in 0.4s var(--pa-ease-out);
 }
 
 // --------------------------------------------
-// Main Layout
+// Theme Toggle
+// --------------------------------------------
+
+.verify-theme-toggle {
+  position: fixed;
+  top: var(--pa-space-4);
+  right: var(--pa-space-4);
+  z-index: var(--pa-z-fixed);
+
+  @media (min-width: 1024px) {
+    top: var(--pa-space-6);
+    right: var(--pa-space-6);
+  }
+}
+
+// --------------------------------------------
+// Back to Store Link
+// --------------------------------------------
+
+.verify-back-link {
+  position: fixed;
+  top: var(--pa-space-4);
+  left: var(--pa-space-4);
+  z-index: var(--pa-z-fixed);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--pa-space-2);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--pa-text-tertiary);
+  text-decoration: none;
+  padding: var(--pa-space-2) var(--pa-space-3);
+  border-radius: var(--pa-radius-md);
+  transition: color var(--pa-transition-fast), background-color var(--pa-transition-fast);
+
+  &:hover {
+    color: var(--pa-text-primary);
+    background-color: var(--pa-bg-sunken);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--pa-focus-ring);
+  }
+
+  @media (min-width: 1024px) {
+    top: var(--pa-space-6);
+    left: var(--pa-space-6);
+  }
+}
+
+// --------------------------------------------
+// Visual Panel (Desktop Only)
+// --------------------------------------------
+
+.verify-visual {
+  display: none;
+
+  @media (min-width: 1024px) {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 42%;
+    min-width: 420px;
+    max-width: 560px;
+    padding: var(--pa-space-12) var(--pa-space-10);
+    background-color: var(--pa-bg-sunken);
+    position: relative;
+    overflow: hidden;
+    border-right: 1px solid var(--pa-border);
+  }
+
+  &__content {
+    position: relative;
+    z-index: 1;
+    max-width: 420px;
+  }
+
+  &__brand {
+    margin-bottom: var(--pa-space-8);
+    display: flex;
+    justify-content: center;
+
+    ::ng-deep .pa-brand__mark {
+      width: 56px;
+      height: 56px;
+    }
+
+    ::ng-deep .pa-brand__title {
+      font-size: 1.25rem;
+    }
+  }
+
+  &__headline {
+    font-size: clamp(1.75rem, 3vw, 2.5rem);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.03em;
+    color: var(--pa-text-primary);
+    margin-bottom: var(--pa-space-4);
+  }
+
+  &__subhead {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--pa-text-secondary);
+    max-width: 38ch;
+    margin-bottom: var(--pa-space-10);
+  }
+
+  &__trust {
+    display: flex;
+    flex-direction: column;
+    gap: var(--pa-space-4);
+  }
+
+  &__texture {
+    position: absolute;
+    inset: 0;
+    opacity: 0.4;
+    background-image: radial-gradient(circle at 1px 1px, var(--pa-border-strong) 1px, transparent 0);
+    background-size: 32px 32px;
+    pointer-events: none;
+  }
+}
+
+.trust-item {
+  display: flex;
+  align-items: center;
+  gap: var(--pa-space-3);
+
+  &__icon {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--pa-radius-md);
+    background-color: var(--pa-surface);
+    border: 1px solid var(--pa-border);
+    color: var(--pa-primary);
+    flex-shrink: 0;
+    transition: border-color var(--pa-transition-fast), box-shadow var(--pa-transition-fast);
+  }
+
+  &:hover &__icon {
+    border-color: var(--pa-border-strong);
+    box-shadow: var(--pa-shadow-sm);
+  }
+
+  &__label {
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: var(--pa-text-secondary);
+  }
+}
+
+// --------------------------------------------
+// Main Content Area
 // --------------------------------------------
 
 .verify-main {
-  width: 100%;
-  max-width: 420px;
-  animation: pa-fade-up 0.5s var(--pa-ease-out) 0.05s both;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--pa-space-6) var(--pa-space-4);
+  animation: pa-fade-up 0.5s var(--pa-ease-smooth) 0.05s both;
+
+  @media (min-width: 640px) {
+    padding: var(--pa-space-8) var(--pa-space-6);
+  }
+
+  @media (min-width: 1024px) {
+    padding: var(--pa-space-12) var(--pa-space-8);
+  }
 }
 
+// --------------------------------------------
+// Verify Card
+// --------------------------------------------
+
 .verify-card {
+  width: 100%;
+  max-width: 420px;
   background-color: var(--pa-surface);
   border: 1px solid var(--pa-border);
   border-radius: var(--pa-radius-xl);
   padding: var(--pa-space-8) var(--pa-space-6);
+  transition: background-color var(--pa-transition-base), border-color var(--pa-transition-base);
 
   @media (min-width: 640px) {
     padding: var(--pa-space-10) var(--pa-space-8);
     box-shadow: var(--pa-shadow-sm);
   }
-}
 
-// --------------------------------------------
-// State Section (shared across all states)
-// --------------------------------------------
-
-.state-section {
-  text-align: center;
-  animation: pa-fade-up 0.4s var(--pa-ease-out);
-  padding: var(--pa-space-2) 0;
-}
-
-.state-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 56px;
-  height: 56px;
-  border-radius: var(--pa-radius-full);
-  margin-bottom: var(--pa-space-5);
-
-  svg {
-    width: 28px;
-    height: 28px;
+  @media (min-width: 1024px) {
+    max-width: 440px;
+    padding: var(--pa-space-10) var(--pa-space-8);
   }
 }
 
-.state-title {
-  font-size: 1.375rem;
-  font-weight: 600;
-  letter-spacing: -0.025em;
-  color: var(--pa-text-primary);
-  margin-bottom: var(--pa-space-2);
-}
+// --------------------------------------------
+// Brand (Mobile Only)
+// --------------------------------------------
 
-.state-message {
-  font-size: 0.9375rem;
-  color: var(--pa-text-secondary);
-  line-height: 1.7;
-  margin: 0 auto var(--pa-space-6);
-  max-width: 320px;
-}
-
-.state-actions {
+.verify-brand-mobile {
   display: flex;
   justify-content: center;
+  margin-bottom: var(--pa-space-6);
 
-  &--stacked {
-    flex-direction: column;
+  @media (min-width: 1024px) {
+    display: none;
+  }
+
+  ::ng-deep .pa-brand__mark {
+    width: 52px;
+    height: 52px;
+  }
+
+  ::ng-deep .pa-brand__title {
+    font-size: 1.125rem;
+  }
+}
+
+// --------------------------------------------
+// Verify State (shared across all states)
+// --------------------------------------------
+
+.verify-state {
+  text-align: center;
+  animation: pa-fade-up 0.4s var(--pa-ease-smooth);
+  padding: var(--pa-space-2) 0;
+
+  &__icon-wrap {
+    display: inline-flex;
     align-items: center;
-    gap: var(--pa-space-3);
-  }
-}
-
-.state-btn-secondary {
-  min-width: 180px;
-  height: 44px;
-}
-
-.state-note {
-  font-size: 0.8125rem;
-  color: var(--pa-text-muted);
-  margin-top: var(--pa-space-4);
-  margin-bottom: 0;
-}
-
-// --------------------------------------------
-// Loading State
-// --------------------------------------------
-
-.loading-state {
-  .loading-icon {
-    background-color: transparent;
+    justify-content: center;
+    width: 64px;
+    height: 64px;
+    border-radius: var(--pa-radius-full);
     margin-bottom: var(--pa-space-5);
+    transition: transform var(--pa-transition-slow), box-shadow var(--pa-transition-slow);
+
+    svg {
+      width: 28px;
+      height: 28px;
+    }
+
+    &--loading {
+      background-color: transparent;
+      margin-bottom: var(--pa-space-4);
+    }
+
+    &--success {
+      background-color: var(--pa-success-muted);
+      color: var(--pa-success);
+
+      .verify-state:hover & {
+        transform: scale(1.05);
+        box-shadow: 0 0 0 8px var(--pa-success-subtle);
+      }
+    }
+
+    &--error {
+      background-color: var(--pa-danger-muted);
+      color: var(--pa-danger);
+
+      .verify-state:hover & {
+        transform: scale(1.05);
+        box-shadow: 0 0 0 8px var(--pa-danger-subtle);
+      }
+    }
+
+    &--warning {
+      background-color: var(--pa-warning-muted);
+      color: var(--pa-warning);
+
+      .verify-state:hover & {
+        transform: scale(1.05);
+        box-shadow: 0 0 0 8px var(--pa-warning-subtle);
+      }
+    }
+  }
+
+  &__spinner {
+    display: inline-block;
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--pa-border);
+    border-top-color: var(--pa-primary);
+    border-radius: 50%;
+    animation: pa-spin 0.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  }
+
+  &__title {
+    font-size: clamp(1.25rem, 3vw, 1.5rem);
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    color: var(--pa-text-primary);
+    margin-bottom: var(--pa-space-2);
+    line-height: 1.2;
+  }
+
+  &__message {
+    font-size: 0.9375rem;
+    color: var(--pa-text-secondary);
+    line-height: 1.7;
+    margin: 0 auto var(--pa-space-6);
+    max-width: 320px;
+  }
+
+  &__actions {
+    display: flex;
+    justify-content: center;
+    gap: var(--pa-space-3);
+
+    &--stacked {
+      flex-direction: column;
+      align-items: center;
+    }
+  }
+
+  &__btn {
+    min-width: 180px;
+    height: 2.75rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+
+    &:focus-visible {
+      outline: none;
+      box-shadow: var(--pa-focus-ring);
+    }
+  }
+
+  &__btn--secondary {
+    min-width: 180px;
+    height: 2.75rem;
+    font-weight: 500;
+
+    &:focus-visible {
+      outline: none;
+      box-shadow: var(--pa-focus-ring);
+    }
+  }
+
+  &__note {
+    font-size: 0.8125rem;
+    color: var(--pa-text-muted);
+    margin-top: var(--pa-space-4);
+    margin-bottom: 0;
+    line-height: 1.5;
   }
 }
 
-.spinner-large {
-  display: inline-block;
-  width: 40px;
-  height: 40px;
-  border: 3px solid var(--pa-border);
-  border-top-color: var(--pa-primary);
-  border-radius: 50%;
-  animation: pa-spin 0.8s linear infinite;
-}
-
-@keyframes pa-spin {
-  to { transform: rotate(360deg); }
-}
-
 // --------------------------------------------
-// Success State
-// --------------------------------------------
-
-.success-state {
-  .success-icon {
-    background-color: var(--pa-success-muted);
-    color: var(--pa-success);
-  }
-}
-
-// --------------------------------------------
-// Error / Warning States
-// --------------------------------------------
-
-.error-state {
-  .error-icon {
-    background-color: var(--pa-danger-muted);
-    color: var(--pa-danger);
-  }
-
-  .warning-icon {
-    background-color: var(--pa-warning-muted);
-    color: var(--pa-warning);
-  }
-}
-
-// --------------------------------------------
-// Responsive Adjustments
+// Mobile-First Card Override
 // --------------------------------------------
 
 @media (max-width: 639px) {
   .verify-page {
-    padding: var(--pa-space-4);
     align-items: flex-start;
-    padding-top: calc(var(--pa-space-16) + var(--pa-space-4));
+    padding-top: calc(var(--pa-space-16));
   }
 
   .verify-card {
@@ -170,54 +389,47 @@
     padding: 0;
     box-shadow: none;
     border-radius: 0;
+    max-width: 100%;
   }
 
-  .brand-mark {
-    width: 48px;
-    height: 48px;
+  .verify-state__title {
+    font-size: 1.375rem;
+  }
 
-    svg {
-      width: 28px;
-      height: 28px;
+  .verify-state__actions {
+    width: 100%;
+
+    &--stacked {
+      .verify-state__btn,
+      .verify-state__btn--secondary {
+        width: 100%;
+        min-width: unset;
+      }
     }
   }
 
-  .brand-title {
-    font-size: 1.125rem;
+  .verify-back-link {
+    top: var(--pa-space-3);
+    left: var(--pa-space-3);
   }
 
-  .state-title {
-    font-size: 1.25rem;
-  }
-
-  .state-actions--stacked {
-    width: 100%;
-  }
-
-  .state-btn,
-  .state-btn-secondary {
-    width: 100%;
-    min-width: unset;
+  .verify-theme-toggle {
+    top: var(--pa-space-3);
+    right: var(--pa-space-3);
   }
 }
+
+// --------------------------------------------
+// Tablet Adjustments
+// --------------------------------------------
 
 @media (min-width: 640px) and (max-width: 1023px) {
   .verify-main {
-    max-width: 400px;
-  }
-}
-
-@media (min-width: 1024px) {
-  .verify-page {
-    padding: var(--pa-space-8);
-  }
-
-  .verify-main {
-    max-width: 440px;
+    padding: var(--pa-space-10) var(--pa-space-6);
   }
 
   .verify-card {
-    padding: var(--pa-space-12) var(--pa-space-10);
+    max-width: 400px;
   }
 }
 
@@ -228,13 +440,36 @@
 @media (prefers-reduced-motion: reduce) {
   .verify-page,
   .verify-main,
-  .state-section {
+  .verify-state {
     animation: none;
   }
 
-  .spinner-large {
+  .verify-state__spinner {
     animation: none;
     border-top-color: transparent;
     opacity: 0.5;
   }
+
+  .verify-state__icon-wrap {
+    transition: none;
+
+    .verify-state:hover & {
+      transform: none;
+      box-shadow: none;
+    }
+  }
+}
+
+// --------------------------------------------
+// High Contrast Mode
+// --------------------------------------------
+
+@media (prefers-contrast: high) {
+  .verify-card {
+    border: 2px solid currentColor;
+  }
+}
+
+.verify-state__actions a {
+  color: white;
 }

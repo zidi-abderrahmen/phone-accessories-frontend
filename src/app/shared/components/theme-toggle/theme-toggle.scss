@@ -1,10 +1,14 @@
-.theme-toggle {
-  position: fixed;
-  top: var(--pa-space-4);
-  right: var(--pa-space-4);
-  width: 40px;
-  height: 40px;
-  display: flex;
+// ============================================
+// THEME TOGGLE COMPONENT
+// Phone Accessories | Angular E-Commerce
+// Lightweight theme switcher with accessible
+// icons and smooth state transitions.
+// ============================================
+
+.pa-theme-toggle {
+  width: 2.5rem;
+  height: 2.5rem;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   border-radius: var(--pa-radius-full);
@@ -12,13 +16,23 @@
   background-color: var(--pa-surface);
   color: var(--pa-text-secondary);
   cursor: pointer;
-  transition: all var(--pa-transition-fast);
-  z-index: var(--pa-z-fixed);
+  transition: color var(--pa-transition-fast),
+              background-color var(--pa-transition-fast),
+              border-color var(--pa-transition-fast),
+              transform var(--pa-transition-fast),
+              box-shadow var(--pa-transition-fast);
+  -webkit-tap-highlight-color: transparent;
 
   &:hover {
     background-color: var(--pa-surface-hover);
     color: var(--pa-text-primary);
     border-color: var(--pa-border-strong);
+    box-shadow: var(--pa-shadow-sm);
+  }
+
+  &:active {
+    transform: scale(0.95);
+    transition-duration: 50ms;
   }
 
   &:focus-visible {
@@ -26,17 +40,43 @@
     box-shadow: var(--pa-focus-ring);
   }
 
-  svg {
-    flex-shrink: 0;
+  &__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s var(--pa-ease-spring),
+                opacity 0.15s var(--pa-ease-out);
+
+    svg {
+      flex-shrink: 0;
+      display: block;
+    }
+  }
+
+  // Slight rotation on the icon for visual delight
+  &:hover &__icon {
+    transform: rotate(12deg);
   }
 }
 
-// Responsive Adjustments
-@media (max-width: 639px) {
-  .theme-toggle {
-    top: var(--pa-space-3);
-    right: var(--pa-space-3);
-    width: 36px;
-    height: 36px;
+// --------------------------------------------
+// Reduced Motion
+// --------------------------------------------
+
+@media (prefers-reduced-motion: reduce) {
+  .pa-theme-toggle {
+    transition: none;
+
+    &:active {
+      transform: none;
+    }
+
+    &__icon {
+      transition: none;
+    }
+
+    &:hover &__icon {
+      transform: none;
+    }
   }
 }

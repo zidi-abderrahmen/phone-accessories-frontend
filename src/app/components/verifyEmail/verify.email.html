@@ -1,61 +1,115 @@
 <div class="verify-page">
   <!-- Theme Toggle -->
-  <app-theme-toggle></app-theme-toggle>
+  <div class="verify-theme-toggle">
+    <app-theme-toggle></app-theme-toggle>
+  </div>
 
+  <!-- Back to Store Link -->
+  <a routerLink="/" class="verify-back-link">
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="m15 18-6-6 6-6"/>
+    </svg>
+    <span>Back to store</span>
+  </a>
+
+  <!-- Visual Panel (Desktop Only) -->
+  <aside class="verify-visual" aria-hidden="true">
+    <div class="verify-visual__content">
+      <div class="verify-visual__brand">
+        <app-brand size="lg"></app-brand>
+      </div>
+      <h2 class="verify-visual__headline">Almost there.</h2>
+      <p class="verify-visual__subhead">We are verifying your email address to keep your account secure. This only takes a moment.</p>
+
+      <div class="verify-visual__trust">
+        <div class="trust-item">
+          <div class="trust-item__icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+          </div>
+          <span class="trust-item__label">Secure verification</span>
+        </div>
+        <div class="trust-item">
+          <div class="trust-item__icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="m9 12 2 2 4-4"/>
+            </svg>
+          </div>
+          <span class="trust-item__label">One-click activation</span>
+        </div>
+        <div class="trust-item">
+          <div class="trust-item__icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+          </div>
+          <span class="trust-item__label">Instant support</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="verify-visual__texture"></div>
+  </aside>
+
+  <!-- Main Content -->
   <main class="verify-main" id="main-content">
     <div class="verify-card">
-      <!-- Brand -->
-      <app-brand></app-brand>
+      <!-- Brand (Mobile Only) -->
+      <div class="verify-brand-mobile">
+        <app-brand></app-brand>
+      </div>
 
       <!-- Loading State -->
       @if (state() === 'loading') {
-        <div class="state-section loading-state" role="status" aria-live="polite">
-          <div class="state-icon loading-icon" aria-hidden="true">
-            <span class="spinner-large"></span>
+        <div class="verify-state verify-state--loading" role="status" aria-live="polite">
+          <div class="verify-state__icon-wrap verify-state__icon-wrap--loading" aria-hidden="true">
+            <span class="verify-state__spinner"></span>
           </div>
-          <h2 class="state-title">Verifying your email</h2>
-          <p class="state-message">Please wait while we verify your email address...</p>
+          <h1 class="verify-state__title">Verifying your email</h1>
+          <p class="verify-state__message">Please wait while we confirm your email address. This should only take a moment.</p>
         </div>
       }
 
       <!-- Success State -->
       @if (state() === 'success') {
-        <div class="state-section success-state" role="status" aria-live="polite">
-          <div class="state-icon success-icon" aria-hidden="true">
+        <div class="verify-state verify-state--success" role="status" aria-live="polite">
+          <div class="verify-state__icon-wrap verify-state__icon-wrap--success" aria-hidden="true">
             <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
               <polyline points="22 4 12 14.01 9 11.01"/>
             </svg>
           </div>
-          <h2 class="state-title">Email verified</h2>
-          <p class="state-message">
-            Your email address has been verified successfully. You can now sign in to your account.
+          <h1 class="verify-state__title">Email verified</h1>
+          <p class="verify-state__message">
+            Your email address has been verified successfully. You can now sign in to your account and start shopping.
           </p>
-          <div class="state-actions">
-            <a routerLink="/login" class="pa-btn pa-btn--primary state-btn">
+          <div class="verify-state__actions">
+            <a routerLink="/login" class="pa-btn pa-btn--primary verify-state__btn">
               Sign in
             </a>
           </div>
-          <p class="state-note">You will be redirected automatically in a few seconds.</p>
+          <p class="verify-state__note">You will be redirected automatically in a few seconds.</p>
         </div>
       }
 
       <!-- Invalid Token State -->
       @if (state() === 'invalid') {
-        <div class="state-section error-state" role="alert">
-          <div class="state-icon error-icon" aria-hidden="true">
+        <div class="verify-state verify-state--error" role="alert">
+          <div class="verify-state__icon-wrap verify-state__icon-wrap--error" aria-hidden="true">
             <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="12" cy="12" r="10"/>
               <line x1="15" y1="9" x2="9" y2="15"/>
               <line x1="9" y1="9" x2="15" y2="15"/>
             </svg>
           </div>
-          <h2 class="state-title">Invalid link</h2>
-          <p class="state-message">
-            The verification link is invalid, incomplete, or has already been used.
+          <h1 class="verify-state__title">Invalid link</h1>
+          <p class="verify-state__message">
+            The verification link is invalid, incomplete, or has already been used. Please request a new verification email.
           </p>
-          <div class="state-actions">
-            <a routerLink="/login" class="pa-btn pa-btn--primary state-btn">
+          <div class="verify-state__actions">
+            <a routerLink="/login" class="pa-btn pa-btn--primary verify-state__btn">
               Back to sign in
             </a>
           </div>
@@ -63,46 +117,56 @@
       }
 
       <!-- Expired Token State -->
-       @if (state() === 'expired') {
-        <div class="state-section error-state" role="alert">
-          <div class="state-icon warning-icon" aria-hidden="true">
+      @if (state() === 'expired') {
+        <div class="verify-state verify-state--warning" role="alert">
+          <div class="verify-state__icon-wrap verify-state__icon-wrap--warning" aria-hidden="true">
             <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="12" cy="12" r="10"/>
               <line x1="12" y1="8" x2="12" y2="12"/>
               <line x1="12" y1="16" x2="12.01" y2="16"/>
             </svg>
           </div>
-          <h2 class="state-title">Link expired</h2>
-          <p class="state-message">
-            This verification link has expired. For security reasons, verification links are only valid for a limited time. Please request a new one.
+          <h1 class="verify-state__title">Link expired</h1>
+          <p class="verify-state__message">
+            This verification link has expired. For security reasons, verification links are only valid for a limited time.
           </p>
-          <div class="state-actions state-actions--stacked">
-            <a routerLink="/login" class="pa-btn pa-btn--ghost state-btn-secondary">
+          <div class="verify-state__actions verify-state__actions--stacked">
+            <a routerLink="/login" class="pa-btn pa-btn--primary verify-state__btn">
               Back to sign in
+            </a>
+            <a routerLink="/resend-verification" class="pa-btn pa-btn--ghost verify-state__btn--secondary">
+              Resend verification email
             </a>
           </div>
         </div>
-       }
+      }
 
       <!-- Server Error State -->
-       @if (state() === 'error') {
-        <div class="state-section error-state" role="alert">
-          <div class="state-icon error-icon" aria-hidden="true">
+      @if (state() === 'error') {
+        <div class="verify-state verify-state--error" role="alert">
+          <div class="verify-state__icon-wrap verify-state__icon-wrap--error" aria-hidden="true">
             <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="12" cy="12" r="10"/>
               <line x1="12" y1="8" x2="12" y2="12"/>
               <line x1="12" y1="16" x2="12.01" y2="16"/>
             </svg>
           </div>
-          <h2 class="state-title">Verification failed</h2>
-          <p class="state-message">{{ errorMessage() }}</p>
-          <div class="state-actions state-actions--stacked">
-            <a routerLink="/login" class="pa-btn pa-btn--ghost state-btn-secondary">
+          <h1 class="verify-state__title">Verification failed</h1>
+          <p class="verify-state__message">{{ errorMessage() }}</p>
+          <div class="verify-state__actions verify-state__actions--stacked">
+            <a routerLink="/login" class="pa-btn pa-btn--primary verify-state__btn">
               Back to sign in
             </a>
+            <button
+              type="button"
+              class="pa-btn pa-btn--ghost verify-state__btn--secondary"
+              (click)="retryVerification()"
+            >
+              Try again
+            </button>
           </div>
         </div>
-       }
+      }
     </div>
   </main>
 </div>

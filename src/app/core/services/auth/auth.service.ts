@@ -1,4 +1,4 @@
-import { HttpClient, HttpErrorResponse, HttpParams } from "@angular/common/http";
+import { HttpClient, HttpErrorResponse } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { BehaviorSubject, Observable, catchError, filter, map, of, take, tap, throwError } from "rxjs";
 import { environment } from "../../../../environments/environment";
@@ -21,6 +21,9 @@ export class AuthService {
     private apiUrl = `${environment.apiUrl}/auth`;
 
     private authState = new BehaviorSubject<boolean | null>(null);
+
+    private currentUserSubject = new BehaviorSubject<MeResponse | null>(null);
+    currentUser$ = this.currentUserSubject.asObservable();
     
     authState$ = this.authState.asObservable().pipe(
         filter((val): val is boolean => val !== null)
@@ -29,8 +32,7 @@ export class AuthService {
     constructor(private http: HttpClient) {}
 
     register(data: RegisterRequest): Observable<RegisterResponse> {
-        return this.http.post<RegisterResponse>(`${this.apiUrl}/register`, data, { withCredentials: true })
-        .pipe(catchError(this.handleError));
+        return this.http.post<RegisterResponse>(`${this.apiUrl}/register`, data, { withCredentials: true });
     }
 
     login(credentials: LoginRequest): Observable<LoginResponse> {
@@ -39,34 +41,33 @@ export class AuthService {
             tap(() => {
                 this.authState.next(true);
                 localStorage.setItem('isAuthenticated', 'true');
-            }),
-            catchError(this.handleError)
+
+                this.getCurrentUser().subscribe();
+            })
         );
     }
 
     refreshToken(): Observable<RefreshTokenResponse> {
-        return this.http.post<RefreshTokenResponse>(`${this.apiUrl}/refresh-token`, {}, { withCredentials: true })
-            .pipe(catchError(this.handleError));
+        return this.http.post<RefreshTokenResponse>(`${this.apiUrl}/refresh-token`, {}, { withCredentials: true });
     }
 
     verifyEmail(data: VerifyEmailRequest): Observable<EmailResponse> {
-        return this.http.post<EmailResponse>(`${this.apiUrl}/verify-email`, data, { withCredentials: true })
-        .pipe(catchError(this.handleError));
+        return this.http.post<EmailResponse>(`${this.apiUrl}/verify-email`, data, { withCredentials: true });
     }
 
     forgotPassword(data: ForgotPasswordRequest): Observable<EmailResponse> {
-        return this.http.post<EmailResponse>(`${this.apiUrl}/forgot-password`, data, { withCredentials: true })
-        .pipe(catchError(this.handleError));
+        return this.http.post<EmailResponse>(`${this.apiUrl}/forgot-password`, data, { withCredentials: true });
     }
 
     resetPassword(data: ResetPasswordRequest): Observable<EmailResponse> {
-        return this.http.post<EmailResponse>(`${this.apiUrl}/reset-password`, data, { withCredentials: true })
-        .pipe(catchError(this.handleError));
+        return this.http.post<EmailResponse>(`${this.apiUrl}/reset-password`, data, { withCredentials: true });
     }
 
     getCurrentUser(): Observable<MeResponse> {
         return this.http.get<MeResponse>(`${this.apiUrl}/me`, { withCredentials: true })
-        .pipe(catchError(this.handleError));
+        .pipe(
+            tap((user) => this.currentUserSubject.next(user))
+        );
     }
 
     logout(): Observable<void> {
@@ -75,10 +76,12 @@ export class AuthService {
             tap(() => {
                 this.authState.next(false);
                 localStorage.removeItem('isAuthenticated');
+                this.currentUserSubject.next(null);
             }),
             catchError((err) => {
-            this.authState.next(false);
-            return this.handleError(err);
+                this.authState.next(false);
+                this.currentUserSubject.next(null);
+                return throwError(() => err);
             })
         );
     }
@@ -90,21 +93,32 @@ export class AuthService {
             return this.authState$.pipe(take(1));
         }
 
-        return this.http.get(`${this.apiUrl}/me`, { withCredentials: true }).pipe(
-            tap(() => { 
-                console.log('ME SUCCESS'); 
+        return this.http.get<MeResponse>(`${this.apiUrl}/me`, { withCredentials: true }).pipe(
+            tap((user) => { 
+                console.log('ME SUCCESS');
+                this.currentUserSubject.next(user);
                 this.authState.next(true); 
             }),
             map(() => true),
             catchError((err) => {
                 console.log('ME FAILED', err.status, err);
                 this.authState.next(false);
+                this.currentUserSubject.next(null);
                 return of(false);
             })
         );
     }
 
-    private handleError(error: HttpErrorResponse) {
-        return throwError(() => error);
+    hasAnyRole(requiredRoles: string[]): boolean {
+        const user = this.currentUserSubject.value;
+        if (!user) return false;
+
+        const userRoles: string[] = Array.isArray((user as any).roles) 
+            ? (user as any).roles 
+            : [(user as any).role];
+
+        return requiredRoles.some(required => 
+            userRoles.includes(required) || userRoles.includes(`ROLE_${required}`)
+        );
     }
 }
