@@ -1,0 +1,518 @@
+// ============================================
+// ACCESSORY DETAILS PAGE
+// Phone Accessories E-Commerce
+// ============================================
+
+:host {
+  display: block;
+}
+
+// --------------------------------------------
+// PAGE WRAPPER
+// --------------------------------------------
+
+.accessory-details-page {
+  min-height: 100dvh;
+  background-color: var(--pa-bg);
+  animation: pa-fade-in 0.35s var(--pa-ease-out) forwards;
+}
+
+// --------------------------------------------
+// MAIN CONTAINER
+// --------------------------------------------
+
+.accessory-details-main {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: var(--pa-space-6) var(--pa-space-4) var(--pa-space-16);
+
+  @media (min-width: 640px) {
+    padding: var(--pa-space-8) var(--pa-space-6) var(--pa-space-16);
+  }
+
+  @media (min-width: 1024px) {
+    padding: var(--pa-space-10) var(--pa-space-8) var(--pa-space-20);
+  }
+}
+
+// --------------------------------------------
+// BREADCRUMB
+// --------------------------------------------
+
+.breadcrumb {
+  margin-bottom: var(--pa-space-5);
+}
+
+.breadcrumb-list {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--pa-space-1);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.breadcrumb-item {
+  font-size: 0.875rem;
+  color: var(--pa-text-secondary);
+
+  &--current {
+    color: var(--pa-text-primary);
+    font-weight: 500;
+  }
+}
+
+.breadcrumb-link {
+  color: var(--pa-text-secondary);
+  text-decoration: none;
+  transition: color var(--pa-transition-fast);
+  border-radius: var(--pa-radius-sm);
+  padding: 2px 4px;
+  margin: -2px -4px;
+
+  &:hover {
+    color: var(--pa-primary);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--pa-focus-ring);
+  }
+}
+
+.breadcrumb-separator {
+  color: var(--pa-text-muted);
+  display: flex;
+  align-items: center;
+
+  svg {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+// --------------------------------------------
+// PRODUCT DETAILS (Two-column layout)
+// --------------------------------------------
+
+.product-details {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--pa-space-8);
+  animation: pa-fade-up 0.5s var(--pa-ease-smooth) forwards;
+
+  @media (min-width: 768px) {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--pa-space-10);
+  }
+
+  @media (min-width: 1024px) {
+    grid-template-columns: 5fr 4fr;
+    gap: var(--pa-space-16);
+  }
+}
+
+// --------------------------------------------
+// IMAGE SECTION
+// --------------------------------------------
+
+.product-image-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pa-space-4);
+}
+
+.product-image-main {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background-color: var(--pa-bg-sunken);
+  border-radius: var(--pa-radius-xl);
+  overflow: hidden;
+  border: 1px solid var(--pa-border);
+
+  @media (min-width: 768px) {
+    aspect-ratio: 4 / 3;
+  }
+}
+
+.product-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform var(--pa-transition-slow);
+
+  &:hover {
+    transform: scale(1.02);
+  }
+}
+
+// --------------------------------------------
+// INFO SECTION
+// --------------------------------------------
+
+.product-info-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pa-space-5);
+}
+
+.product-meta-header {
+  display: flex;
+  align-items: center;
+  gap: var(--pa-space-3);
+  flex-wrap: wrap;
+}
+
+.product-category {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--pa-primary);
+  text-decoration: none;
+  transition: color var(--pa-transition-fast);
+
+  &:hover {
+    color: var(--pa-primary-hover);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--pa-focus-ring);
+    border-radius: var(--pa-radius-sm);
+  }
+}
+
+.product-code {
+  font-size: 0.8125rem;
+  font-family: var(--pa-font-mono);
+  color: var(--pa-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.product-title {
+  font-size: clamp(1.5rem, 3.5vw, 2.25rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--pa-text-primary);
+  line-height: 1.15;
+  margin: 0;
+}
+
+.product-price-row {
+  display: flex;
+  align-items: center;
+  gap: var(--pa-space-3);
+  flex-wrap: wrap;
+}
+
+.product-price {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--pa-text-primary);
+  letter-spacing: -0.02em;
+}
+
+.stock-badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: var(--pa-radius-sm);
+
+  &.in-stock {
+    background-color: var(--pa-success-muted);
+    color: var(--pa-success);
+  }
+
+  &.low-stock {
+    background-color: var(--pa-warning-muted);
+    color: var(--pa-warning);
+  }
+
+  &.out-stock {
+    background-color: var(--pa-danger-muted);
+    color: var(--pa-danger);
+  }
+}
+
+// --------------------------------------------
+// DESCRIPTION
+// --------------------------------------------
+
+.product-description {
+  p {
+    font-size: 1rem;
+    color: var(--pa-text-secondary);
+    line-height: 1.7;
+    margin: 0;
+  }
+}
+
+.section-label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--pa-text-muted);
+  margin: 0 0 var(--pa-space-3) 0;
+}
+
+// --------------------------------------------
+// SPECIFICATIONS
+// --------------------------------------------
+
+.product-specs {
+  padding: var(--pa-space-5);
+  background-color: var(--pa-bg-sunken);
+  border-radius: var(--pa-radius-lg);
+  border: 1px solid var(--pa-border);
+}
+
+.specs-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--pa-space-3);
+  margin: 0;
+}
+
+.spec-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--pa-space-4);
+  padding-bottom: var(--pa-space-3);
+  border-bottom: 1px solid var(--pa-border);
+
+  &:last-child {
+    padding-bottom: 0;
+    border-bottom: none;
+  }
+
+  dt {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--pa-text-secondary);
+    flex-shrink: 0;
+  }
+
+  dd {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--pa-text-primary);
+    text-align: right;
+    margin: 0;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+// --------------------------------------------
+// ACTIONS
+// --------------------------------------------
+
+.product-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pa-space-3);
+  margin-top: var(--pa-space-2);
+
+  @media (min-width: 480px) {
+    flex-direction: row;
+  }
+}
+
+.action-buy {
+  flex: 1;
+  height: 48px;
+  font-size: 1rem;
+  font-weight: 600;
+  gap: var(--pa-space-2);
+
+  &:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none !important;
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--pa-focus-ring);
+  }
+}
+
+.action-cart {
+  flex: 1;
+  height: 48px;
+  font-size: 1rem;
+  font-weight: 500;
+  gap: var(--pa-space-2);
+
+  &:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none !important;
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--pa-focus-ring);
+  }
+}
+
+// --------------------------------------------
+// SKELETON
+// --------------------------------------------
+
+.details-skeleton {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--pa-space-8);
+  animation: pa-fade-in 0.3s var(--pa-ease-out) forwards;
+
+  @media (min-width: 768px) {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--pa-space-10);
+  }
+
+  @media (min-width: 1024px) {
+    grid-template-columns: 5fr 4fr;
+    gap: var(--pa-space-16);
+  }
+
+  &__image {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    background-color: var(--pa-bg-sunken);
+    border-radius: var(--pa-radius-xl);
+    overflow: hidden;
+    border: 1px solid var(--pa-border);
+
+    @media (min-width: 768px) {
+      aspect-ratio: 4 / 3;
+    }
+
+    .pa-skeleton {
+      border-radius: 0 !important;
+    }
+  }
+
+  &__info {
+    display: flex;
+    flex-direction: column;
+    gap: var(--pa-space-5);
+
+    .pa-skeleton {
+      border-radius: var(--pa-radius-sm);
+    }
+  }
+}
+
+// --------------------------------------------
+// STATE MESSAGES (Error / Not Found)
+// --------------------------------------------
+
+.state-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: var(--pa-space-12) var(--pa-space-4);
+  animation: pa-fade-up 0.5s var(--pa-ease-smooth) forwards;
+}
+
+.state-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: var(--pa-radius-full);
+  margin-bottom: var(--pa-space-5);
+
+  svg {
+    width: 28px;
+    height: 28px;
+  }
+}
+
+.error-icon {
+  background-color: var(--pa-danger-muted);
+  color: var(--pa-danger);
+}
+
+.not-found-icon {
+  background-color: var(--pa-warning-muted);
+  color: var(--pa-warning);
+}
+
+.state-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  color: var(--pa-text-primary);
+  margin: 0 0 var(--pa-space-2);
+}
+
+.state-text {
+  font-size: 0.9375rem;
+  color: var(--pa-text-secondary);
+  line-height: 1.6;
+  margin: 0 0 var(--pa-space-6);
+  max-width: 360px;
+}
+
+.state-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--pa-space-3);
+
+  @media (min-width: 480px) {
+    flex-direction: row;
+  }
+}
+
+.retry-btn {
+  min-width: 160px;
+  height: 44px;
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--pa-focus-ring);
+  }
+}
+
+.back-btn {
+  min-width: 140px;
+  height: 44px;
+}
+
+// --------------------------------------------
+// REDUCED MOTION
+// --------------------------------------------
+
+@media (prefers-reduced-motion: reduce) {
+  .accessory-details-page,
+  .product-details,
+  .details-skeleton,
+  .state-message {
+    animation: none;
+    opacity: 1;
+  }
+
+  .product-image {
+    transition: none;
+
+    &:hover {
+      transform: none;
+    }
+  }
+}
