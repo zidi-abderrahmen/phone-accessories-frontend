@@ -1,61 +1,169 @@
-.form-field {
+// ============================================
+// INPUT FIELD COMPONENT
+// Phone Accessories | Angular E-Commerce
+// Reusable form input with label, helper text,
+// and validation error messaging.
+// ============================================
+
+.pa-field {
   display: flex;
   flex-direction: column;
-  gap: var(--pa-space-2);
-}
+  gap: var(--pa-space-1);
 
-.field-label {
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: var(--pa-text-primary);
-}
+  // --------------------------------------------
+  // Label
+  // --------------------------------------------
 
-.field-input {
-  width: 100%;
-  height: 44px;
-  padding: 0 var(--pa-space-4);
-  font-size: 0.9375rem;
-  font-family: inherit;
-  color: var(--pa-text-primary);
-  background-color: var(--pa-surface);
-  border: 1px solid var(--pa-border);
-  border-radius: var(--pa-radius-md);
-  transition: border-color var(--pa-transition-fast), box-shadow var(--pa-transition-fast);
-
-  &::placeholder {
-    color: var(--pa-text-muted);
+  &__label {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--pa-space-1);
+    font-size: 0.875rem;
+    font-weight: 500;
+    line-height: 1.4;
+    color: var(--pa-text-primary);
+    margin-bottom: var(--pa-space-1);
   }
 
-  &:hover {
-    border-color: var(--pa-border-strong);
+  &__required {
+    color: var(--pa-danger);
+    font-weight: 600;
   }
 
-  &:focus {
-    outline: none;
-    border-color: var(--pa-primary);
-    box-shadow: var(--pa-focus-ring);
-  }
+  // --------------------------------------------
+  // Input
+  // --------------------------------------------
 
-  &[aria-invalid="true"] {
-    border-color: var(--pa-danger);
+  &__input {
+    width: 100%;
+    height: 2.75rem;
+    padding: 0 0.875rem;
+    font-family: inherit;
+    font-size: 0.9375rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: var(--pa-text-primary);
+    background-color: var(--pa-surface);
+    border: 1px solid var(--pa-border);
+    border-radius: var(--pa-radius-md);
+    transition: border-color var(--pa-transition-fast),
+                box-shadow var(--pa-transition-fast),
+                background-color var(--pa-transition-base);
+    -webkit-appearance: none;
+    appearance: none;
+
+    &::placeholder {
+      color: var(--pa-text-muted);
+    }
+
+    &:hover:not(:disabled):not([readonly]) {
+      border-color: var(--pa-border-strong);
+    }
 
     &:focus {
-      box-shadow: 0 0 0 3px rgb(220 38 38 / 0.15);
+      outline: none;
+      border-color: var(--pa-primary);
+      box-shadow: var(--pa-focus-ring);
+    }
+
+    &:disabled,
+    &[readonly] {
+      opacity: 0.55;
+      cursor: not-allowed;
+      background-color: var(--pa-bg-sunken);
+    }
+
+    // Number input spinner removal
+    &[type="number"]::-webkit-inner-spin-button,
+    &[type="number"]::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    &[type="number"] {
+      -moz-appearance: textfield;
+    }
+
+    // Search input clear button
+    &[type="search"]::-webkit-search-decoration,
+    &[type="search"]::-webkit-search-cancel-button {
+      -webkit-appearance: none;
+    }
+  }
+
+  // --------------------------------------------
+  // Helper Text
+  // --------------------------------------------
+
+  &__hint {
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    color: var(--pa-text-tertiary);
+    margin: var(--pa-space-1) 0 0;
+  }
+
+  // --------------------------------------------
+  // Error Messages
+  // --------------------------------------------
+
+  &__error {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-top: var(--pa-space-1);
+    animation: pa-fade-up 0.2s var(--pa-ease-out);
+  }
+
+  &__error-item {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    line-height: 1.5;
+    color: var(--pa-danger);
+  }
+
+  // --------------------------------------------
+  // State Modifiers
+  // --------------------------------------------
+
+  &--error {
+    .pa-field__input {
+      border-color: var(--pa-danger);
+      background-color: var(--pa-danger-muted);
+
+      &:focus {
+        border-color: var(--pa-danger);
+        box-shadow: var(--pa-focus-ring-danger);
+      }
+    }
+  }
+
+  &--success {
+    .pa-field__input {
+
+      &:focus {
+        border-color: var(--pa-success);
+        box-shadow: 0 0 0 3px rgb(5 150 105 / 0.15);
+      }
+    }
+  }
+
+  &--disabled {
+    .pa-field__label {
+      color: var(--pa-text-muted);
     }
   }
 }
 
-.field-error {
-  font-size: 0.8125rem;
-  color: var(--pa-danger);
-  line-height: 1.4;
-  animation: pa-fade-up 0.2s var(--pa-ease-out);
-  display: flex;
-  flex-direction: column; // Ensures multiple errors stack neatly
-}
+// --------------------------------------------
+// Reduced Motion
+// --------------------------------------------
 
 @media (prefers-reduced-motion: reduce) {
-  .field-error {
+  .pa-field__error {
     animation: none;
+  }
+
+  .pa-field__input {
+    transition: none;
   }
 }

@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, computed, input } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 
 @Component({
@@ -9,20 +9,43 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
   styleUrl: './input-field.scss',
 })
 export class InputField {
+  control = input.required<FormControl>();
 
-  @Input({ required: true }) control!: FormControl;
-  @Input({ required: true }) inputId!: string;
-  @Input({ required: true }) label!: string;
-  @Input() type: string = 'text';
-  @Input() placeholder: string = '';
-  @Input() autocomplete: string = 'off';
-  @Input() errorMessages: Record<string, string> = {};
+  inputId = input.required<string>();
 
-  get activeErrors(): string[] {
-    if (!this.control?.errors) return [];
-    
-    return Object.keys(this.control.errors)
-      .filter(key => this.errorMessages[key])
-      .map(key => this.errorMessages[key]);
+  label = input.required<string>();
+
+  type = input<string>('text');
+
+  placeholder = input<string>('');
+
+  autocomplete = input<string>('off');
+
+  errorMessages = input<Record<string, string>>({});
+
+  helperText = input<string>('');
+
+  required = input<boolean>(false);
+
+  readonly = input<boolean>(false);
+
+  activeErrors = computed<string[]>(() => {
+    const errors = this.control().errors;
+    if (!errors) return [];
+
+    return Object.keys(errors)
+      .filter(key => this.errorMessages()[key])
+      .map(key => this.errorMessages()[key]);
+  });
+
+  get describedById(): string | null {
+    const c = this.control();
+    if (c.invalid && c.touched) {
+      return `${this.inputId()}-error`;
+    }
+    if (this.helperText()) {
+      return `${this.inputId()}-hint`;
+    }
+    return null;
   }
 }

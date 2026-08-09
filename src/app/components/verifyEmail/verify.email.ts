@@ -1,9 +1,8 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../core/services/auth/auth.service';
 import { Subject, takeUntil, timer } from 'rxjs';
 import { VerifyEmailRequest } from '../../core/models/verifemail/verify.email.request';
-import is from '@angular/common/locales/is';
 import { ThemeToggle } from '../../shared/components/theme-toggle/theme-toggle';
 import { Brand } from "../../shared/components/brand/brand";
 
@@ -16,7 +15,7 @@ type VerifyState = 'loading' | 'success' | 'invalid' | 'expired' | 'error';
   templateUrl: './verify.email.html',
   styleUrl: './verify.email.scss',
 })
-export class VerifyEmail {
+export class VerifyEmail implements OnInit, OnDestroy {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
@@ -33,6 +32,16 @@ export class VerifyEmail {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  retryVerification(): void {
+    if (this.token()) {
+      this.state.set('loading');
+      this.errorMessage.set(null);
+      this.verifyToken();
+    } else {
+      this.extractTokenAndVerify();
+    }
   }
 
   private extractTokenAndVerify(): void {

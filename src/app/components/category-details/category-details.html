@@ -1,0 +1,446 @@
+<div class="category-page">
+  <main class="category-main" id="main-content">
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <ol class="breadcrumb-list">
+        <li class="breadcrumb-item">
+          <a routerLink="/home" class="breadcrumb-link">Home</a>
+        </li>
+        <li class="breadcrumb-separator" aria-hidden="true">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m9 18 6-6-6-6"/>
+          </svg>
+        </li>
+        <li class="breadcrumb-item">
+          <a routerLink="/categories" class="breadcrumb-link">Categories</a>
+        </li>
+        <li class="breadcrumb-separator" aria-hidden="true">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m9 18 6-6-6-6"/>
+          </svg>
+        </li>
+        <li class="breadcrumb-item breadcrumb-item--current" aria-current="page">
+          {{ category?.name || 'Category' }}
+        </li>
+      </ol>
+    </nav>
+
+    <!-- Category Header -->
+    <header
+      *ngIf="category && state() !== 'loading' && state() !== 'not-found' && state() !== 'error'"
+      class="category-header"
+    >
+      <div class="header-image-wrapper">
+        <img
+          [src]="category.imageUrl"
+          [alt]="category.name + ' category banner'"
+          class="header-image"
+          (error)="$any($event.target).style.display = 'none'"
+        />
+        <div class="header-image-overlay"></div>
+      </div>
+      <div class="header-content">
+        <h1 class="header-title">{{ category.name }}</h1>
+        <p class="header-description">{{ category.description }}</p>
+        <span class="header-meta">
+          {{ products.length }} product{{ products.length !== 1 ? 's' : '' }}
+        </span>
+      </div>
+    </header>
+
+    <!-- Loading Header Skeleton -->
+    <div *ngIf="state() === 'loading'" class="category-header category-header--skeleton">
+      <div class="header-image-wrapper">
+        <div class="header-image pa-skeleton"></div>
+        <div class="header-image-overlay"></div>
+      </div>
+      <div class="header-content">
+        <div class="skeleton-title pa-skeleton"></div>
+        <div class="skeleton-desc pa-skeleton"></div>
+        <div class="skeleton-meta pa-skeleton"></div>
+      </div>
+    </div>
+
+    <!-- Controls Bar -->
+    <div
+      *ngIf="state() === 'loaded' || state() === 'empty'"
+      class="controls-bar"
+    >
+      <!-- Search -->
+      <div class="search-wrapper">
+        <svg
+          class="search-icon"
+          xmlns="http://www.w3.org/2000/svg"
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <circle cx="11" cy="11" r="8"/>
+          <path d="m21 21-4.3-4.3"/>
+        </svg>
+        <input
+          type="search"
+          class="search-input"
+          placeholder="Search in this category..."
+          [value]="searchQuery"
+          (input)="onSearch($event)"
+          aria-label="Search products in this category"
+        />
+        <button
+          *ngIf="searchQuery"
+          type="button"
+          class="search-clear"
+          (click)="clearSearch()"
+          aria-label="Clear search"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M18 6 6 18"/>
+            <path d="m6 6 12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Sort -->
+      <div class="sort-wrapper">
+        <label for="sort" class="sort-label">Sort by</label>
+        <select
+          id="sort"
+          class="sort-select"
+          [value]="sortOption"
+          (change)="onSortChange($event)"
+          aria-label="Sort products"
+        >
+          <option value="newest">Newest</option>
+          <option value="price-asc">Price: Low to High</option>
+          <option value="price-desc">Price: High to Low</option>
+          <option value="popularity">Popularity</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Brand Filters -->
+    <div
+      *ngIf="brands.length > 0 && (state() === 'loaded' || state() === 'empty')"
+      class="brand-filters"
+    >
+      <span class="brand-filters-label">Brands:</span>
+      <div class="brand-chips">
+        <button
+          *ngFor="let brand of brands"
+          type="button"
+          class="brand-chip"
+          [class.active]="selectedBrands.includes(brand)"
+          (click)="toggleBrand(brand)"
+          [attr.aria-pressed]="selectedBrands.includes(brand)"
+        >
+          {{ brand }}
+        </button>
+      </div>
+      <button
+        *ngIf="selectedBrands.length > 0"
+        type="button"
+        class="brand-clear"
+        (click)="clearBrandFilters()"
+      >
+        Clear
+      </button>
+    </div>
+
+    <!-- Results Count -->
+    <p
+      *ngIf="state() === 'loaded' && searchQuery"
+      class="results-count"
+      aria-live="polite"
+    >
+      {{ displayedProducts.length }} result{{ displayedProducts.length !== 1 ? 's' : '' }} for "{{ searchQuery }}"
+    </p>
+
+    <!-- Loading Skeleton Grid -->
+    <div
+      *ngIf="state() === 'loading'"
+      class="product-grid skeleton-grid"
+      aria-busy="true"
+      aria-label="Loading products"
+    >
+      <div
+        *ngFor="let _ of [1,2,3,4,5,6,7,8]"
+        class="product-card skeleton-card"
+      >
+        <div class="skeleton-image pa-skeleton"></div>
+        <div class="skeleton-content">
+          <div class="skeleton-brand pa-skeleton"></div>
+          <div class="skeleton-title pa-skeleton"></div>
+          <div class="skeleton-price pa-skeleton"></div>
+          <div class="skeleton-rating pa-skeleton"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Error State -->
+    <div
+      *ngIf="state() === 'error'"
+      class="state-message error-state"
+      role="alert"
+    >
+      <div class="state-icon error-icon" aria-hidden="true">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="28"
+          height="28"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+      </div>
+      <h2 class="state-title">Something went wrong</h2>
+      <p class="state-text">{{ errorMessage }}</p>
+      <div class="state-actions">
+        <button
+          type="button"
+          class="pa-btn pa-btn--primary retry-btn"
+          (click)="loadCategoryAndProducts(categoryId!)"
+        >
+          Try again
+        </button>
+        <button
+          type="button"
+          class="pa-btn pa-btn--ghost back-btn"
+          (click)="goBack()"
+        >
+          Go back
+        </button>
+      </div>
+    </div>
+
+    <!-- Not Found State -->
+    <div
+      *ngIf="state() === 'not-found'"
+      class="state-message not-found-state"
+      role="alert"
+    >
+      <div class="state-icon not-found-icon" aria-hidden="true">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="28"
+          height="28"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="15" y1="9" x2="9" y2="15"/>
+          <line x1="9" y1="9" x2="15" y2="15"/>
+        </svg>
+      </div>
+      <h2 class="state-title">Category not found</h2>
+      <p class="state-text">
+        The category you are looking for does not exist or may have been removed.
+      </p>
+      <div class="state-actions">
+        <a routerLink="/categories" class="pa-btn pa-btn--primary retry-btn">
+          Browse categories
+        </a>
+        <button
+          type="button"
+          class="pa-btn pa-btn--ghost back-btn"
+          (click)="goBack()"
+        >
+          Go back
+        </button>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div
+      *ngIf="state() === 'empty' && !searchQuery && selectedBrands.length === 0"
+      class="state-message empty-state"
+      role="status"
+    >
+      <div class="state-icon empty-icon" aria-hidden="true">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="28"
+          height="28"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <rect width="20" height="20" x="2" y="2" rx="5" ry="5"/>
+          <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+          <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/>
+        </svg>
+      </div>
+      <h2 class="state-title">No products yet</h2>
+      <p class="state-text">
+        This category does not have any products at the moment. Check back soon for new arrivals.
+      </p>
+      <a routerLink="/categories" class="pa-btn pa-btn--primary retry-btn">
+        Browse other categories
+      </a>
+    </div>
+
+    <!-- No Search Results -->
+    <div
+      *ngIf="state() === 'loaded' && displayedProducts.length === 0 && (searchQuery || selectedBrands.length > 0)"
+      class="state-message empty-state"
+      role="status"
+    >
+      <div class="state-icon empty-icon" aria-hidden="true">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="28"
+          height="28"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <circle cx="11" cy="11" r="8"/>
+          <path d="m21 21-4.3-4.3"/>
+        </svg>
+      </div>
+      <h2 class="state-title">No matching products</h2>
+      <p class="state-text">
+        No products match your current filters.
+        <span *ngIf="searchQuery">Try a different search term.</span>
+      </p>
+      <button
+        type="button"
+        class="pa-btn pa-btn--ghost clear-search-btn"
+        (click)="clearSearch(); clearBrandFilters()"
+      >
+        Clear all filters
+      </button>
+    </div>
+
+    <!-- Product Grid -->
+    <div
+      *ngIf="state() === 'loaded' && displayedProducts.length > 0"
+      class="product-grid"
+    >
+      <article
+        *ngFor="let product of displayedProducts; trackBy: trackById; let i = index"
+        class="product-card"
+        [attr.aria-label]="product.name"
+        [style.animation-delay.ms]="i * 50"
+        tabindex="0"
+        (keydown.enter)="navigateToProduct(product.id)"
+        role="link"
+      >
+        <div
+          class="card-image-wrapper"
+          (click)="navigateToProduct(product.id)"
+        >
+          <img
+            [src]="product.imageUrl"
+            [alt]="product.name"
+            class="card-image"
+            loading="lazy"
+            (error)="$any($event.target).src = 'assets/placeholder-product.svg'"
+          />
+          <div
+            *ngIf="getDiscountPercent(product) > 0"
+            class="card-badge discount-badge"
+          >
+            -{{ getDiscountPercent(product) }}%
+          </div>
+        </div>
+        <div class="card-content">
+          <span class="card-brand">{{ product.brand }}</span>
+          <h3
+            class="card-title"
+            (click)="navigateToProduct(product.id)"
+          >
+            {{ product.name }}
+          </h3>
+          <p class="card-description">{{ product.description }}</p>
+
+          <div class="card-price-row">
+            <span class="card-price">{{ product.price | currency }}</span>
+            <span
+              *ngIf="product.originalPrice && product.originalPrice > product.price"
+              class="card-original-price"
+            >
+              {{ product.originalPrice | currency }}
+            </span>
+          </div>
+
+          <div class="card-rating">
+            <div
+              class="rating-stars"
+              [attr.aria-label]="'Rating: ' + product.rating + ' out of 5'"
+            >
+              <svg
+                *ngFor="let star of [1,2,3,4,5]"
+                xmlns="http://www.w3.org/2000/svg"
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                [class.filled]="star <= product.rating"
+                aria-hidden="true"
+              >
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+              </svg>
+            </div>
+            <span class="rating-count">({{ product.reviewCount }})</span>
+          </div>
+
+          <div class="card-footer">
+            <span
+              class="stock-badge"
+              [class.in-stock]="getStockLabel(product.stock).variant === 'in'"
+              [class.low-stock]="getStockLabel(product.stock).variant === 'low'"
+              [class.out-stock]="getStockLabel(product.stock).variant === 'out'"
+            >
+              {{ getStockLabel(product.stock).text }}
+            </span>
+            <button
+              type="button"
+              class="pa-btn pa-btn--primary card-btn"
+              (click)="navigateToProduct(product.id)"
+            >
+              View Details
+            </button>
+          </div>
+        </div>
+      </article>
+    </div>
+  </main>
+</div>

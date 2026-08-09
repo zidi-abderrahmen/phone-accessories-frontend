@@ -1,25 +1,41 @@
-<div class="form-field">
-  <label [for]="inputId" class="field-label">{{ label }}</label>
-  
+<div
+  class="pa-field"
+  [class.pa-field--error]="control().invalid && control().touched"
+  [class.pa-field--success]="control().valid && control().dirty && control().value"
+  [class.pa-field--disabled]="control().disabled"
+>
+  <!-- Label -->
+  <label [for]="inputId()" class="pa-field__label">
+    {{ label() }}
+    @if (required()) {
+      <span class="pa-field__required" aria-hidden="true">*</span>
+    }
+  </label>
+
+  <!-- Input -->
   <input
-    [id]="inputId"
-    [type]="type"
-    [formControl]="control"
-    [placeholder]="placeholder"
-    [autocomplete]="autocomplete"
-    [attr.aria-invalid]="control.invalid && control.touched"
-    [attr.aria-describedby]="control.invalid && control.touched ? inputId + '-error' : null"
-    class="field-input"
+    [id]="inputId()"
+    [type]="type()"
+    [formControl]="control()"
+    [placeholder]="placeholder()"
+    [autocomplete]="autocomplete()"
+    [attr.aria-invalid]="control().invalid && control().touched"
+    [attr.aria-describedby]="describedById"
+    [attr.aria-required]="required()"
+    [readonly]="readonly()"
+    class="pa-field__input"
   />
-  
-  @if (control.invalid && control.touched) {
-    <div
-      [id]="inputId + '-error'"
-      class="field-error"
-      role="alert"
-    >
-      @for (errorMsg of activeErrors; track errorMsg) {
-        <span>{{ errorMsg }}</span>
+
+  <!-- Helper Text -->
+  @if (helperText() && !(control().invalid && control().touched)) {
+    <p [id]="inputId() + '-hint'" class="pa-field__hint">{{ helperText() }}</p>
+  }
+
+  <!-- Error Messages -->
+  @if (control().invalid && control().touched) {
+    <div [id]="inputId() + '-error'" class="pa-field__error" role="alert" aria-live="polite">
+      @for (errorMsg of activeErrors(); track errorMsg) {
+        <span class="pa-field__error-item">{{ errorMsg }}</span>
       }
     </div>
   }

@@ -56,6 +56,16 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
         }
       }
 
+      if (error.status === 403) {
+          console.error('Access denied');
+      } else if (error.status === 404) {
+          console.error('Not Found');
+      } else if (error.status === 500) {
+          console.error('Server connection failed');
+      } else if (error.status === 0) {
+          console.error('No connection');
+      }
+
       return throwError(() => error);
     })
   );

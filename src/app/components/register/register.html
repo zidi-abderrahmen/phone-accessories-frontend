@@ -1,148 +1,213 @@
 <div class="register-page">
   <!-- Theme Toggle -->
-  <app-theme-toggle></app-theme-toggle>
+  <div class="register-theme-toggle">
+    <app-theme-toggle class="theme-toggle"/>
+  </div>
 
+  <!-- Back to Store Link -->
+  <a routerLink="/" class="register-back-link">
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="m15 18-6-6 6-6"/>
+    </svg>
+    <span>Back to store</span>
+  </a>
+
+  <!-- Visual Panel (Desktop Only) -->
+  <aside class="register-visual" aria-hidden="true">
+    <div class="register-visual__content">
+      <div class="register-visual__brand">
+        <app-brand size="lg"></app-brand>
+      </div>
+      <h2 class="register-visual__headline">Join the<br/>community.</h2>
+      <p class="register-visual__subhead">Create your account to unlock exclusive deals, track orders in real time, and manage your wishlist across all your devices.</p>
+
+      <div class="register-visual__trust">
+        <div class="trust-item">
+          <div class="trust-item__icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+          </div>
+          <span class="trust-item__label">Encrypted data</span>
+        </div>
+        <div class="trust-item">
+          <div class="trust-item__icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="m9 12 2 2 4-4"/>
+            </svg>
+          </div>
+          <span class="trust-item__label">Verified reviews</span>
+        </div>
+        <div class="trust-item">
+          <div class="trust-item__icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/>
+              <path d="M3 6h18"/>
+              <path d="M16 10a4 4 0 0 1-8 0"/>
+            </svg>
+          </div>
+          <span class="trust-item__label">Easy returns</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="register-visual__texture"></div>
+  </aside>
+
+  <!-- Main Content -->
   <main class="register-main" id="main-content">
     <div class="register-card">
-      <!-- Brand -->
-      <app-brand></app-brand>
+      <!-- Brand (Mobile Only) -->
+      <div class="register-brand-mobile">
+        <app-brand></app-brand>
+      </div>
 
       <!-- Success State -->
       @if (isSuccess()) {
         <div class="success-state" role="status" aria-live="polite">
-          <div class="success-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <div class="success-state__icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <rect width="20" height="16" x="2" y="4" rx="2"/>
               <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
             </svg>
           </div>
-          <h2 class="success-title">Verify your email</h2>
-          <p class="success-message">
-            We've sent a verification link to your email address. Please check your inbox and click the link to activate your account.
+          <h2 class="success-state__title">Verify your email</h2>
+          <p class="success-state__message">
+            We have sent a verification link to your email address. Please check your inbox and click the link to activate your account.
           </p>
-          <div class="success-actions">
-            <a routerLink="/login" class="pa-btn pa-btn--primary success-btn">
+          <div class="success-state__actions">
+            <a routerLink="/login" class="pa-btn pa-btn--primary success-state__btn">
               Back to sign in
             </a>
           </div>
         </div>
       } @else {
         <!-- Header -->
-        <div class="register-header">
-          <h2>Create your account</h2>
+        <header class="register-header">
+          <h1>Create your account</h1>
           <p>Get started with Phone Accessories today.</p>
-        </div>
+        </header>
 
         <!-- Error Alert -->
-         @if (errorMessage()) {
+        @if (errorMessage()) {
           <div
             class="register-error"
             role="alert"
             aria-live="polite"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <circle cx="12" cy="12" r="10"/>
-              <line x1="12" y1="8" x2="12" y2="12"/>
-              <line x1="12" y1="16" x2="12.01" y2="16"/>
-            </svg>
-            <span>{{ errorMessage() }}</span>
+            <div class="register-error__icon" aria-hidden="true">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="8" x2="12" y2="12"/>
+                <line x1="12" y1="16" x2="12.01" y2="16"/>
+              </svg>
+            </div>
+            <span class="register-error__text">{{ errorMessage() }}</span>
           </div>
-         }
+        }
 
         <!-- Form -->
         <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="register-form" novalidate>
           <!-- Name Row -->
-          <div class="name-row">
-            <!-- First Name -->
-            <app-input-field
-              inputId="firstName"
-              label="First name"
-              placeholder="John"
-              autocomplete="given-name"
-              [control]="$any(registerForm.get('firstName'))"
-              [errorMessages]="{
-                'required': 'First name is required',
-                'minlength': 'Must be at least 2 characters',
-                'maxlength': 'Must be 50 characters or less'
-              }">
-            </app-input-field>
+          <div class="register-form__row register-form__row--2col">
+            <div class="register-form__field">
+              <app-input-field
+                [control]="$any(registerForm.get('firstName'))"
+                inputId="firstName"
+                label="First name"
+                type="text"
+                placeholder="John"
+                autocomplete="given-name"
+                [required]="true"
+                [errorMessages]="{ 
+                  required: 'First name is required'
+                }"
+              />
+            </div>
 
-            <!-- Last Name -->
-            <app-input-field
-              inputId="lastName"
-              label="Last name"
-              placeholder="Doe"
-              autocomplete="family-name"
-              [control]="$any(registerForm.get('lastName'))"
-              [errorMessages]="{
-                'required': 'Last name is required',
-                'minlength': 'Must be at least 2 characters',
-                'maxlength': 'Must be 50 characters or less'
-              }">
-            </app-input-field>
+            <div class="register-form__field">
+              <app-input-field
+                [control]="$any(registerForm.get('lastName'))"
+                inputId="lastName"
+                label="Last name"
+                type="text"
+                placeholder="Doe"
+                autocomplete="family-name"
+                [required]="true"
+                [errorMessages]="{ 
+                  required: 'Last name is required'
+                }"
+              />
+            </div>
           </div>
 
           <!-- Email -->
-          <app-input-field
-            inputId="email"
-            type="email"
-            label="Email address"
-            placeholder="you@example.com"
-            autocomplete="email"
-            [control]="$any(registerForm.get('email'))"
-            [errorMessages]="{
-              'required': 'Email is required',
-              'email': 'Please enter a valid email address'
-            }">
-          </app-input-field>
+          <div class="register-form__field">
+            <app-input-field
+              [control]="$any(registerForm.get('email'))"
+              inputId="email"
+              label="Email address"
+              type="email"
+              placeholder="you@example.com"
+              [required]="true"
+              [errorMessages]="{ 
+                required: 'Email is required', 
+                email: 'Please enter a valid email address'
+              }"
+            />
+          </div>
 
           <!-- Password -->
-          <app-password-input
-          [control]="$any(registerForm.get('password'))"
-          placeholder="Create a strong password"
-          passwordHint="Must be at least 8 characters with uppercase, lowercase, number, and special character."
-          [passwordStrengthIndicator]="true"
-          passwordAutocomplete="new-password"
-          ></app-password-input>
+          <div class="register-form__field">
+            <app-password-input
+              [control]="$any(registerForm.get('password'))"
+              inputId="password"
+              label="Password"
+              placeholder="Create a strong password"
+              [passwordStrengthIndicator]="true"
+              passwordHint="Must be at least 8 characters with uppercase, lowercase, number, and special character."
+              [required]="true"
+              passwordAutocomplete="new-password"
+            />
+          </div>
 
           <!-- Confirm Password -->
-          <app-password-input
-          inputId="confirmPassword"
-          [control]="$any(registerForm.get('confirmPassword'))"
-          label="Confirm password"
-          placeholder="Re-enter your password"
-          passwordAutocomplete="new-password"
-          passwordRequiredMessage="Please confirm your password"
-          ></app-password-input>
+          <div class="register-form__field">
+            <app-password-input
+              [control]="$any(registerForm.get('confirmPassword'))"
+              inputId="confirmPassword"
+              label="Confirm password"
+              placeholder="Re-enter your password"
+              [required]="true"
+              passwordAutocomplete="new-password"
+            />
+          </div>
 
           <!-- Terms -->
-          <div class="form-terms">
-            <label class="checkbox-wrapper" [class.has-error]="termsAccepted?.invalid && termsAccepted?.touched">
+          <div class="register-form__row">
+            <label class="pa-checkbox-wrapper" [class.pa-checkbox-wrapper--error]="termsAccepted?.invalid && termsAccepted?.touched">
               <input
                 type="checkbox"
                 formControlName="termsAccepted"
-                class="checkbox-input"
+                class="pa-checkbox-input"
+                id="terms-accepted"
                 [attr.aria-invalid]="termsAccepted?.invalid && termsAccepted?.touched"
               />
-              <span class="checkbox-checkmark" aria-hidden="true">
-                @if (registerForm.value.termsAccepted) {
-                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="20 6 9 17 4 12"/>
-                  </svg>
-                }
+              <span class="pa-checkbox-checkmark" aria-hidden="true">
+                <svg class="pa-checkbox-check" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
               </span>
-              <span class="checkbox-label">
+              <span class="pa-checkbox-label">
                 I agree to the
-                <a routerLink="/terms" class="terms-link">Terms of Service</a>
+                <a routerLink="/terms" class="pa-link">Terms of Service</a>
                 and
-                <a routerLink="/privacy" class="terms-link">Privacy Policy</a>
+                <a routerLink="/privacy" class="pa-link">Privacy Policy</a>
               </span>
             </label>
             @if (termsAccepted?.invalid && termsAccepted?.touched) {
-              <div
-                class="field-error terms-error"
-                role="alert"
-              >
+              <div class="register-form__field-error" role="alert">
                 You must agree to the Terms of Service and Privacy Policy to continue.
               </div>
             }
@@ -156,19 +221,17 @@
             [attr.aria-busy]="isLoading()"
           >
             @if (isLoading()) {
-              <span class="spinner" aria-hidden="true"></span>
+              <span class="register-submit__spinner" aria-hidden="true"></span>
             }
-            
             <span>{{ isLoading() ? 'Creating account...' : 'Create account' }}</span>
           </button>
         </form>
 
         <!-- Footer -->
-        <div class="register-footer">
-          <p>Already have an account? <a routerLink="/login" class="footer-link">Sign in</a></p>
-        </div>
+        <footer class="register-footer">
+          <p>Already have an account? <a routerLink="/login" class="register-footer__link">Sign in</a></p>
+        </footer>
       }
-
     </div>
   </main>
 </div>

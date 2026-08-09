@@ -1,0 +1,282 @@
+<div class="category-list-container">
+  <!-- Page Header -->
+  <header class="page-header">
+    <div class="page-header__content">
+      <h1 class="page-header__title">Categories</h1>
+      <p class="page-header__subtitle">Browse our collection of phone accessory categories</p>
+    </div>
+    <a
+      *ngIf="authService.hasAnyRole(['SUPER_ADMIN', 'ADMIN'])"
+      routerLink="/admin/categories/create"
+      class="pa-btn pa-btn--primary"
+    >
+      Create Category
+    </a>
+  </header>
+
+  <!-- Notifications -->
+  <div
+    *ngIf="successMessage()"
+    class="alert alert-success"
+    role="status"
+    aria-live="polite"
+  >
+    {{ successMessage() }}
+  </div>
+  <div
+    *ngIf="errorMessage()"
+    class="alert alert-error"
+    role="alert"
+    aria-live="assertive"
+  >
+    {{ errorMessage() }}
+  </div>
+
+  <!-- Loading State: Skeleton Grid -->
+  <div
+    *ngIf="loading()"
+    class="skeleton-grid"
+    aria-busy="true"
+    aria-label="Loading categories"
+  >
+    <div class="skeleton-card" *ngFor="let item of [1,2,3,4,5,6]">
+      <div class="skeleton-card__image"></div>
+      <div class="skeleton-card__body">
+        <div class="skeleton-card__title"></div>
+        <div class="skeleton-card__text"></div>
+        <div class="skeleton-card__text skeleton-card__text--short"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div
+    *ngIf="!loading() && filteredCategories.length === 0"
+    class="empty-state"
+  >
+    <div class="empty-state__icon">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="48"
+        height="48"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <rect width="7" height="7" x="3" y="3" rx="1" />
+        <rect width="7" height="7" x="14" y="3" rx="1" />
+        <rect width="7" height="7" x="14" y="14" rx="1" />
+        <rect width="7" height="7" x="3" y="14" rx="1" />
+      </svg>
+    </div>
+    <h3 class="empty-state__title">No categories found</h3>
+    <p class="empty-state__description">
+      Get started by creating your first category.
+    </p>
+    <a
+      *ngIf="authService.hasAnyRole(['SUPER_ADMIN', 'ADMIN'])"
+      routerLink="/admin/categories/create"
+      class="pa-btn pa-btn--primary"
+    >
+      Create Category
+    </a>
+  </div>
+
+  <!-- Category Cards Grid -->
+  <div
+    *ngIf="!loading() && filteredCategories.length > 0"
+    class="cards-grid"
+  >
+    <article
+      class="category-card"
+      *ngFor="let category of filteredCategories; let i = index"
+      (click)="viewCategory(category)"
+      [style.animation-delay.ms]="i * 60"
+      role="button"
+      tabindex="0"
+      (keydown.enter)="viewCategory(category)"
+      [attr.aria-label]="'View ' + category.name + ' category'"
+    >
+      <div class="card-image">
+        <img
+          [src]="category.imageUrl"
+          [alt]="category.name"
+          loading="lazy"
+        />
+        <div
+          *ngIf="authService.hasAnyRole(['SUPER_ADMIN', 'ADMIN'])"
+          class="card-actions-overlay"
+        >
+          <button
+            class="pa-btn pa-btn--sm pa-btn--icon action-edit"
+            (click)="editCategory($event, category)"
+            [attr.aria-label]="'Edit ' + category.name"
+            title="Edit category"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+            </svg>
+          </button>
+          <button
+            class="pa-btn pa-btn--sm pa-btn--icon action-delete"
+            (click)="confirmDelete($event, category)"
+            [attr.aria-label]="'Delete ' + category.name"
+            title="Delete category"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M3 6h18" />
+              <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+              <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+            </svg>
+          </button>
+        </div>
+      </div>
+      <div class="card-body">
+        <h3 class="card-title">{{ category.name }}</h3>
+        <p class="card-description">{{ category.description }}</p>
+        <div class="card-meta">
+          <time [attr.datetime]="category.createdAt">
+            Created {{ category.createdAt | date:'mediumDate' }}
+          </time>
+        </div>
+      </div>
+    </article>
+  </div>
+
+  <!-- Pagination -->
+  <nav
+    *ngIf="!loading() && totalPages > 1"
+    class="pagination"
+    aria-label="Category pagination"
+  >
+    <button
+      class="pa-btn pa-btn--secondary pa-btn--sm"
+      [disabled]="currentPage === 0"
+      (click)="goToPage(currentPage - 1)"
+      aria-label="Previous page"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path d="m15 18-6-6 6-6" />
+      </svg>
+      Previous
+    </button>
+
+    <span class="page-info">
+      Page <strong>{{ currentPage + 1 }}</strong> of
+      <strong>{{ totalPages }}</strong>
+      <span class="page-info__total">({{ totalElements }} total)</span>
+    </span>
+
+    <button
+      class="pa-btn pa-btn--secondary pa-btn--sm"
+      [disabled]="currentPage === totalPages - 1"
+      (click)="goToPage(currentPage + 1)"
+      aria-label="Next page"
+    >
+      Next
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path d="m9 18 6-6-6-6" />
+      </svg>
+    </button>
+  </nav>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div
+  *ngIf="showDeleteModal"
+  class="modal-overlay"
+  (click)="cancelDelete()"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="delete-modal-title"
+>
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-content__icon modal-content__icon--danger">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path d="M3 6h18" />
+        <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+        <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+        <line x1="10" x2="10" y1="11" y2="17" />
+        <line x1="14" x2="14" y1="11" y2="17" />
+      </svg>
+    </div>
+    <h3 id="delete-modal-title" class="modal-content__title">
+      Delete Category
+    </h3>
+    <p class="modal-content__text">
+      Are you sure you want to delete
+      <strong>"{{ categoryToDelete?.name }}"</strong>? This action cannot be
+      undone and will permanently remove this category.
+    </p>
+    <div class="modal-actions">
+      <button
+        class="pa-btn pa-btn--secondary"
+        (click)="cancelDelete()"
+        [disabled]="deleting()"
+      >
+        Cancel
+      </button>
+      <button
+        class="pa-btn pa-btn--danger"
+        (click)="deleteCategory()"
+        [disabled]="deleting()"
+        [class.pa-btn--loading]="deleting()"
+      >
+        {{ deleting() ? 'Deleting...' : 'Delete Category' }}
+      </button>
+    </div>
+  </div>
+</div>

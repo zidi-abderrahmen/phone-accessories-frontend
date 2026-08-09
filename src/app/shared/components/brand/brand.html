@@ -1,10 +1,45 @@
-<div class="brand">
-    <div class="brand-mark">
-        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <rect width="32" height="32" rx="8" fill="currentColor" fill-opacity="0.1"/>
-        <path d="M10 22V10h5.5c2.5 0 4.5 2 4.5 4.5S18 19 15.5 19H13v3h-3zm3-6h2.5c1 0 1.5-.5 1.5-1.5S16.5 13 15.5 13H13v3z" fill="currentColor"/>
+<div
+  class="pa-brand"
+  [class.pa-brand--sm]="size() === 'sm'"
+  [class.pa-brand--md]="size() === 'md'"
+  [class.pa-brand--lg]="size() === 'lg'"
+  [class.pa-brand--vertical]="layout() === 'vertical'"
+  [class.pa-brand--horizontal]="layout() === 'horizontal'"
+  [class.pa-brand--linked]="!!link()"
+>
+  @if (link()) {
+    <a
+      [routerLink]="link()"
+      class="pa-brand__link"
+      [attr.aria-label]="ariaLabel() || title()"
+    >
+      <span class="pa-brand__mark" aria-hidden="true">
+        <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="32" height="32" rx="8" fill="currentColor" fill-opacity="0.12"/>
+          <path d="M10 22V10h5.5c2.5 0 4.5 2 4.5 4.5S18 19 15.5 19H13v3h-3zm3-6h2.5c1 0 1.5-.5 1.5-1.5S16.5 13 15.5 13H13v3z" fill="currentColor"/>
         </svg>
+      </span>
+      <span class="pa-brand__text">
+        <span class="pa-brand__title">{{ title() }}</span>
+        @if (showTagline()) {
+          <span class="pa-brand__tagline">{{ tagline() }}</span>
+        }
+      </span>
+    </a>
+  } @else {
+    <div class="pa-brand__inner">
+      <span class="pa-brand__mark" aria-hidden="true">
+        <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="32" height="32" rx="8" fill="currentColor" fill-opacity="0.12"/>
+          <path d="M10 22V10h5.5c2.5 0 4.5 2 4.5 4.5S18 19 15.5 19H13v3h-3zm3-6h2.5c1 0 1.5-.5 1.5-1.5S16.5 13 15.5 13H13v3z" fill="currentColor"/>
+        </svg>
+      </span>
+      <span class="pa-brand__text">
+        <span class="pa-brand__title">{{ title() }}</span>
+        @if (showTagline()) {
+          <span class="pa-brand__tagline">{{ tagline() }}</span>
+        }
+      </span>
     </div>
-    <h1 class="brand-title">Phone Accessories</h1>
-    <p class="brand-tagline">Premium mobile gear for everyday life</p>
+  }
 </div>
