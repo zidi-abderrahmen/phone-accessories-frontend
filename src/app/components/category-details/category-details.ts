@@ -1,30 +1,13 @@
 import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { Subject, finalize, takeUntil } from 'rxjs';
+import { Subject, finalize, forkJoin, takeUntil } from 'rxjs';
 import { CategoryResponse } from '../../core/models/category/category-response';
 import { CategoryService } from '../../core/services/category/category.service';
+import { AccessoryResponse } from '../../core/models/accessory/accessory-response';
 import { CommonModule, Location } from '@angular/common';
 
-interface ProductResponse {
-  id: number;
-  name: string;
-  description: string;
-  price: number;
-  originalPrice?: number;
-  imageUrl: string;
-  rating: number;
-  reviewCount: number;
-  stock: number;
-  brand: string;
-  createdAt: string;
-}
-
-interface ProductViewModel extends ProductResponse {
-  discountPercent?: number;
-}
-
 type PageState = 'loading' | 'loaded' | 'empty' | 'not-found' | 'error';
-type SortOption = 'newest' | 'price-asc' | 'price-desc' | 'popularity';
+type SortOption = 'newest' | 'price-asc' | 'price-desc';
 
 @Component({
   selector: 'app-category-details',
@@ -41,15 +24,15 @@ export class CategoryDetails implements OnInit, OnDestroy {
   private readonly categoryService = inject(CategoryService);
   private readonly destroy$ = new Subject<void>();
 
+  readonly placeholderImage = 'assets/placeholder-product.svg';
+
   state = signal<PageState>('loading');
   category: CategoryResponse | null = null;
-  products: ProductViewModel[] = [];
-  displayedProducts: ProductViewModel[] = [];
+  accessories: AccessoryResponse[] = [];
+  displayedAccessories: AccessoryResponse[] = [];
 
   searchQuery = '';
   sortOption: SortOption = 'newest';
-  brands: string[] = [];
-  selectedBrands: string[] = [];
 
   errorMessage: string | null = null;
   categoryId: number | null = null;
@@ -77,15 +60,18 @@ export class CategoryDetails implements OnInit, OnDestroy {
         }
 
         this.categoryId = id;
-        this.loadCategoryAndProducts(id);
+        this.loadCategoryAndAccessories(id);
       });
   }
 
-  loadCategoryAndProducts(id: number): void {
+  loadCategoryAndAccessories(id: number): void {
     this.state.set('loading');
     this.errorMessage = null;
 
-    this.categoryService.getCategoryById(id)
+    forkJoin({
+      category: this.categoryService.getCategoryById(id),
+      accessoriesPage: this.categoryService.getAllRelatedAccessories(id)
+    })
       .pipe(
         takeUntil(this.destroy$),
         finalize(() => {
@@ -95,16 +81,11 @@ export class CategoryDetails implements OnInit, OnDestroy {
         })
       )
       .subscribe({
-        next: (cat) => {
-          this.category = cat;
-          // In a real app, products would come from ProductService.
-          // Here we simulate with an empty list until the backend is wired.
-          // Replace this block with a forkJoin or chained call to your
-          // ProductService.getProductsByCategory(id) when ready.
-          this.products = [];
+        next: ({ category, accessoriesPage }) => {
+          this.category = category;
+          this.accessories = accessoriesPage.content || [];
           this.applyFilters();
-          this.extractBrands();
-          this.state.set(this.products.length === 0 ? 'empty' : 'loaded');
+          this.state.set(this.accessories.length === 0 ? 'empty' : 'loaded');
         },
         error: (err) => {
           this.handleCategoryError(err);
@@ -124,13 +105,9 @@ export class CategoryDetails implements OnInit, OnDestroy {
       this.errorMessage = err.error.message;
     } else {
       this.state.set('error');
-      this.errorMessage = 'Failed to load category. Please try again later.';
+      this.errorMessage = 'Failed to load category accessories. Please try again later.';
     }
   }
-
-  // ------------------------------------------------------------------
-  // Product filtering & sorting (client-side until ProductService is wired)
-  // ------------------------------------------------------------------
 
   onSearch(event: Event): void {
     this.searchQuery = (event.target as HTMLInputElement).value.trim().toLowerCase();
@@ -147,39 +124,17 @@ export class CategoryDetails implements OnInit, OnDestroy {
     this.applyFilters();
   }
 
-  toggleBrand(brand: string): void {
-    const idx = this.selectedBrands.indexOf(brand);
-    if (idx === -1) {
-      this.selectedBrands.push(brand);
-    } else {
-      this.selectedBrands.splice(idx, 1);
-    }
-    this.applyFilters();
-  }
-
-  clearBrandFilters(): void {
-    this.selectedBrands = [];
-    this.applyFilters();
-  }
-
   private applyFilters(): void {
-    let result = [...this.products];
+    let result = [...this.accessories];
 
-    // Search
     if (this.searchQuery) {
-      result = result.filter(p =>
-        p.name.toLowerCase().includes(this.searchQuery) ||
-        p.description.toLowerCase().includes(this.searchQuery) ||
-        p.brand.toLowerCase().includes(this.searchQuery)
+      result = result.filter(item =>
+        item.title.toLowerCase().includes(this.searchQuery) ||
+        item.description.toLowerCase().includes(this.searchQuery) ||
+        item.productCode.toLowerCase().includes(this.searchQuery)
       );
     }
 
-    // Brand filter
-    if (this.selectedBrands.length > 0) {
-      result = result.filter(p => this.selectedBrands.includes(p.brand));
-    }
-
-    // Sort
     switch (this.sortOption) {
       case 'price-asc':
         result.sort((a, b) => a.price - b.price);
@@ -187,30 +142,13 @@ export class CategoryDetails implements OnInit, OnDestroy {
       case 'price-desc':
         result.sort((a, b) => b.price - a.price);
         break;
-      case 'popularity':
-        result.sort((a, b) => b.reviewCount - a.reviewCount);
-        break;
       case 'newest':
       default:
         result.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
         break;
     }
 
-    this.displayedProducts = result;
-  }
-
-  private extractBrands(): void {
-    const brandSet = new Set(this.products.map(p => p.brand));
-    this.brands = Array.from(brandSet).sort();
-  }
-
-  // ------------------------------------------------------------------
-  // Helpers
-  // ------------------------------------------------------------------
-
-  getDiscountPercent(product: ProductViewModel): number {
-    if (!product.originalPrice || product.originalPrice <= product.price) return 0;
-    return Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100);
+    this.displayedAccessories = result;
   }
 
   getStockLabel(stock: number): { text: string; variant: 'in' | 'low' | 'out' } {
@@ -223,11 +161,11 @@ export class CategoryDetails implements OnInit, OnDestroy {
     this.location.back();
   }
 
-  navigateToProduct(productId: number): void {
-    this.router.navigate(['/products', productId]);
+  navigateToAccessory(accessoryId: number): void {
+    this.router.navigate(['/accessories', accessoryId]);
   }
 
-  trackById(index: number, product: ProductViewModel): number {
-    return product.id;
+  trackById(index: number, item: AccessoryResponse): number {
+    return item.id;
   }
 }
