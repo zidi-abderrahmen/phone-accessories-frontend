@@ -12,7 +12,7 @@ export const roleGuard = (allowedRoles: string[]): CanActivateFn => {
       take(1),
       map(() => {
         if (authService.hasAnyRole(allowedRoles)) return true;
-        return router.createUrlTree(['/home']);
+        return router.createUrlTree(['/403']);
       })
     );
   };
