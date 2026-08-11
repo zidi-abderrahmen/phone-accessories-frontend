@@ -19,7 +19,8 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
         req.url.includes('/refresh-token') || 
         req.url.includes('/logout');
 
-      const wasAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
+      // Use AuthService's current auth state instead of localStorage (may be stale)
+      const wasAuthenticated = authService.isAuthenticatedValue() === true;
 
       if (error.status === 401 && !isAuthRoute && wasAuthenticated) {
         if (!isRefreshing) {
@@ -38,7 +39,7 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
               authService.logout().subscribe({
                 error: () => {}
               });
-              router.navigate(['/login']);
+              router.navigate(['/home']);
               return throwError(() => refreshError);
             })
           );

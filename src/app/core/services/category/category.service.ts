@@ -25,7 +25,7 @@ export class CategoryService {
             params = params.set('sort', sort);
         }
 
-        return this.http.get<Page<CategoryResponse>>(this.apiUrl, { params, withCredentials: true });
+        return this.http.get<Page<CategoryResponse>>(this.apiUrl, { params });
     }
 
     getAllRelatedAccessories(id: number, page: number = 0, size: number = 10, sort?: string): Observable<Page<AccessoryResponse>> {
@@ -35,11 +35,11 @@ export class CategoryService {
 
         if (sort) params = params.set('sort', sort);
 
-        return this.http.get<Page<AccessoryResponse>>(`${this.apiUrl}/${id}/accessories`, { params, withCredentials: true });
+        return this.http.get<Page<AccessoryResponse>>(`${this.apiUrl}/${id}/accessories`, { params });
     }
 
     getCategoryById(id: number): Observable<CategoryResponse> {
-        return this.http.get<CategoryResponse>(`${this.apiUrl}/${id}`, { withCredentials: true });
+        return this.http.get<CategoryResponse>(`${this.apiUrl}/${id}`);
     }
 
     createCategory(data: CategoryRequest): Observable<CategoryResponse> {

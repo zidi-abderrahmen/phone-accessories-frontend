@@ -22,11 +22,11 @@ export class AccessoryService {
             params = params.set('sort', sort);
         }
 
-        return this.http.get<Page<AccessoryResponse>>(this.apiUrl, { params, withCredentials: true });
+        return this.http.get<Page<AccessoryResponse>>(this.apiUrl, { params });
     }
 
     getAccessoryById(id: number): Observable<AccessoryResponse> {
-        return this.http.get<AccessoryResponse>(`${this.apiUrl}/${id}`, { withCredentials: true });
+        return this.http.get<AccessoryResponse>(`${this.apiUrl}/${id}`);
     }
 
     createAccessory(data: AccessoryRequest): Observable<AccessoryResponse> {

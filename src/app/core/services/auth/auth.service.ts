@@ -29,6 +29,11 @@ export class AuthService {
         filter((val): val is boolean => val !== null)
     );
 
+    // Synchronous access to the current auth state value
+    isAuthenticatedValue(): boolean | null {
+        return this.authState.value;
+    }
+
     constructor(private http: HttpClient) {}
 
     register(data: RegisterRequest): Observable<RegisterResponse> {
