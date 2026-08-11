@@ -1,0 +1,380 @@
+<div class="pa-roles">
+  <div class="pa-container">
+
+    <!-- Header -->
+    <header class="pa-roles__header">
+      <div>
+        <h1 class="pa-roles__title">Roles</h1>
+        <p class="pa-roles__subtitle">Manage the roles available across the application.</p>
+      </div>
+
+      @if (authService.hasAnyRole(['SUPER_ADMIN'])) {
+        <button type="button" class="pa-btn pa-btn--primary" (click)="openCreateModal()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 5v14M5 12h14" />
+            </svg>
+            New role
+        </button>
+      }
+    </header>
+
+    <!-- Toolbar: segmented filter + search -->
+    <div class="pa-roles__toolbar">
+      <div class="pa-segmented" role="tablist" aria-label="Filter roles by status">
+        @for (tab of tabs; track tab.value) {
+          <button
+            type="button"
+            role="tab"
+            class="pa-segmented__item"
+            [class.pa-segmented__item--active]="filter() === tab.value"
+            [attr.aria-selected]="filter() === tab.value"
+            (click)="setFilter(tab.value)">
+            {{ tab.label }}
+          </button>
+        }
+      </div>
+
+      <div class="pa-roles__search">
+        <svg class="pa-roles__search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="11" cy="11" r="8" />
+          <path d="m21 21-4.3-4.3" />
+        </svg>
+        <input
+          type="search"
+          placeholder="Search roles by name..."
+          aria-label="Search roles by name"
+          [value]="searchTerm()"
+          (input)="onSearchInput($event)" />
+        @if (searchTerm()) {
+          <button type="button" class="pa-roles__search-clear" aria-label="Clear search" (click)="clearSearch()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M18 6 6 18M6 6l12 12" />
+            </svg>
+          </button>
+        }
+      </div>
+    </div>
+
+    <!-- Row-action error banner -->
+    @if (actionError()) {
+      <div class="pa-roles__banner pa-roles__banner--danger" role="alert">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="10" />
+          <path d="M12 8v5M12 16h.01" />
+        </svg>
+        <span>{{ actionError() }}</span>
+      </div>
+    }
+
+    <!-- Loading state -->
+    @if (loading()) {
+      <div class="pa-roles-table-wrap" aria-busy="true" aria-live="polite">
+        <table class="pa-roles-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Status</th>
+              <th>Created</th>
+              <th>Updated</th>
+              <th class="pa-roles-table__actions-col">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of [1, 2, 3, 4, 5]; track row) {
+              <tr class="pa-roles-table__skeleton-row">
+                <td><span class="pa-skeleton pa-roles-table__skeleton" style="width: 2rem;"></span></td>
+                <td><span class="pa-skeleton pa-roles-table__skeleton" style="width: 8rem;"></span></td>
+                <td><span class="pa-skeleton pa-roles-table__skeleton" style="width: 4.5rem;"></span></td>
+                <td><span class="pa-skeleton pa-roles-table__skeleton" style="width: 6rem;"></span></td>
+                <td><span class="pa-skeleton pa-roles-table__skeleton" style="width: 6rem;"></span></td>
+                <td><span class="pa-skeleton pa-roles-table__skeleton" style="width: 5rem;"></span></td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+
+    <!-- Error state -->
+    @if (!loading() && error()) {
+      <div class="pa-roles__state pa-roles__state--error">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="10" />
+          <path d="M12 8v5M12 16h.01" />
+        </svg>
+        <h3>Couldn't load roles</h3>
+        <p>{{ error() }}</p>
+        <button type="button" class="pa-btn pa-btn--secondary pa-btn--sm" (click)="retry()">Try again</button>
+      </div>
+    }
+
+    <!-- Empty state -->
+    @if (!loading() && !error() && filteredRoles().length === 0) {
+      <div class="pa-roles__state pa-roles__state--empty">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="3" y="7" width="18" height="13" rx="2" />
+          <path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 12h18" />
+        </svg>
+        @if (searchTerm()) {
+          <h3>No roles match "{{ searchTerm() }}"</h3>
+          <p>Try a different search term, or clear the search.</p>
+          <button type="button" class="pa-btn pa-btn--secondary pa-btn--sm" (click)="clearSearch()">Clear search</button>
+        } @else if (filter() === 'DELETED') {
+          <h3>No deleted roles</h3>
+          <p>Deleted roles will show up here.</p>
+        } @else if (filter() === 'ACTIVE') {
+          <h3>No active roles</h3>
+          @if (authService.hasAnyRole(['SUPER_ADMIN'])) {
+            <p>Create a role to get started.</p>
+            <button type="button" class="pa-btn pa-btn--primary pa-btn--sm" (click)="openCreateModal()">New role</button>
+          }
+        } @else {
+          <h3>No roles yet</h3>
+          @if (authService.hasAnyRole(['SUPER_ADMIN'])) {
+            <p>Create your first role to get started.</p>
+            <button type="button" class="pa-btn pa-btn--primary pa-btn--sm" (click)="openCreateModal()">New role</button>
+          }
+          
+        }
+      </div>
+    }
+
+    <!-- Content -->
+    @if (!loading() && !error() && filteredRoles().length > 0) {
+
+      <!-- Desktop / tablet table -->
+      <div class="pa-roles-table-wrap pa-roles-table-wrap--desktop">
+        <table class="pa-roles-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Status</th>
+              <th>Created</th>
+              <th>Updated</th>
+              @if (authService.hasAnyRole(['SUPER_ADMIN'])) { <th class="pa-roles-table__actions-col">Actions</th> }
+            </tr>
+          </thead>
+          <tbody>
+            @for (role of filteredRoles(); track trackByRoleId($index, role)) {
+              <tr [class.pa-roles-table__row--deleted]="role.deleted">
+                <td class="pa-roles-table__id pa-font-mono">#{{ role.id }}</td>
+                <td class="pa-roles-table__name">{{ role.name }}</td>
+                <td>
+                  <span class="pa-badge" [class.pa-badge--danger]="role.deleted" [class.pa-badge--success]="!role.deleted">
+                    <span class="pa-badge__dot"></span>
+                    {{ role.deleted ? 'Deleted' : 'Active' }}
+                  </span>
+                </td>
+                <td class="pa-roles-table__date">{{ formatDate(role.createdAt) }}</td>
+                <td class="pa-roles-table__date">{{ formatDate(role.updatedAt) }}</td>
+                @if (authService.hasAnyRole(['SUPER_ADMIN'])) {
+                   <td>
+                    <div class="pa-roles-table__row-actions">
+                        @if (!role.deleted) {
+                        <button type="button" class="pa-btn pa-btn--ghost pa-btn--icon pa-btn--sm"
+                                aria-label="Edit role" title="Edit role" (click)="openEditModal(role)">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
+                            </svg>
+                        </button>
+                        <button type="button" class="pa-btn pa-btn--ghost pa-btn--icon pa-btn--sm pa-roles-table__danger-action"
+                                aria-label="Delete role" title="Delete role"
+                                [class.pa-btn--loading]="softDeletingId() === role.id"
+                                [disabled]="softDeletingId() === role.id"
+                                (click)="softDelete(role)">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                            </svg>
+                        </button>
+                        } @else {
+                            <!-- NEW: Restore Button -->
+                            <button type="button" class="pa-btn pa-btn--ghost pa-btn--icon pa-btn--sm"
+                                    aria-label="Restore role" title="Restore role"
+                                    (click)="restoreRole(role)">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+                                <path d="M3 3v5h5" />
+                                </svg>
+                            </button>
+                            
+                            <!-- EXISTING: Permanent Delete Button -->
+                            <button type="button" class="pa-btn pa-btn--ghost pa-btn--icon pa-btn--sm pa-roles-table__danger-action"
+                                    aria-label="Permanently delete role" title="Permanently delete role"
+                                    (click)="confirmHardDelete(role)">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                                <path d="M10 11v6M14 11v6" />
+                                </svg>
+                            </button>
+                        }
+                    </div>
+                    </td>
+                }
+                
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Mobile cards -->
+      <ul class="pa-roles-cards">
+        @for (role of filteredRoles(); track trackByRoleId($index, role)) {
+          <li class="pa-roles-card" [class.pa-roles-card--deleted]="role.deleted">
+            <div class="pa-roles-card__top">
+              <div>
+                <p class="pa-roles-card__name">{{ role.name }}</p>
+                <p class="pa-roles-card__id pa-font-mono">#{{ role.id }}</p>
+              </div>
+              <span class="pa-badge" [class.pa-badge--danger]="role.deleted" [class.pa-badge--success]="!role.deleted">
+                <span class="pa-badge__dot"></span>
+                {{ role.deleted ? 'Deleted' : 'Active' }}
+              </span>
+            </div>
+
+            <dl class="pa-roles-card__meta">
+              <div>
+                <dt>Created</dt>
+                <dd>{{ formatDate(role.createdAt) }}</dd>
+              </div>
+              <div>
+                <dt>Updated</dt>
+                <dd>{{ formatDate(role.updatedAt) }}</dd>
+              </div>
+              @if (role.deleted) {
+                <div>
+                  <dt>Deleted</dt>
+                  <dd>{{ formatDate(role.deletedAt) }}</dd>
+                </div>
+              }
+            </dl>
+
+            @if (authService.hasAnyRole(['SUPER_ADMIN'])) {
+                <div class="pa-roles-card__actions">
+                @if (!role.deleted) {
+                    <button type="button" class="pa-btn pa-btn--secondary pa-btn--sm" (click)="openEditModal(role)">
+                    Edit
+                    </button>
+                    <button type="button" class="pa-btn pa-btn--ghost pa-btn--sm pa-roles-table__danger-action"
+                            [class.pa-btn--loading]="softDeletingId() === role.id"
+                            [disabled]="softDeletingId() === role.id"
+                            (click)="softDelete(role)">
+                    Delete
+                    </button>
+                } @else {
+                        <!-- NEW: Restore Button -->
+                        <button type="button" class="pa-btn pa-btn--secondary pa-btn--sm" 
+                                (click)="restoreRole(role)">
+                            Restore
+                        </button>
+                        
+                        <!-- EXISTING: Permanent Delete Button -->
+                        <button type="button" class="pa-btn pa-btn--ghost pa-btn--sm pa-roles-table__danger-action"
+                                (click)="confirmHardDelete(role)">
+                            Delete permanently
+                        </button>
+                    }
+                </div>
+            }
+            
+          </li>
+        }
+      </ul>
+    }
+
+  </div>
+</div>
+
+<!-- Create / edit modal -->
+@if (isModalOpen() && authService.hasAnyRole(['SUPER_ADMIN'])) {
+  <div class="pa-modal-backdrop" (click)="closeModal()">
+    <div class="pa-modal" role="dialog" aria-modal="true" [attr.aria-label]="isEditMode() ? 'Edit role' : 'New role'"
+         (click)="$event.stopPropagation()">
+      <header class="pa-modal__header">
+        <h2>{{ isEditMode() ? 'Edit role' : 'New role' }}</h2>
+        <button type="button" class="pa-btn pa-btn--ghost pa-btn--icon pa-btn--sm" aria-label="Close" (click)="closeModal()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M18 6 6 18M6 6l12 12" />
+          </svg>
+        </button>
+      </header>
+
+      <form class="pa-modal__body" (ngSubmit)="submitForm()">
+        <div>
+          <label for="role-name">Role name</label>
+          <input
+            id="role-name"
+            type="text"
+            name="roleName"
+            placeholder="e.g. ADMIN"
+            autocomplete="off"
+            [class.pa-input--error]="formError()"
+            [value]="formName()"
+            (input)="onFormNameInput($event)" />
+          @if (formError()) {
+            <p class="pa-form-error">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                   stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="10" />
+                <path d="M12 8v5M12 16h.01" />
+              </svg>
+              {{ formError() }}
+            </p>
+          } @else {
+            <p class="pa-form-hint">Use a short, descriptive, uppercase name.</p>
+          }
+        </div>
+
+        <footer class="pa-modal__footer">
+          <button type="button" class="pa-btn pa-btn--secondary" [disabled]="submitting()" (click)="closeModal()">
+            Cancel
+          </button>
+          <button type="submit" class="pa-btn pa-btn--primary" [class.pa-btn--loading]="submitting()" [disabled]="submitting()">
+            {{ isEditMode() ? 'Save changes' : 'Create role' }}
+          </button>
+        </footer>
+      </form>
+    </div>
+  </div>
+}
+
+<!-- Permanent delete confirmation -->
+@if (authService.hasAnyRole(['SUPER_ADMIN']) && deletingRoleId() !== null && deletingRole(); as role) {
+  <div class="pa-modal-backdrop" (click)="cancelHardDelete()">
+    <div class="pa-modal pa-modal--danger" role="alertdialog" aria-modal="true" aria-label="Permanently delete role"
+         (click)="$event.stopPropagation()">
+      <header class="pa-modal__header">
+        <h2>Delete "{{ role.name }}" permanently?</h2>
+      </header>
+
+      <div class="pa-modal__body">
+        <p class="pa-roles__confirm-text">
+          This action cannot be undone. The role will be permanently removed from the system.
+        </p>
+      </div>
+
+      <footer class="pa-modal__footer">
+        <button type="button" class="pa-btn pa-btn--secondary" [disabled]="deletingInProgress()" (click)="cancelHardDelete()">
+          Cancel
+        </button>
+        <button type="button" class="pa-btn pa-btn--danger" [class.pa-btn--loading]="deletingInProgress()"
+                [disabled]="deletingInProgress()" (click)="hardDelete()">
+          Delete permanently
+        </button>
+      </footer>
+    </div>
+  </div>
+}

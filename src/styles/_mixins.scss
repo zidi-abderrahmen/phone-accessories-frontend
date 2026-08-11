@@ -1,0 +1,22 @@
+// ============================================
+// MIXINS
+// ============================================
+
+// 1. Responsive Media Queries (respond-to)
+// Adjust these pixel values based on your project's design if needed.
+@mixin respond-to($breakpoint) {
+  @if $breakpoint == sm {
+    @media (min-width: 640px) { @content; }
+  } @else if $breakpoint == md {
+    @media (min-width: 768px) { @content; }
+  } @else if $breakpoint == lg {
+    @media (min-width: 1024px) { @content; }
+  }
+}
+
+// 2. Accessibility Focus Ring (focus-ring)
+// Used when users navigate with the keyboard (Tab key)
+@mixin focus-ring {
+  outline: 2px solid var(--pa-text-primary, #000);
+  outline-offset: 2px;
+}
