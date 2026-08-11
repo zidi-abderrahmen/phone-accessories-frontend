@@ -57,7 +57,7 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
       }
 
       if (error.status === 403) {
-          console.error('Access denied');
+          router.navigate(['/403']);
       } else if (error.status === 404) {
           console.error('Not Found');
       } else if (error.status === 500) {

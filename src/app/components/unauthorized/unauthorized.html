@@ -1,0 +1,126 @@
+<section class="pa-unauthorized" role="main" aria-label="Access denied">
+  <div class="pa-container pa-unauthorized__container">
+
+    <div class="pa-unauthorized__content pa-animate-fade-up">
+
+      <!-- Visual Anchor — Shield with Lock -->
+      <div class="pa-unauthorized__visual">
+        <svg
+          class="pa-unauthorized__visual-svg"
+          viewBox="0 0 120 140"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+        >
+          <path
+            d="M60 4L8 28v34c0 30.5 22.2 59 52 66 29.8-7 52-35.5 52-66V28L60 4z"
+            stroke="currentColor"
+            stroke-width="2.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+          <rect
+            x="40"
+            y="56"
+            width="40"
+            height="32"
+            rx="4"
+            stroke="currentColor"
+            stroke-width="2.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+          <path
+            d="M50 56V46a10 10 0 0 1 20 0v10"
+            stroke="currentColor"
+            stroke-width="2.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+          <circle cx="60" cy="72" r="3" fill="currentColor"/>
+          <line x1="60" y1="75" x2="60" y2="82" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"/>
+        </svg>
+      </div>
+
+      <!-- Error Code -->
+      <h1 class="pa-unauthorized__code">403</h1>
+
+      <!-- Title -->
+      <h2 class="pa-unauthorized__title">Access Denied</h2>
+
+      <!-- Message -->
+      <p class="pa-unauthorized__message">
+        You do not have permission to view this page.
+        If you believe this is an error, please sign in again or contact support.
+      </p>
+
+      <!-- Recovery Actions -->
+      <nav class="pa-unauthorized__actions" aria-label="Recovery navigation">
+        <button
+          type="button"
+          class="pa-btn pa-btn--primary pa-unauthorized__btn"
+          (click)="goHome()"
+        >
+          <svg
+            class="pa-unauthorized__btn-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+            <polyline points="9 22 9 12 15 12 15 22"/>
+          </svg>
+          Back to Home
+        </button>
+
+        <button
+          type="button"
+          class="pa-btn pa-btn--secondary pa-unauthorized__btn"
+          (click)="loginAgain()"
+        >
+          <svg
+            class="pa-unauthorized__btn-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+            <polyline points="10 17 15 12 10 7"/>
+            <line x1="15" y1="12" x2="3" y2="12"/>
+          </svg>
+          Login Again
+        </button>
+
+        <button
+          type="button"
+          class="pa-btn pa-btn--ghost pa-unauthorized__btn"
+          (click)="goBack()"
+        >
+          <svg
+            class="pa-unauthorized__btn-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <polyline points="15 18 9 12 15 6"/>
+          </svg>
+          Go Back
+        </button>
+      </nav>
+
+    </div>
+
+  </div>
+</section>
