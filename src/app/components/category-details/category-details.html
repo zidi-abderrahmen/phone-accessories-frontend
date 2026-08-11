@@ -43,7 +43,7 @@
         <h1 class="header-title">{{ category.name }}</h1>
         <p class="header-description">{{ category.description }}</p>
         <span class="header-meta">
-          {{ products.length }} product{{ products.length !== 1 ? 's' : '' }}
+          {{ accessories.length }} accessory{{ accessories.length !== 1 ? 'ies' : '' }}
         </span>
       </div>
     </header>
@@ -87,10 +87,10 @@
         <input
           type="search"
           class="search-input"
-          placeholder="Search in this category..."
+          placeholder="Search accessories in this category..."
           [value]="searchQuery"
           (input)="onSearch($event)"
-          aria-label="Search products in this category"
+          aria-label="Search accessories"
         />
         <button
           *ngIf="searchQuery"
@@ -125,52 +125,14 @@
           class="sort-select"
           [value]="sortOption"
           (change)="onSortChange($event)"
-          aria-label="Sort products"
+          aria-label="Sort Accessories"
         >
           <option value="newest">Newest</option>
           <option value="price-asc">Price: Low to High</option>
           <option value="price-desc">Price: High to Low</option>
-          <option value="popularity">Popularity</option>
         </select>
       </div>
     </div>
-
-    <!-- Brand Filters -->
-    <div
-      *ngIf="brands.length > 0 && (state() === 'loaded' || state() === 'empty')"
-      class="brand-filters"
-    >
-      <span class="brand-filters-label">Brands:</span>
-      <div class="brand-chips">
-        <button
-          *ngFor="let brand of brands"
-          type="button"
-          class="brand-chip"
-          [class.active]="selectedBrands.includes(brand)"
-          (click)="toggleBrand(brand)"
-          [attr.aria-pressed]="selectedBrands.includes(brand)"
-        >
-          {{ brand }}
-        </button>
-      </div>
-      <button
-        *ngIf="selectedBrands.length > 0"
-        type="button"
-        class="brand-clear"
-        (click)="clearBrandFilters()"
-      >
-        Clear
-      </button>
-    </div>
-
-    <!-- Results Count -->
-    <p
-      *ngIf="state() === 'loaded' && searchQuery"
-      class="results-count"
-      aria-live="polite"
-    >
-      {{ displayedProducts.length }} result{{ displayedProducts.length !== 1 ? 's' : '' }} for "{{ searchQuery }}"
-    </p>
 
     <!-- Loading Skeleton Grid -->
     <div
@@ -185,10 +147,8 @@
       >
         <div class="skeleton-image pa-skeleton"></div>
         <div class="skeleton-content">
-          <div class="skeleton-brand pa-skeleton"></div>
           <div class="skeleton-title pa-skeleton"></div>
           <div class="skeleton-price pa-skeleton"></div>
-          <div class="skeleton-rating pa-skeleton"></div>
         </div>
       </div>
     </div>
@@ -222,7 +182,7 @@
         <button
           type="button"
           class="pa-btn pa-btn--primary retry-btn"
-          (click)="loadCategoryAndProducts(categoryId!)"
+          (click)="loadCategoryAndAccessories(categoryId!)"
         >
           Try again
         </button>
@@ -278,166 +238,49 @@
     </div>
 
     <!-- Empty State -->
-    <div
-      *ngIf="state() === 'empty' && !searchQuery && selectedBrands.length === 0"
-      class="state-message empty-state"
-      role="status"
-    >
-      <div class="state-icon empty-icon" aria-hidden="true">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="28"
-          height="28"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <rect width="20" height="20" x="2" y="2" rx="5" ry="5"/>
-          <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
-          <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/>
-        </svg>
-      </div>
-      <h2 class="state-title">No products yet</h2>
-      <p class="state-text">
-        This category does not have any products at the moment. Check back soon for new arrivals.
-      </p>
-      <a routerLink="/categories" class="pa-btn pa-btn--primary retry-btn">
-        Browse other categories
-      </a>
+    <div *ngIf="state() === 'empty' && !searchQuery" class="state-message empty-state">
+      <h2 class="state-title">No accessories found</h2>
+      <p class="state-text">There are no accessories assigned to this category yet.</p>
     </div>
 
-    <!-- No Search Results -->
-    <div
-      *ngIf="state() === 'loaded' && displayedProducts.length === 0 && (searchQuery || selectedBrands.length > 0)"
-      class="state-message empty-state"
-      role="status"
-    >
-      <div class="state-icon empty-icon" aria-hidden="true">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="28"
-          height="28"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <circle cx="11" cy="11" r="8"/>
-          <path d="m21 21-4.3-4.3"/>
-        </svg>
-      </div>
-      <h2 class="state-title">No matching products</h2>
-      <p class="state-text">
-        No products match your current filters.
-        <span *ngIf="searchQuery">Try a different search term.</span>
-      </p>
-      <button
-        type="button"
-        class="pa-btn pa-btn--ghost clear-search-btn"
-        (click)="clearSearch(); clearBrandFilters()"
-      >
-        Clear all filters
-      </button>
-    </div>
-
-    <!-- Product Grid -->
-    <div
-      *ngIf="state() === 'loaded' && displayedProducts.length > 0"
-      class="product-grid"
-    >
+        <!-- Accessory Grid -->
+    <div *ngIf="state() === 'loaded' && displayedAccessories.length > 0" class="product-grid">
       <article
-        *ngFor="let product of displayedProducts; trackBy: trackById; let i = index"
-        class="product-card"
-        [attr.aria-label]="product.name"
-        [style.animation-delay.ms]="i * 50"
+        *ngFor="let accessory of displayedAccessories; trackBy: trackById; let i = index"
+        class="product-card accessory-card"
+        [style.animation-delay.ms]="i * 60"
+        (click)="navigateToAccessory(accessory.id)"
+        role="button"
         tabindex="0"
-        (keydown.enter)="navigateToProduct(product.id)"
-        role="link"
+        (keydown.enter)="navigateToAccessory(accessory.id)"
+        [attr.aria-label]="'View ' + accessory.title + ' accessory'"
       >
-        <div
-          class="card-image-wrapper"
-          (click)="navigateToProduct(product.id)"
-        >
+        <div class="card-image-wrapper">
           <img
-            [src]="product.imageUrl"
-            [alt]="product.name"
+            src="https://placehold.net/800x600.png"
+            [alt]="accessory.title"
             class="card-image"
             loading="lazy"
-            (error)="$any($event.target).src = 'assets/placeholder-product.svg'"
+            (error)="$any($event.target).src = 'https://placehold.net/800x600.png'"
           />
-          <div
-            *ngIf="getDiscountPercent(product) > 0"
-            class="card-badge discount-badge"
-          >
-            -{{ getDiscountPercent(product) }}%
-          </div>
         </div>
         <div class="card-content">
-          <span class="card-brand">{{ product.brand }}</span>
-          <h3
-            class="card-title"
-            (click)="navigateToProduct(product.id)"
-          >
-            {{ product.name }}
-          </h3>
-          <p class="card-description">{{ product.description }}</p>
-
-          <div class="card-price-row">
-            <span class="card-price">{{ product.price | currency }}</span>
-            <span
-              *ngIf="product.originalPrice && product.originalPrice > product.price"
-              class="card-original-price"
-            >
-              {{ product.originalPrice | currency }}
-            </span>
-          </div>
-
-          <div class="card-rating">
-            <div
-              class="rating-stars"
-              [attr.aria-label]="'Rating: ' + product.rating + ' out of 5'"
-            >
-              <svg
-                *ngFor="let star of [1,2,3,4,5]"
-                xmlns="http://www.w3.org/2000/svg"
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                [class.filled]="star <= product.rating"
-                aria-hidden="true"
-              >
-                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-              </svg>
-            </div>
-            <span class="rating-count">({{ product.reviewCount }})</span>
-          </div>
-
-          <div class="card-footer">
+          <div class="card-badges">
+            <span class="card-category">{{ accessory.category?.name }}</span>
             <span
               class="stock-badge"
-              [class.in-stock]="getStockLabel(product.stock).variant === 'in'"
-              [class.low-stock]="getStockLabel(product.stock).variant === 'low'"
-              [class.out-stock]="getStockLabel(product.stock).variant === 'out'"
+              [class.in-stock]="getStockLabel(accessory.stock).variant === 'in'"
+              [class.low-stock]="getStockLabel(accessory.stock).variant === 'low'"
+              [class.out-stock]="getStockLabel(accessory.stock).variant === 'out'"
             >
-              {{ getStockLabel(product.stock).text }}
+              {{ getStockLabel(accessory.stock).text }}
             </span>
-            <button
-              type="button"
-              class="pa-btn pa-btn--primary card-btn"
-              (click)="navigateToProduct(product.id)"
-            >
-              View Details
-            </button>
+          </div>
+          <h3 class="card-title">{{ accessory.title }}</h3>
+          <p class="card-description">{{ accessory.description }}</p>
+          <div class="card-footer">
+            <span class="card-price">{{ accessory.price | currency }}</span>
+            <span class="card-code">{{ accessory.productCode }}</span>
           </div>
         </div>
       </article>

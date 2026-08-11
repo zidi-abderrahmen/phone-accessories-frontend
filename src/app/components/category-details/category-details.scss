@@ -882,6 +882,56 @@
 }
 
 // --------------------------------------------
+// ACCESSORY CARD LAYOUT
+// --------------------------------------------
+
+.accessory-card {
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--pa-focus-ring), var(--pa-shadow-lg);
+    border-color: var(--pa-primary);
+  }
+
+  &:active {
+    transform: translateY(-2px) scale(0.995);
+    transition-duration: 50ms;
+  }
+
+  .card-title {
+    cursor: default;
+
+    &:hover {
+      color: var(--pa-text-primary);
+    }
+  }
+}
+
+.card-badges {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--pa-space-2);
+  margin-bottom: var(--pa-space-1);
+}
+
+.card-category {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--pa-text-muted);
+}
+
+.card-code {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--pa-text-muted);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+// --------------------------------------------
 // REDUCED MOTION
 // --------------------------------------------
 

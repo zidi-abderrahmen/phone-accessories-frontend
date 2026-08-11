@@ -5,6 +5,7 @@ import { CategoryResponse } from '../../models/category/category-response';
 import { Observable } from 'rxjs';
 import { Page } from '../../models/page';
 import { CategoryRequest } from '../../models/category/category-request';
+import { AccessoryResponse } from '../../models/accessory/accessory-response';
 
 @Injectable({
     providedIn: 'root'
@@ -25,6 +26,16 @@ export class CategoryService {
         }
 
         return this.http.get<Page<CategoryResponse>>(this.apiUrl, { params, withCredentials: true });
+    }
+
+    getAllRelatedAccessories(id: number, page: number = 0, size: number = 10, sort?: string): Observable<Page<AccessoryResponse>> {
+        let params = new HttpParams()
+        .set('page', page.toString())
+        .set('size', size.toString())
+
+        if (sort) params = params.set('sort', sort);
+
+        return this.http.get<Page<AccessoryResponse>>(`${this.apiUrl}/${id}/accessories`, { params, withCredentials: true });
     }
 
     getCategoryById(id: number): Observable<CategoryResponse> {
