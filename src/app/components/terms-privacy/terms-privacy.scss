@@ -1,0 +1,305 @@
+@use 'sass:map';
+
+$breakpoints: (
+  sm: 640px,
+  md: 768px,
+  lg: 1024px,
+  xl: 1280px,
+);
+
+@mixin respond-to($breakpoint) {
+  @media (min-width: map.get($breakpoints, $breakpoint)) {
+    @content;
+  }
+}
+
+// Height of the app's sticky top nav (see .pa-nav in the global stylesheet),
+// used to keep anchored headings and the sticky TOC clear of it.
+$nav-offset: 4rem;
+
+.tp {
+  display: block;
+}
+
+// ================================================================
+// PAGE HEADER
+// ================================================================
+
+.tp-header {
+  background-color: var(--pa-bg-sunken);
+  border-bottom: 1px solid var(--pa-border);
+  padding-top: var(--pa-space-12);
+  padding-bottom: var(--pa-space-12);
+
+  @include respond-to(md) {
+    padding-top: var(--pa-space-16);
+    padding-bottom: var(--pa-space-16);
+  }
+
+  &__eyebrow {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--pa-primary);
+    margin-bottom: var(--pa-space-4);
+  }
+
+  &__title {
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+    margin-bottom: var(--pa-space-4);
+  }
+
+  &__intro {
+    color: var(--pa-text-secondary);
+    font-size: 1.0625rem;
+    line-height: 1.7;
+    max-width: 65ch;
+    margin-bottom: var(--pa-space-6);
+  }
+
+  &__meta {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--pa-space-2);
+    padding: 0.375rem var(--pa-space-3);
+    border-radius: var(--pa-radius-full);
+    background-color: var(--pa-surface);
+    border: 1px solid var(--pa-border);
+    font-size: 0.8125rem;
+    color: var(--pa-text-secondary);
+  }
+
+  &__meta-icon {
+    width: 0.875rem;
+    height: 0.875rem;
+    color: var(--pa-text-tertiary);
+    flex-shrink: 0;
+  }
+}
+
+// ================================================================
+// LAYOUT — sticky TOC rail + content column
+// ================================================================
+
+.tp-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--pa-space-10);
+  padding-top: var(--pa-space-12);
+  padding-bottom: var(--pa-space-20);
+
+  @include respond-to(lg) {
+    grid-template-columns: 240px minmax(0, 1fr);
+    gap: var(--pa-space-16);
+    align-items: start;
+  }
+}
+
+// ---- Table of contents --------------------------------------------------
+
+.tp-toc {
+  min-width: 0;
+
+  @include respond-to(lg) {
+    position: sticky;
+    top: calc(#{$nav-offset} + var(--pa-space-6));
+    max-height: calc(100vh - #{$nav-offset} - var(--pa-space-10));
+    overflow-y: auto;
+  }
+}
+
+.tp-toc__heading {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--pa-text-muted);
+  margin-bottom: var(--pa-space-4);
+}
+
+.tp-toc__group {
+  margin-bottom: var(--pa-space-6);
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.tp-toc__group-label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--pa-text-primary);
+  margin-bottom: var(--pa-space-2);
+}
+
+.tp-toc__list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  border-left: 1px solid var(--pa-border);
+}
+
+.tp-toc__link {
+  display: block;
+  padding: 0.375rem var(--pa-space-4);
+  margin-left: -1px;
+  border-left: 2px solid transparent;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  color: var(--pa-text-secondary);
+  transition: color var(--pa-transition-fast), border-color var(--pa-transition-fast);
+
+  &:hover {
+    color: var(--pa-text-primary);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: none;
+    color: var(--pa-primary);
+    background-color: var(--pa-primary-muted);
+    border-radius: var(--pa-radius-sm);
+  }
+
+  &--active {
+    color: var(--pa-primary);
+    font-weight: 600;
+    border-left-color: var(--pa-primary);
+  }
+}
+
+// ---- Content --------------------------------------------------------------
+
+.tp-content {
+  max-width: 74ch;
+  min-width: 0;
+}
+
+.tp-content__section-title {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: var(--pa-text-primary);
+  padding-bottom: var(--pa-space-4);
+  margin-bottom: var(--pa-space-8);
+  border-bottom: 1px solid var(--pa-border);
+}
+
+.tp-block {
+  scroll-margin-top: calc(#{$nav-offset} + var(--pa-space-6));
+  margin-bottom: var(--pa-space-10);
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  &:focus-visible {
+    outline: none;
+  }
+
+  &:focus-visible .tp-block__title {
+    box-shadow: var(--pa-focus-ring);
+    border-radius: var(--pa-radius-sm);
+  }
+
+  > p {
+    margin-bottom: var(--pa-space-3);
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+}
+
+.tp-block__title {
+  font-size: 1.1875rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  color: var(--pa-text-primary);
+  margin-bottom: var(--pa-space-3);
+}
+
+.tp-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--pa-space-2);
+  margin: var(--pa-space-3) 0;
+
+  li {
+    position: relative;
+    padding-left: var(--pa-space-5);
+    color: var(--pa-text-secondary);
+    line-height: 1.7;
+    font-size: 0.9375rem;
+
+    &::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0.65em;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background-color: var(--pa-primary);
+    }
+  }
+
+  strong {
+    color: var(--pa-text-primary);
+    font-weight: 600;
+  }
+}
+
+.tp-divider {
+  margin: var(--pa-space-12) 0;
+}
+
+// ---- Last updated footnote -------------------------------------------------
+
+.tp-footnote {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--pa-space-4);
+  margin-top: var(--pa-space-12);
+}
+
+.tp-footnote__icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: var(--pa-primary);
+  flex-shrink: 0;
+  margin-top: 0.125rem;
+}
+
+.tp-footnote__text {
+  font-size: 0.9375rem;
+
+  p {
+    color: var(--pa-text-secondary);
+    margin-bottom: var(--pa-space-1);
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    strong {
+      color: var(--pa-text-primary);
+    }
+  }
+}
+
+// ================================================================
+// Reduced motion
+// ================================================================
+
+@media (prefers-reduced-motion: reduce) {
+  .tp-toc__link {
+    transition: none;
+  }
+}
