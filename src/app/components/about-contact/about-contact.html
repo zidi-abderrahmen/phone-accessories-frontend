@@ -1,0 +1,386 @@
+<!-- ============================================================
+     Reusable icon template — inline SVGs, stroke style matches
+     the design system's mask-image icons (round caps, 1.75 wt).
+     ============================================================ -->
+<ng-template #icon let-name="name">
+  @switch (name) {
+    @case ('compass') {
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="9" />
+        <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" />
+      </svg>
+    }
+    @case ('layers') {
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <polygon points="12 2 2 7 12 12 22 7 12 2" />
+        <polyline points="2 17 12 22 22 17" />
+        <polyline points="2 12 12 17 22 12" />
+      </svg>
+    }
+    @case ('target') {
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="9" />
+        <circle cx="12" cy="12" r="5" />
+        <circle cx="12" cy="12" r="1" />
+      </svg>
+    }
+    @case ('shield') {
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M12 2 4 5v6c0 5 3.4 8.9 8 10 4.6-1.1 8-5 8-10V5l-8-3Z" />
+        <path d="m9 12 2 2 4-4" />
+      </svg>
+    }
+    @case ('truck') {
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="1" y="6" width="14" height="11" rx="1.5" />
+        <path d="M15 10h3.5l3.5 3.5V17h-7z" />
+        <circle cx="6" cy="19" r="1.75" />
+        <circle cx="17.5" cy="19" r="1.75" />
+      </svg>
+    }
+    @case ('lock') {
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="4" y="10.5" width="16" height="10" rx="2" />
+        <path d="M7.5 10.5V7a4.5 4.5 0 0 1 9 0v3.5" />
+      </svg>
+    }
+    @case ('headset') {
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M4 13v-1a8 8 0 0 1 16 0v1" />
+        <rect x="2.5" y="13" width="4" height="6" rx="1.5" />
+        <rect x="17.5" y="13" width="4" height="6" rx="1.5" />
+        <path d="M19.5 19v.5a3 3 0 0 1-3 3h-3" />
+      </svg>
+    }
+    @case ('mail') {
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="2.5" y="4.5" width="19" height="15" rx="2.5" />
+        <path d="m3 6.5 9 6.5 9-6.5" />
+      </svg>
+    }
+    @case ('phone') {
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M5.5 3h3l1.5 4.5-2.2 1.7a13 13 0 0 0 6.5 6.5l1.7-2.2 4.5 1.5v3a2 2 0 0 1-2.2 2A17.5 17.5 0 0 1 3.5 5.2 2 2 0 0 1 5.5 3Z" />
+      </svg>
+    }
+    @case ('clock') {
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="9" />
+        <path d="M12 7v5l3.5 2" />
+      </svg>
+    }
+    @case ('pin') {
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M12 21s7-6.4 7-12a7 7 0 0 0-14 0c0 5.6 7 12 7 12Z" />
+        <circle cx="12" cy="9" r="2.5" />
+      </svg>
+    }
+    @case ('check-circle') {
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="9" />
+        <path d="m8 12.5 2.5 2.5 5.5-5.5" />
+      </svg>
+    }
+    @case ('alert-circle') {
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="9" />
+        <path d="M12 8v5" />
+        <path d="M12 16.2v.1" />
+      </svg>
+    }
+    @case ('arrow-right') {
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M5 12h14" />
+        <path d="m13 6 6 6-6 6" />
+      </svg>
+    }
+    @case ('send') {
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M21 3 3 10.5l7.5 3L13.5 21 21 3Z" />
+        <path d="M10.5 13.5 21 3" />
+      </svg>
+    }
+  }
+</ng-template>
+
+<main class="ac">
+
+  <!-- ============================================================
+       1. HERO
+       ============================================================ -->
+  <section class="ac-hero" aria-labelledby="ac-hero-title">
+    <div class="ac-hero__container pa-container">
+      <div class="ac-hero__content pa-animate-fade-up">
+        <p class="ac-hero__eyebrow">About us</p>
+        <h1 id="ac-hero-title" class="ac-hero__title">About Phone Accessories</h1>
+        <p class="ac-hero__description">
+          We're a Tunisian shop built around one idea: finding the right case, charger, or cable
+          for your phone shouldn't take an afternoon of guessing. We test what we sell and stand
+          behind every order.
+        </p>
+        <div class="ac-hero__actions">
+          <a class="pa-btn pa-btn--primary pa-btn--lg" href="#ac-contact">
+            Get in touch
+          </a>
+          <a class="pa-btn pa-btn--secondary pa-btn--lg" routerLink="/accessories">
+            Browse accessories
+          </a>
+        </div>
+      </div>
+
+      <div class="ac-hero__stats pa-stagger-children" role="list" aria-label="Phone Accessories in numbers">
+        @for (stat of heroStats; track stat.label) {
+          <div class="ac-stat-card" role="listitem">
+            <span class="ac-stat-card__value">{{ stat.value }}</span>
+            <span class="ac-stat-card__label">{{ stat.label }}</span>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       2. ABOUT US
+       ============================================================ -->
+  <section class="pa-container pa-py-20" aria-labelledby="ac-about-title">
+    <div class="pa-section-header pa-section-header--centered">
+      <p class="pa-section-header__eyebrow">Our story</p>
+      <h2 id="ac-about-title" class="pa-section-header__title">A small team, obsessed with the details</h2>
+      <p class="pa-section-header__description">
+        No warehouse full of guesswork here — just a straightforward answer to who we are, what
+        we sell, and why we bother.
+      </p>
+    </div>
+
+    <div class="pa-grid-3 pa-stagger-children">
+      @for (pillar of aboutPillars; track pillar.title) {
+        <article class="pa-card pa-card--elevated ac-pillar">
+          <div class="ac-pillar__icon">
+            <ng-container [ngTemplateOutlet]="icon" [ngTemplateOutletContext]="{ name: pillar.icon }" />
+          </div>
+          <h3 class="ac-pillar__title">{{ pillar.title }}</h3>
+          <p class="ac-pillar__description">{{ pillar.description }}</p>
+        </article>
+      }
+    </div>
+  </section>
+
+  <!-- ============================================================
+       3. WHY CHOOSE US
+       ============================================================ -->
+  <section class="ac-why" aria-labelledby="ac-why-title">
+    <div class="pa-container">
+      <div class="pa-section-header pa-section-header--centered">
+        <p class="pa-section-header__eyebrow">Why choose us</p>
+        <h2 id="ac-why-title" class="pa-section-header__title">Shopping that doesn't ask you to hope for the best</h2>
+      </div>
+
+      <div class="pa-grid-4 pa-stagger-children">
+        @for (item of whyChooseUs; track item.title) {
+          <div class="ac-why-card">
+            <div class="ac-why-card__icon">
+              <ng-container [ngTemplateOutlet]="icon" [ngTemplateOutletContext]="{ name: item.icon }" />
+            </div>
+            <h3 class="ac-why-card__title">{{ item.title }}</h3>
+            <p class="ac-why-card__description">{{ item.description }}</p>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       4 & 5. CONTACT INFORMATION + CONTACT FORM
+       ============================================================ -->
+  <section id="ac-contact" class="pa-container pa-py-20" aria-labelledby="ac-contact-title">
+    <div class="pa-section-header">
+      <p class="pa-section-header__eyebrow">Contact</p>
+      <h2 id="ac-contact-title" class="pa-section-header__title">Talk to a real person</h2>
+      <p class="pa-section-header__description">
+        Reach us directly, or send the details below and we'll follow up by email.
+      </p>
+    </div>
+
+    <div class="pa-grid-asymmetric-reverse">
+
+      <!-- Contact information -->
+      <aside class="pa-card pa-card--elevated ac-info-card" aria-label="Contact information">
+        <ul class="ac-info-list">
+          @for (item of contactInfo; track item.label) {
+            <li class="ac-info-list__item">
+              <div class="ac-info-list__icon">
+                <ng-container [ngTemplateOutlet]="icon" [ngTemplateOutletContext]="{ name: item.icon }" />
+              </div>
+              <div class="ac-info-list__text">
+                <span class="ac-info-list__label">{{ item.label }}</span>
+                @if (item.href) {
+                  <a class="ac-info-list__value ac-info-list__value--link" [href]="item.href">{{ item.value }}</a>
+                } @else {
+                  <span class="ac-info-list__value">{{ item.value }}</span>
+                }
+              </div>
+            </li>
+          }
+        </ul>
+      </aside>
+
+      <!-- Contact form -->
+      <div class="pa-card pa-card--elevated ac-form-card">
+        <h3 class="ac-form-card__title">Send us a message</h3>
+        <p class="ac-form-card__description">
+          Include your order number if this is about a purchase — it helps us answer faster.
+        </p>
+
+        @if (submitStatus() === 'success') {
+          <div class="ac-form-status ac-form-status--success" role="status" aria-live="polite">
+            <div class="ac-form-status__icon">
+              <ng-container [ngTemplateOutlet]="icon" [ngTemplateOutletContext]="{ name: 'check-circle' }" />
+            </div>
+            <div class="ac-form-status__text">
+              <strong>Message sent.</strong>
+              <span>We usually reply within one business day.</span>
+            </div>
+            <button type="button" class="pa-btn pa-btn--text pa-btn--sm" (click)="dismissStatus()">
+              Send another
+            </button>
+          </div>
+        } @else {
+          <form class="ac-form" [formGroup]="contactForm" (ngSubmit)="onSubmit()" novalidate>
+
+            @if (submitStatus() === 'error') {
+              <div class="ac-form-status ac-form-status--error" role="alert">
+                <div class="ac-form-status__icon">
+                  <ng-container [ngTemplateOutlet]="icon" [ngTemplateOutletContext]="{ name: 'alert-circle' }" />
+                </div>
+                <div class="ac-form-status__text">
+                  <strong>Couldn't send your message.</strong>
+                  <span>{{ errorMessage() || 'Please try again.' }}</span>
+                </div>
+              </div>
+            }
+
+            <div class="ac-form__row">
+              <div class="ac-form__field">
+                <label for="ac-name">Name</label>
+                <input
+                  id="ac-name"
+                  type="text"
+                  formControlName="name"
+                  placeholder="Your full name"
+                  autocomplete="name"
+                  [attr.aria-invalid]="name?.invalid && name?.touched ? true : null"
+                  [attr.aria-describedby]="name?.invalid && name?.touched ? 'ac-name-error' : null"
+                />
+                @if (name?.invalid && name?.touched) {
+                  <p class="pa-form-error" id="ac-name-error">
+                    @if (name?.errors?.['required']) { Enter your name. }
+                    @else if (name?.errors?.['minlength']) { Your name is a little short. }
+                  </p>
+                }
+              </div>
+
+              <div class="ac-form__field">
+                <label for="ac-email">Email</label>
+                <input
+                  id="ac-email"
+                  type="email"
+                  formControlName="email"
+                  placeholder="you@example.com"
+                  autocomplete="email"
+                  [attr.aria-invalid]="email?.invalid && email?.touched ? true : null"
+                  [attr.aria-describedby]="email?.invalid && email?.touched ? 'ac-email-error' : null"
+                />
+                @if (email?.invalid && email?.touched) {
+                  <p class="pa-form-error" id="ac-email-error">
+                    @if (email?.errors?.['required']) { Enter your email address. }
+                    @else if (email?.errors?.['email']) { That email address doesn't look right. }
+                  </p>
+                }
+              </div>
+            </div>
+
+            <div class="ac-form__field">
+              <label for="ac-subject">Subject</label>
+              <select
+                id="ac-subject"
+                formControlName="subject"
+                [attr.aria-invalid]="subject?.invalid && subject?.touched ? true : null"
+                [attr.aria-describedby]="subject?.invalid && subject?.touched ? 'ac-subject-error' : null"
+              >
+                <option value="" disabled>Choose a topic</option>
+                @for (option of subjectOptions; track option.value) {
+                  <option [value]="option.value">{{ option.label }}</option>
+                }
+              </select>
+              @if (subject?.invalid && subject?.touched) {
+                <p class="pa-form-error" id="ac-subject-error">Choose a topic for your message.</p>
+              }
+            </div>
+
+            <div class="ac-form__field">
+              <label for="ac-message">Message</label>
+              <textarea
+                id="ac-message"
+                formControlName="message"
+                rows="5"
+                placeholder="Tell us what's going on..."
+                [attr.aria-invalid]="message?.invalid && message?.touched ? true : null"
+                [attr.aria-describedby]="message?.invalid && message?.touched ? 'ac-message-error' : 'ac-message-hint'"
+              ></textarea>
+              @if (message?.invalid && message?.touched) {
+                <p class="pa-form-error" id="ac-message-error">
+                  @if (message?.errors?.['required']) { Write a short message so we know how to help. }
+                  @else if (message?.errors?.['minlength']) { A few more words would help us understand. }
+                  @else if (message?.errors?.['maxlength']) { Keep it under 1000 characters. }
+                </p>
+              } @else {
+                <p class="pa-form-hint" id="ac-message-hint">Minimum 10 characters.</p>
+              }
+            </div>
+
+            <button
+              type="submit"
+              class="pa-btn pa-btn--primary pa-btn--lg ac-form__submit"
+              [class.pa-btn--loading]="submitStatus() === 'submitting'"
+              [disabled]="submitStatus() === 'submitting'"
+            >
+              @if (submitStatus() !== 'submitting') {
+                <ng-container [ngTemplateOutlet]="icon" [ngTemplateOutletContext]="{ name: 'send' }" />
+              }
+              Send message
+            </button>
+          </form>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       6. FAQ PREVIEW
+       ============================================================ -->
+  <section class="ac-faq" aria-labelledby="ac-faq-title">
+    <div class="pa-container">
+      <div class="pa-section-header pa-section-header--centered">
+        <p class="pa-section-header__eyebrow">Before you write in</p>
+        <h2 id="ac-faq-title" class="pa-section-header__title">Quick answers</h2>
+      </div>
+
+      <div class="pa-grid-3 pa-stagger-children">
+        @for (item of faqPreview; track item.question) {
+          <div class="pa-card ac-faq-card">
+            <h3 class="ac-faq-card__question">{{ item.question }}</h3>
+            <p class="ac-faq-card__answer">{{ item.answer }}</p>
+          </div>
+        }
+      </div>
+
+      <div class="ac-faq__cta">
+        <a class="pa-btn pa-btn--secondary" routerLink="/faq">
+          View all FAQs
+          <ng-container [ngTemplateOutlet]="icon" [ngTemplateOutletContext]="{ name: 'arrow-right' }" />
+        </a>
+      </div>
+    </div>
+  </section>
+
+</main>
