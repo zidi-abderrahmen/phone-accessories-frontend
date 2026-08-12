@@ -160,8 +160,10 @@
 
     @media (min-width: 640px) {
       flex-direction: row;
+      flex-wrap: wrap;
       align-items: center;
       width: auto;
+      justify-content: flex-end;
     }
   }
 }
@@ -242,6 +244,167 @@
   &:focus-visible {
     outline: none;
     box-shadow: var(--pa-focus-ring);
+  }
+}
+
+// --------------------------------------------
+// FILTERS (category / price / stock)
+// --------------------------------------------
+
+// Category select — native <select>, custom chevron so it doesn't
+// fall back to the generic OS dropdown look.
+.filter-select {
+  appearance: none;
+  -webkit-appearance: none;
+  height: 2.75rem;
+  min-width: 160px;
+  width: 100%;
+  padding: 0 2.25rem 0 var(--pa-space-3);
+  font-family: inherit;
+  font-size: 0.9375rem;
+  color: var(--pa-text-primary);
+  background-color: var(--pa-surface);
+  border: 1px solid var(--pa-border);
+  border-radius: var(--pa-radius-md);
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2371717a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  transition:
+    border-color var(--pa-transition-fast),
+    box-shadow var(--pa-transition-fast);
+
+  &:hover {
+    border-color: var(--pa-border-strong);
+  }
+
+  &:focus {
+    outline: none;
+    border-color: var(--pa-primary);
+    box-shadow: var(--pa-focus-ring);
+  }
+
+  @media (min-width: 640px) {
+    width: auto;
+  }
+}
+
+// Price range — a single segmented control rather than two disjoint
+// boxes; the border/focus state lives on the wrapper.
+.price-filter {
+  display: flex;
+  align-items: center;
+  height: 2.75rem;
+  width: 100%;
+  border: 1px solid var(--pa-border);
+  border-radius: var(--pa-radius-md);
+  background-color: var(--pa-surface);
+  overflow: hidden;
+  transition:
+    border-color var(--pa-transition-fast),
+    box-shadow var(--pa-transition-fast);
+
+  &:hover {
+    border-color: var(--pa-border-strong);
+  }
+
+  &:focus-within {
+    border-color: var(--pa-primary);
+    box-shadow: var(--pa-focus-ring);
+  }
+
+  @media (min-width: 640px) {
+    width: auto;
+  }
+}
+
+.price-input {
+  width: 5.5rem;
+  height: 100%;
+  padding: 0 var(--pa-space-2);
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+
+  &:hover {
+    border-color: transparent;
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: none;
+  }
+
+  // Hide native number spinners for a cleaner, on-brand look
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  -moz-appearance: textfield;
+}
+
+.price-separator {
+  flex-shrink: 0;
+  color: var(--pa-text-muted);
+  font-size: 0.8125rem;
+}
+
+// Stock toggle — a pill, echoing the .stock-badge language already
+// used on the cards, instead of a bare checkbox + label.
+.stock-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--pa-space-2);
+  height: 2.75rem;
+  width: 100%;
+  padding: 0 var(--pa-space-3);
+  border: 1px solid var(--pa-border);
+  border-radius: var(--pa-radius-md);
+  background-color: var(--pa-surface);
+  color: var(--pa-text-secondary);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+  transition:
+    border-color var(--pa-transition-fast),
+    background-color var(--pa-transition-fast),
+    color var(--pa-transition-fast);
+
+  &:hover {
+    border-color: var(--pa-border-strong);
+  }
+
+  &:has(input:checked) {
+    border-color: var(--pa-primary);
+    background-color: var(--pa-primary-muted);
+    color: var(--pa-primary);
+  }
+
+  input[type='checkbox'] {
+    margin: 0;
+    accent-color: var(--pa-primary);
+  }
+
+  @media (min-width: 640px) {
+    width: auto;
+  }
+}
+
+.clear-filters-btn {
+  color: var(--pa-text-tertiary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+
+  &:hover:not(:disabled) {
+    color: var(--pa-danger);
+    background-color: transparent;
+    transform: none;
   }
 }
 

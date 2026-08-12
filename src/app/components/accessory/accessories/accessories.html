@@ -24,66 +24,90 @@
       <p class="page-header__subtitle">Browse our collection of phone accessories</p>
     </div>
     <div class="page-header__actions">
-      <!-- Search -->
-      <div class="search-wrapper">
-        <svg
-          class="search-icon"
-          xmlns="http://www.w3.org/2000/svg"
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          aria-hidden="true"
-        >
-          <circle cx="11" cy="11" r="8" />
-          <path d="m21 21-4.3-4.3" />
+  <!-- Search -->
+  <div class="search-wrapper">
+    <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <circle cx="11" cy="11" r="8" />
+      <path d="m21 21-4.3-4.3" />
+    </svg>
+    <input
+      type="search"
+      class="search-input"
+      placeholder="Search accessories..."
+      [value]="searchQuery()"
+      (input)="onSearch($event)"
+      aria-label="Search accessories"
+    />
+    @if (searchQuery()) {
+      <button type="button" class="search-clear" (click)="clearSearch()" aria-label="Clear search">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M18 6 6 18" />
+          <path d="m6 6 12 12" />
         </svg>
-        <input
-          type="search"
-          class="search-input"
-          placeholder="Search accessories..."
-          [value]="searchQuery()"
-          (input)="onSearch($event)"
-          aria-label="Search accessories"
-        />
-        @if (searchQuery()) {
-          <button
-            type="button"
-            class="search-clear"
-            (click)="clearSearch()"
-            aria-label="Clear search"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              aria-hidden="true"
-            >
-              <path d="M18 6 6 18" />
-              <path d="m6 6 12 12" />
-            </svg>
-          </button>
-        }
-      </div>
-      @if (authService.hasAnyRole(['SUPER_ADMIN', 'ADMIN'])) {
-        <a
-          routerLink="/admin/accessories/create"
-          class="pa-btn pa-btn--primary"
-        >
-          Create Accessory
-        </a>
-      }
-    </div>
+      </button>
+    }
+  </div>
+
+  <!-- Category filter -->
+  <select
+    class="filter-select"
+    [ngModel]="selectedCategoryId()"
+    (ngModelChange)="onCategoryChange($event)"
+    aria-label="Filter by category"
+  >
+    <option [ngValue]="null">All categories</option>
+    @for (category of categories(); track category.id) {
+      <option [ngValue]="category.id">{{ category.name }}</option>
+    }
+  </select>
+
+  <!-- Price range -->
+  <div class="price-filter">
+    <input
+      type="number"
+      class="price-input"
+      placeholder="Min price"
+      min="0"
+      [ngModel]="minPrice()"
+      (ngModelChange)="onMinPriceChange($event)"
+      (blur)="onPriceBlur()"
+      aria-label="Minimum price"
+    />
+    <span class="price-separator">–</span>
+    <input
+      type="number"
+      class="price-input"
+      placeholder="Max price"
+      min="0"
+      [ngModel]="maxPrice()"
+      (ngModelChange)="onMaxPriceChange($event)"
+      (blur)="onPriceBlur()"
+      aria-label="Maximum price"
+    />
+  </div>
+
+  <!-- In stock toggle -->
+  <label class="stock-filter">
+    <input
+      type="checkbox"
+      [checked]="inStockOnly() === true"
+      (change)="onInStockChange($any($event.target).checked)"
+    />
+    In stock only
+  </label>
+
+  @if (hasActiveFilters()) {
+    <button type="button" class="pa-btn pa-btn--secondary pa-btn--sm" (click)="clearAllFilters()">
+      Clear filters
+    </button>
+  }
+
+  @if (authService.hasAnyRole(['SUPER_ADMIN', 'ADMIN'])) {
+    <a routerLink="/admin/accessories/create" class="pa-btn pa-btn--primary">
+      Create Accessory
+    </a>
+  }
+</div>
   </header>
 
   <!-- Notifications -->
@@ -116,7 +140,7 @@
   }
 
   <!-- Empty State -->
-  @if (!loading() && filteredAccessories.length === 0) {
+  @if (!loading() && accessories().length === 0) {
     <div class="empty-state">
       <div class="empty-state__icon">
         <svg
@@ -156,10 +180,10 @@
   }
 
   <!-- Accessory Cards Grid -->
-  @if (!loading() && filteredAccessories.length > 0) {
+  @if (!loading() && accessories().length > 0) {
     <div class="cards-grid">
       @for (
-        accessory of filteredAccessories;
+        accessory of accessories();
         track accessory.id;
         let i = $index
       ) {
