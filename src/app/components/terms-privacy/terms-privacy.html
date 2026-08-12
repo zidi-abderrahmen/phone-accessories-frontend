@@ -1,0 +1,232 @@
+<main class="tp">
+
+  <!-- ============================================================
+       PAGE HEADER
+       ============================================================ -->
+  <header class="tp-header">
+    <div class="pa-container">
+      <p class="tp-header__eyebrow">Legal</p>
+      <h1 class="tp-header__title">Terms &amp; Privacy</h1>
+      <p class="tp-header__intro">
+        The terms that govern using Phone Accessories, and a plain explanation of what data we
+        collect and why. If anything here is unclear, reach out — we'd rather explain it than
+        have you guess.
+      </p>
+      <div class="tp-header__meta">
+        <svg class="tp-header__meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="9" />
+          <path d="M12 7v5l3.5 2" />
+        </svg>
+        <span>Last updated {{ lastUpdated }}</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============================================================
+       LAYOUT: STICKY TABLE OF CONTENTS + CONTENT
+       ============================================================ -->
+  <div class="pa-container tp-layout">
+
+    <nav class="tp-toc" aria-label="Table of contents">
+      <div class="tp-toc__inner">
+        <p class="tp-toc__heading">On this page</p>
+
+        @for (section of tableOfContents; track section.id) {
+          <div class="tp-toc__group">
+            <p class="tp-toc__group-label">{{ section.label }}</p>
+            <ul class="tp-toc__list">
+              @for (sub of section.subsections; track sub.id) {
+                <li>
+                  <a
+                    class="tp-toc__link"
+                    [class.tp-toc__link--active]="activeSectionId() === sub.id"
+                    [attr.aria-current]="activeSectionId() === sub.id ? 'location' : null"
+                    [href]="'#' + sub.id"
+                    (click)="scrollToSection(sub.id, $event)"
+                  >
+                    {{ sub.title }}
+                  </a>
+                </li>
+              }
+            </ul>
+          </div>
+        }
+      </div>
+    </nav>
+
+    <article class="tp-content">
+
+      <!-- ==========================================================
+           TERMS OF SERVICE
+           ========================================================== -->
+      <section aria-labelledby="terms-heading">
+        <h2 id="terms-heading" class="tp-content__section-title">Terms of Service</h2>
+
+        <div #trackedSection id="overview" tabindex="-1" class="tp-block">
+          <h3 class="tp-block__title">Overview</h3>
+          <p>
+            These terms form the agreement between you and Phone Accessories when you browse the
+            store, create an account, or place an order. By using the site you agree to them. If
+            you're using Phone Accessories on behalf of a business, you're confirming you have
+            the authority to accept these terms for that business.
+          </p>
+          <p>
+            We may update these terms as the store grows. When a change is significant, we'll
+            note a new "last updated" date at the top of this page and, where required, let you
+            know directly.
+          </p>
+        </div>
+
+        <div #trackedSection id="user-responsibilities" tabindex="-1" class="tp-block">
+          <h3 class="tp-block__title">User responsibilities</h3>
+          <p>When you shop with us, you agree to:</p>
+          <ul class="tp-list">
+            <li>Provide accurate billing, shipping, and contact information for every order.</li>
+            <li>Use the store only for personal or lawfully authorized business purchases.</li>
+            <li>Pay for orders using a payment method you're authorized to use.</li>
+            <li>Respect the intellectual property in our product photos, descriptions, and branding.</li>
+            <li>Let us know promptly if something on your order or account looks wrong.</li>
+          </ul>
+        </div>
+
+        <div #trackedSection id="acceptable-use" tabindex="-1" class="tp-block">
+          <h3 class="tp-block__title">Acceptable use</h3>
+          <p>To keep the store usable and fair for everyone, you agree not to:</p>
+          <ul class="tp-list">
+            <li>Scrape, mirror, or systematically extract catalog or pricing data.</li>
+            <li>Attempt to bypass security, rate limits, or access controls on the site.</li>
+            <li>Resell products purchased through the store without our written permission.</li>
+            <li>Submit false reviews, impersonate another person, or upload unlawful content.</li>
+            <li>Use the support channels to send spam, harassment, or unrelated solicitations.</li>
+          </ul>
+          <p>
+            We may suspend or close an account that violates these rules, with notice where
+            practical.
+          </p>
+        </div>
+
+        <div #trackedSection id="account-responsibilities" tabindex="-1" class="tp-block">
+          <h3 class="tp-block__title">Account responsibilities</h3>
+          <p>
+            You're responsible for keeping your password confidential and for the activity that
+            happens under your account. If you believe your account has been accessed without
+            permission, change your password and contact us right away so we can help secure it.
+          </p>
+          <p>
+            You must be at least 18 years old, or have a parent or guardian's consent, to create
+            an account or place an order.
+          </p>
+        </div>
+
+        <div #trackedSection id="limitation-of-liability" tabindex="-1" class="tp-block">
+          <h3 class="tp-block__title">Limitation of liability</h3>
+          <p>
+            Phone Accessories is provided on an "as is" basis. We work to keep listings accurate
+            and the site available, but we don't guarantee it will be uninterrupted or error-free.
+          </p>
+          <p>
+            To the extent permitted by law, our liability for any claim relating to your order or
+            use of the site is limited to the amount you paid for that order. We aren't liable for
+            indirect or consequential losses, such as lost time or lost opportunities, arising
+            from use of the store.
+          </p>
+        </div>
+      </section>
+
+      <hr class="pa-divider tp-divider" />
+
+      <!-- ==========================================================
+           PRIVACY POLICY
+           ========================================================== -->
+      <section aria-labelledby="privacy-heading">
+        <h2 id="privacy-heading" class="tp-content__section-title">Privacy Policy</h2>
+
+        <div #trackedSection id="information-collected" tabindex="-1" class="tp-block">
+          <h3 class="tp-block__title">Information we collect</h3>
+          <p>We collect the information needed to run your orders and support your account:</p>
+          <ul class="tp-list">
+            <li><strong>Account details</strong> — name, email address, phone number, and password.</li>
+            <li><strong>Order &amp; shipping information</strong> — delivery address and order history.</li>
+            <li><strong>Payment information</strong> — handled directly by our payment processor; we don't store full card numbers.</li>
+            <li><strong>Usage data</strong> — pages viewed, device and browser type, and general location from your IP address.</li>
+            <li><strong>Support communications</strong> — messages you send us through the contact form or email.</li>
+          </ul>
+        </div>
+
+        <div #trackedSection id="data-usage" tabindex="-1" class="tp-block">
+          <h3 class="tp-block__title">How we use data</h3>
+          <p>We use your information to:</p>
+          <ul class="tp-list">
+            <li>Process and deliver your orders, and keep you updated on their status.</li>
+            <li>Provide customer support and respond to the questions you send us.</li>
+            <li>Maintain account security and prevent fraudulent orders.</li>
+            <li>Understand how the store is used so we can improve it.</li>
+            <li>Send order-related emails, and marketing emails only if you've opted in.</li>
+          </ul>
+          <p>We don't sell your personal information to third parties.</p>
+        </div>
+
+        <div #trackedSection id="cookies" tabindex="-1" class="tp-block">
+          <h3 class="tp-block__title">Cookies</h3>
+          <p>We use a small number of cookies, grouped by purpose:</p>
+          <ul class="tp-list">
+            <li><strong>Essential</strong> — keep you signed in and remember what's in your cart.</li>
+            <li><strong>Preference</strong> — remember choices like light or dark theme.</li>
+            <li><strong>Analytics</strong> — help us understand which pages are useful, in aggregate.</li>
+          </ul>
+          <p>
+            You can block or delete cookies from your browser settings at any time; essential
+            cookies are required for checkout to work correctly.
+          </p>
+        </div>
+
+        <div #trackedSection id="security" tabindex="-1" class="tp-block">
+          <h3 class="tp-block__title">Security</h3>
+          <p>
+            All traffic to Phone Accessories is encrypted in transit. Payment details are handled
+            by a PCI-compliant payment processor and never touch our servers in full. Access to
+            customer data internally is limited to the people who need it to do their jobs.
+          </p>
+          <p>
+            No system is completely risk-free. If a security incident affects your data, we'll
+            notify you and the relevant authorities as required by law.
+          </p>
+        </div>
+
+        <div #trackedSection id="user-rights" tabindex="-1" class="tp-block">
+          <h3 class="tp-block__title">Your rights</h3>
+          <p>You can ask us at any time to:</p>
+          <ul class="tp-list">
+            <li>Access a copy of the personal data we hold about you.</li>
+            <li>Correct information that's inaccurate or out of date.</li>
+            <li>Delete your account and associated personal data.</li>
+            <li>Withdraw consent for marketing emails.</li>
+          </ul>
+          <p>
+            To exercise any of these rights, email
+            <a href="mailto:privacy&#64;phoneaccessories.tn">privacy&#64;phoneaccessories.tn</a>.
+            We aim to respond within 30 days.
+          </p>
+        </div>
+      </section>
+
+      <!-- ==========================================================
+           LAST UPDATED
+           ========================================================== -->
+      <footer class="tp-footnote pa-card">
+        <svg class="tp-footnote__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 2 4 5v6c0 5 3.4 8.9 8 10 4.6-1.1 8-5 8-10V5l-8-3Z" />
+          <path d="m9 12 2 2 4-4" />
+        </svg>
+        <div class="tp-footnote__text">
+          <p><strong>This page was last updated {{ lastUpdated }}.</strong></p>
+          <p>
+            Questions about these terms or your data? Get in touch through our
+            <a href="/about">contact page</a> and we'll get back to you.
+          </p>
+        </div>
+      </footer>
+
+    </article>
+  </div>
+</main>
