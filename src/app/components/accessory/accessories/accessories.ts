@@ -1,7 +1,6 @@
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
-import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 import { AccessoryResponse } from '../../../core/models/accessory/accessory-response';
 import { CategoryResponse } from '../../../core/models/category/category-response';
 import { Page } from '../../../core/models/page';
@@ -42,8 +41,6 @@ export class Accessories implements OnInit {
   maxPrice = signal<number | null>(null);
   inStockOnly = signal<boolean | null>(null);
 
-  private searchSubject = new Subject<string>();
-
   // UI state
   loading = signal(false);
   successMessage = signal('');
@@ -65,12 +62,6 @@ export class Accessories implements OnInit {
 
   ngOnInit(): void {
     this.loadCategories();
-
-    // Debounce keyword typing so we don't hit the API on every keystroke
-    this.searchSubject
-      .pipe(debounceTime(400), distinctUntilChanged())
-      .subscribe(() => this.search(0));
-
     this.search(0);
   }
 
@@ -81,7 +72,7 @@ export class Accessories implements OnInit {
         this.categories.set(categories);
       },
       error: () => {
-        // Not critical enough to block the page, silently ignore or log
+        // Silently ignore — not critical enough to block the page
       },
     });
   }
@@ -116,21 +107,18 @@ export class Accessories implements OnInit {
     });
   }
 
-  // Search input handler (debounced)
-  onSearch(event: Event): void {
-    const value = (event.target as HTMLInputElement).value.trim();
-    this.searchQuery.set(value);
-    this.searchSubject.next(value);
+  // ── Explicit filter setters (NO auto-search) ──
+
+  onSearchInput(event: Event): void {
+    this.searchQuery.set((event.target as HTMLInputElement).value.trim());
   }
 
   clearSearch(): void {
     this.searchQuery.set('');
-    this.search(0);
   }
 
   onCategoryChange(categoryId: string): void {
     this.selectedCategoryId.set(categoryId ? Number(categoryId) : null);
-    this.search(0);
   }
 
   onMinPriceChange(value: string): void {
@@ -141,13 +129,14 @@ export class Accessories implements OnInit {
     this.maxPrice.set(value ? Number(value) : null);
   }
 
-  onPriceBlur(): void {
-    // Trigger search once the user finishes typing price bounds
-    this.search(0);
-  }
-
   onInStockChange(checked: boolean): void {
     this.inStockOnly.set(checked ? true : null);
+  }
+
+  // ── Explicit actions ──
+
+  /** Triggered only by the Search button */
+  onSearchClick(): void {
     this.search(0);
   }
 
@@ -160,7 +149,8 @@ export class Accessories implements OnInit {
     this.search(0);
   }
 
-  // Navigate to accessory details
+  // ── Navigation & CRUD ──
+
   viewAccessory(accessory: AccessoryResponse): void {
     this.router.navigate(['/accessories', accessory.id]);
   }
