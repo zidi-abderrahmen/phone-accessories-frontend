@@ -14,9 +14,15 @@
       <a routerLink="/accessories" routerLinkActive="pa-nav__link--active" class="pa-nav__link">Accessories</a>
     </nav>
 
+    <!-- home.html – modified search block -->
     <div class="pa-nav__search">
       <label for="pa-nav-search-input" class="pa-sr-only">Search accessories</label>
-      <input id="pa-nav-search-input" type="search" placeholder="Search accessories…">
+      <input
+        id="pa-nav-search-input"
+        type="search"
+        placeholder="Search accessories…"
+        (keydown.enter)="onSearch($event)"
+      >
     </div>
 
     <div class="pa-nav__actions">
@@ -199,7 +205,7 @@
                 } @else if (isLowStock(accessory)) {
                   <span class="pa-product-card__badge pa-product-card__badge--low-stock">Low stock</span>
                 }
-                <img class="pa-product-card__image" src="assets/placeholder-accessory.svg" [alt]="accessory.title" loading="lazy">
+                <img class="pa-product-card__image" src="https://placehold.net/800x600.png" [alt]="accessory.title" loading="lazy">
               </span>
 
               <span class="pa-product-card__content">

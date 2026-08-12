@@ -1,6 +1,6 @@
 import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { CategoryService } from '../../core/services/category/category.service';
@@ -25,6 +25,9 @@ export class Home implements OnInit {
   private readonly accessoryService = inject(AccessoryService);
   private readonly authService = inject(AuthService);
   private readonly destroyRef = inject(DestroyRef);
+
+  // For the simple search
+  private readonly router = inject(Router);
 
   // Featured categories
   protected readonly categories = signal<CategoryResponse[]>([]);
@@ -139,5 +142,13 @@ export class Home implements OnInit {
 
   protected categoryInitial(category: CategoryResponse): string {
     return category.name?.charAt(0)?.toUpperCase() ?? '?';
+  }
+
+  protected onSearch(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const keyword = input.value.trim();
+    if (keyword) {
+      this.router.navigate(['/accessories'], { queryParams: { keyword } });
+    }
   }
 }
