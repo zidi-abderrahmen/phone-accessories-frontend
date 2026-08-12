@@ -1,0 +1,412 @@
+@use 'sass:map';
+
+$breakpoints: (
+  sm: 640px,
+  md: 768px,
+  lg: 1024px,
+  xl: 1280px,
+);
+
+@mixin respond-to($breakpoint) {
+  @media (min-width: map.get($breakpoints, $breakpoint)) {
+    @content;
+  }
+}
+
+// Shared icon-chip pattern used across pillars / why-choose / info list.
+@mixin icon-chip($size: 2.75rem) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: $size;
+  height: $size;
+  border-radius: var(--pa-radius-lg);
+  background-color: var(--pa-primary-muted);
+  color: var(--pa-primary);
+
+  svg {
+    width: 46%;
+    height: 46%;
+  }
+}
+
+.ac {
+  display: block;
+}
+
+// ================================================================
+// 1. HERO
+// ================================================================
+
+.ac-hero {
+  background-color: var(--pa-bg-sunken);
+  border-bottom: 1px solid var(--pa-border);
+
+  &__container {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--pa-space-10);
+    padding-top: var(--pa-space-16);
+    padding-bottom: var(--pa-space-16);
+    align-items: center;
+
+    @include respond-to(lg) {
+      grid-template-columns: 3fr 2fr;
+      gap: var(--pa-space-16);
+      padding-top: var(--pa-space-24);
+      padding-bottom: var(--pa-space-24);
+    }
+  }
+
+  &__content {
+    max-width: 640px;
+  }
+
+  &__eyebrow {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--pa-primary);
+    margin-bottom: var(--pa-space-4);
+  }
+
+  &__title {
+    font-size: clamp(2.25rem, 5.5vw, 3.75rem);
+    font-weight: 700;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    margin-bottom: var(--pa-space-5);
+  }
+
+  &__description {
+    font-size: 1.0625rem;
+    color: var(--pa-text-secondary);
+    line-height: 1.7;
+    max-width: 50ch;
+    margin-bottom: var(--pa-space-8);
+  }
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--pa-space-3);
+  }
+
+  &__stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--pa-space-4);
+  }
+}
+
+.ac-stat-card {
+  background-color: var(--pa-surface);
+  border: 1px solid var(--pa-border);
+  border-radius: var(--pa-radius-lg);
+  padding: var(--pa-space-5) var(--pa-space-4);
+  box-shadow: var(--pa-shadow-sm);
+  transition: border-color var(--pa-transition-fast), box-shadow var(--pa-transition-fast);
+
+  &:hover {
+    border-color: var(--pa-border-strong);
+    box-shadow: var(--pa-shadow-md);
+  }
+
+  &__value {
+    display: block;
+    font-size: clamp(1.375rem, 2.5vw, 1.75rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--pa-text-primary);
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__label {
+    display: block;
+    margin-top: var(--pa-space-1);
+    font-size: 0.8125rem;
+    color: var(--pa-text-tertiary);
+  }
+}
+
+// ================================================================
+// 2. ABOUT PILLARS
+// ================================================================
+
+.ac-pillar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pa-space-3);
+
+  &__icon {
+    @include icon-chip;
+  }
+
+  &__title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  &__description {
+    color: var(--pa-text-secondary);
+    line-height: 1.7;
+    font-size: 0.9375rem;
+  }
+}
+
+// ================================================================
+// 3. WHY CHOOSE US
+// ================================================================
+
+.ac-why {
+  padding-top: var(--pa-space-20);
+  padding-bottom: var(--pa-space-20);
+  background-color: var(--pa-bg-sunken);
+  border-top: 1px solid var(--pa-border);
+  border-bottom: 1px solid var(--pa-border);
+}
+
+.ac-why-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pa-space-3);
+  padding: var(--pa-space-2) 0;
+
+  &__icon {
+    @include icon-chip;
+    background-color: var(--pa-surface);
+    border: 1px solid var(--pa-border);
+    color: var(--pa-primary);
+  }
+
+  &__title {
+    font-size: 1rem;
+    font-weight: 600;
+  }
+
+  &__description {
+    color: var(--pa-text-secondary);
+    line-height: 1.65;
+    font-size: 0.875rem;
+  }
+}
+
+// ================================================================
+// 4 & 5. CONTACT INFO + FORM
+// ================================================================
+
+.ac-info-card {
+  align-self: start;
+
+  @include respond-to(lg) {
+    position: sticky;
+    top: calc(4rem + var(--pa-space-6));
+  }
+}
+
+.ac-info-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+
+  &__item {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--pa-space-4);
+    padding: var(--pa-space-4) 0;
+    border-bottom: 1px solid var(--pa-border-subtle);
+
+    &:first-child {
+      padding-top: 0;
+    }
+
+    &:last-child {
+      padding-bottom: 0;
+      border-bottom: 0;
+    }
+  }
+
+  &__icon {
+    @include icon-chip(2.5rem);
+  }
+
+  &__text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    min-width: 0;
+  }
+
+  &__label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--pa-text-tertiary);
+  }
+
+  &__value {
+    font-size: 0.9375rem;
+    color: var(--pa-text-primary);
+    line-height: 1.5;
+    word-break: break-word;
+
+    &--link:hover {
+      color: var(--pa-primary);
+    }
+  }
+}
+
+.ac-form-card {
+  &__title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: -0.015em;
+    margin-bottom: var(--pa-space-1);
+  }
+
+  &__description {
+    color: var(--pa-text-secondary);
+    font-size: 0.9375rem;
+    margin-bottom: var(--pa-space-6);
+  }
+}
+
+.ac-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pa-space-5);
+
+  &__row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--pa-space-5);
+
+    @include respond-to(sm) {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  &__field {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__submit {
+    align-self: flex-start;
+    margin-top: var(--pa-space-1);
+    min-width: 10rem;
+
+    svg {
+      width: 1rem;
+      height: 1rem;
+    }
+  }
+}
+
+.ac-form-status {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--pa-space-3);
+  padding: var(--pa-space-4);
+  border-radius: var(--pa-radius-md);
+  border: 1px solid transparent;
+
+  &__icon {
+    flex-shrink: 0;
+    width: 1.375rem;
+    height: 1.375rem;
+    margin-top: 0.0625rem;
+
+    svg {
+      width: 100%;
+      height: 100%;
+    }
+  }
+
+  &__text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    font-size: 0.9375rem;
+
+    strong {
+      color: var(--pa-text-primary);
+    }
+
+    span {
+      color: var(--pa-text-secondary);
+    }
+  }
+
+  &--success {
+    background-color: var(--pa-success-muted);
+    border-color: var(--pa-success-subtle);
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--pa-space-3);
+
+    .ac-form-status__icon {
+      color: var(--pa-success);
+    }
+  }
+
+  &--error {
+    background-color: var(--pa-danger-muted);
+    border-color: var(--pa-danger-subtle);
+
+    .ac-form-status__icon {
+      color: var(--pa-danger);
+    }
+  }
+}
+
+// ================================================================
+// 6. FAQ PREVIEW
+// ================================================================
+
+.ac-faq {
+  padding-top: var(--pa-space-20);
+  padding-bottom: var(--pa-space-20);
+
+  &__cta {
+    display: flex;
+    justify-content: center;
+    margin-top: var(--pa-space-10);
+
+    svg {
+      width: 1rem;
+      height: 1rem;
+    }
+  }
+}
+
+.ac-faq-card {
+  &__question {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: var(--pa-space-2);
+    letter-spacing: -0.01em;
+  }
+
+  &__answer {
+    color: var(--pa-text-secondary);
+    font-size: 0.9375rem;
+    line-height: 1.65;
+  }
+}
+
+// ================================================================
+// Reduced motion
+// ================================================================
+
+@media (prefers-reduced-motion: reduce) {
+  .ac-stat-card,
+  .pa-btn {
+    transition: none;
+  }
+}
