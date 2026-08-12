@@ -1,6 +1,6 @@
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { Component, inject, OnInit, signal, computed } from '@angular/core';
-import { Router, RouterModule } from '@angular/router';
+import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { AccessoryResponse } from '../../../core/models/accessory/accessory-response';
 import { CategoryResponse } from '../../../core/models/category/category-response';
 import { Page } from '../../../core/models/page';
@@ -21,6 +21,7 @@ export class Accessories implements OnInit {
   private accessoryService = inject(AccessoryService);
   private categoryService = inject(CategoryService);
   private router = inject(Router);
+  private activateRoute = inject(ActivatedRoute);
   authService = inject(AuthService);
 
   // Data state
@@ -62,6 +63,12 @@ export class Accessories implements OnInit {
 
   ngOnInit(): void {
     this.loadCategories();
+
+    const keyword = this.activateRoute.snapshot.queryParams['keyword'];
+    if (keyword) {
+      this.searchQuery.set(String(keyword).trim());
+    }
+
     this.search(0);
   }
 
