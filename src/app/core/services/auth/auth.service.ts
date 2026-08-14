@@ -2,7 +2,6 @@ import { HttpClient, HttpErrorResponse } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { BehaviorSubject, Observable, catchError, filter, map, of, take, tap, throwError } from "rxjs";
 import { environment } from "../../../../environments/environment";
-import { MeResponse } from "../../models/me/me.response";
 import { ForgotPasswordRequest } from "../../models/password/forgot.password.request";
 import { ResetPasswordRequest } from "../../models/password/reset.password.request";
 import { RefreshTokenResponse } from "../../models/reftoken/refresh.token.response";
@@ -22,7 +21,7 @@ export class AuthService {
 
     private authState = new BehaviorSubject<boolean | null>(null);
 
-    private currentUserSubject = new BehaviorSubject<MeResponse | null>(null);
+    private currentUserSubject = new BehaviorSubject<RegisterResponse | null>(null);
     currentUser$ = this.currentUserSubject.asObservable();
     
     authState$ = this.authState.asObservable().pipe(
@@ -68,8 +67,8 @@ export class AuthService {
         return this.http.post<EmailResponse>(`${this.apiUrl}/reset-password`, data, { withCredentials: true });
     }
 
-    getCurrentUser(): Observable<MeResponse> {
-        return this.http.get<MeResponse>(`${this.apiUrl}/me`, { withCredentials: true })
+    getCurrentUser(): Observable<RegisterResponse> {
+        return this.http.get<RegisterResponse>(`${this.apiUrl}/me`, { withCredentials: true })
         .pipe(
             tap((user) => this.currentUserSubject.next(user))
         );
@@ -98,7 +97,7 @@ export class AuthService {
             return this.authState$.pipe(take(1));
         }
 
-        return this.http.get<MeResponse>(`${this.apiUrl}/me`, { withCredentials: true }).pipe(
+        return this.http.get<RegisterResponse>(`${this.apiUrl}/me`, { withCredentials: true }).pipe(
             tap((user) => { 
                 console.log('ME SUCCESS');
                 this.currentUserSubject.next(user);

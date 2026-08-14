@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AuthService } from '../../core/services/auth/auth.service';
-import { MeResponse } from '../../core/models/me/me.response';
+import { RegisterResponse } from '../../core/models/user/register/register.response';
 
 type LoadState = 'idle' | 'loading' | 'loaded' | 'error';
 
@@ -32,7 +32,7 @@ export class Me implements OnInit {
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
 
-  protected readonly user = signal<MeResponse | null>(null);
+  protected readonly user = signal<RegisterResponse | null>(null);
   protected readonly profileState = signal<LoadState>('idle');
 
   // No OrderService / "recently viewed" tracking exists yet in this codebase,

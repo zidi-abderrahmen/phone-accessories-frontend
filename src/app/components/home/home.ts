@@ -9,7 +9,7 @@ import { AuthService } from '../../core/services/auth/auth.service';
 
 import { CategoryResponse } from '../../core/models/category/category-response';
 import { AccessoryResponse } from '../../core/models/accessory/accessory-response';
-import { MeResponse } from '../../core/models/me/me.response';
+import { RegisterResponse } from '../../core/models/user/register/register.response';
 
 type LoadState = 'idle' | 'loading' | 'loaded' | 'error';
 
@@ -40,7 +40,7 @@ export class Home implements OnInit {
   protected readonly productSkeletons = Array.from({ length: 8 });
 
   // Auth / theme
-  protected readonly currentUser = signal<MeResponse | null>(null);
+  protected readonly currentUser = signal<RegisterResponse | null>(null);
   protected readonly isAuthenticated = computed(() => this.currentUser() !== null);
   protected readonly isDarkTheme = signal(false);
 
@@ -107,7 +107,7 @@ export class Home implements OnInit {
     this.isDarkTheme.set(document.documentElement.classList.contains('dark-theme'));
   }
 
-  protected initials(user: MeResponse | null): string {
+  protected initials(user: RegisterResponse | null): string {
     if (!user) {
       return '';
     }
