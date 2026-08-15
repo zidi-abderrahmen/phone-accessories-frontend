@@ -257,7 +257,7 @@
       >
         <div class="card-image-wrapper">
           <img
-            src="https://placehold.net/800x600.png"
+            [src]="accessory.imageUrl || 'https://placehold.net/800x600.png'"
             [alt]="accessory.title"
             class="card-image"
             loading="lazy"

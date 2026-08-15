@@ -60,7 +60,7 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
       if (error.status === 403) {
           router.navigate(['/403']);
       } else if (error.status === 404) {
-          console.error('Not Found');
+          router.navigate(['404'])
       } else if (error.status === 500) {
           console.error('Server connection failed');
       } else if (error.status === 0) {
