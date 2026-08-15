@@ -25,6 +25,7 @@ export class CreateAccessory implements OnInit {
 
   // Reactive form built from AccessoryRequest DTO
   accessoryForm = this.fb.nonNullable.group({
+    imageUrl: ['', [Validators.required, Validators.maxLength(500)]],
     title: ['', [Validators.required, Validators.maxLength(100)]],
     description: ['', [Validators.required, Validators.maxLength(1000)]],
     productCode: ['', [Validators.required, Validators.maxLength(50)]],
@@ -124,6 +125,7 @@ export class CreateAccessory implements OnInit {
 
   private patchForm(accessory: AccessoryResponse): void {
     this.accessoryForm.patchValue({
+      imageUrl: accessory.imageUrl,
       title: accessory.title,
       description: accessory.description,
       productCode: accessory.productCode,

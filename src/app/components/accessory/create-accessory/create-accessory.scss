@@ -231,6 +231,27 @@
 }
 
 // --------------------------------------------
+// IMAGE PREVIEW
+// --------------------------------------------
+
+.image-preview {
+  margin-top: var(--pa-space-3);
+  border-radius: var(--pa-radius-lg);
+  overflow: hidden;
+  border: 1px solid var(--pa-border);
+  background-color: var(--pa-bg-sunken);
+  animation: pa-fade-up 0.3s var(--pa-ease-smooth) forwards;
+
+  &__img {
+    width: 100%;
+    height: auto;
+    max-height: 280px;
+    object-fit: cover;
+    display: block;
+  }
+}
+
+// --------------------------------------------
 // AUTOCOMPLETE
 // --------------------------------------------
 

@@ -2,6 +2,7 @@ import { CategoryResponse } from "../category/category-response";
 
 export interface AccessoryResponse {
     id: number;
+    imageUrl: string;
     title: string;
     description: string;
     price: number;

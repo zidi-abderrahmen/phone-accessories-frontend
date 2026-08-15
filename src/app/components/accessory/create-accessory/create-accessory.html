@@ -258,6 +258,48 @@
           />
         </div>
 
+        <!-- Image URL Field -->
+        <div class="form-group">
+          <label for="imageUrl" class="form-label">
+            Image URL
+            <span class="form-label__required" aria-label="required">*</span>
+          </label>
+          <input
+            id="imageUrl"
+            type="url"
+            formControlName="imageUrl"
+            class="form-control"
+            placeholder="https://example.com/image.jpg"
+            [class.is-invalid]="submitted && f.imageUrl.errors"
+            maxlength="500"
+          />
+          <div class="form-hint">
+            <span>{{ f.imageUrl.value?.length || 0 }} / 500</span>
+          </div>
+          @if (submitted && f.imageUrl.errors) {
+            <div class="invalid-feedback" role="alert">
+              @if (f.imageUrl.errors['required']) {
+                <span>Image URL is required.</span>
+              }
+              @if (f.imageUrl.errors['maxlength']) {
+                <span>Image URL must not exceed 500 characters.</span>
+              }
+            </div>
+          }
+
+          <!-- Image Preview -->
+          @if (f.imageUrl.value && !f.imageUrl.errors) {
+            <div class="image-preview">
+              <img
+                [src]="f.imageUrl.value"
+                alt="Category image preview"
+                class="image-preview__img"
+                (error)="$any($event.target).style.display = 'none'"
+              />
+            </div>
+          }
+        </div>
+
         <!-- Form Actions -->
         <div class="form-actions">
           <button

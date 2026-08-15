@@ -94,7 +94,7 @@
         <div class="product-image-section">
           <div class="product-image-main">
             <img
-              src="https://placehold.net/800x600.png"
+              [src]="accessory.imageUrl || 'https://placehold.net/800x600.png'"
               [alt]="accessory.title"
               class="product-image"
               loading="eager"

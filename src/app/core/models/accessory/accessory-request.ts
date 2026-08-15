@@ -1,4 +1,5 @@
 export interface AccessoryRequest {
+    imageUrl: string;
     title: string;
     description: string;
     price: number;
