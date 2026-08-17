@@ -10,6 +10,7 @@ import { AuthService } from '../../core/services/auth/auth.service';
 import { CategoryResponse } from '../../core/models/category/category-response';
 import { AccessoryResponse } from '../../core/models/accessory/accessory-response';
 import { RegisterResponse } from '../../core/models/user/register/register.response';
+import { UserService } from '../../core/services/user/user.service';
 
 type LoadState = 'idle' | 'loading' | 'loaded' | 'error';
 
@@ -24,6 +25,7 @@ export class Home implements OnInit {
   private readonly categoryService = inject(CategoryService);
   private readonly accessoryService = inject(AccessoryService);
   private readonly authService = inject(AuthService);
+  private readonly userService = inject(UserService);
   private readonly destroyRef = inject(DestroyRef);
 
   // For the simple search
@@ -49,7 +51,7 @@ export class Home implements OnInit {
     this.loadCategories();
     this.loadAccessories();
 
-    this.authService.currentUser$
+    this.userService.currentUser$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((user) => this.currentUser.set(user));
 
