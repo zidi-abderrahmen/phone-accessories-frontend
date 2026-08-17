@@ -4,6 +4,7 @@ import { Router, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AuthService } from '../../core/services/auth/auth.service';
 import { RegisterResponse } from '../../core/models/user/register/register.response';
+import { UserService } from '../../core/services/user/user.service';
 
 type LoadState = 'idle' | 'loading' | 'loaded' | 'error';
 
@@ -29,6 +30,7 @@ interface ViewedAccessory {
 })
 export class Me implements OnInit {
   private readonly authService = inject(AuthService);
+  private readonly userService = inject(UserService);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -72,14 +74,14 @@ export class Me implements OnInit {
     this.syncThemeState();
     this.loadProfile();
 
-    this.authService.currentUser$
+    this.userService.currentUser$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((user) => this.user.set(user));
   }
 
   protected loadProfile(): void {
     this.profileState.set('loading');
-    this.authService
+    this.userService
       .getCurrentUser()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({

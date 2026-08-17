@@ -11,6 +11,7 @@ import { RegisterRequest } from "../../models/user/register/register.request";
 import { RegisterResponse } from "../../models/user/register/register.response";
 import { EmailResponse } from "../../models/verifemail/email.response";
 import { VerifyEmailRequest } from "../../models/verifemail/verify.email.request";
+import { UserService } from "../user/user.service";
 
 @Injectable({
     providedIn: 'root'
@@ -20,9 +21,6 @@ export class AuthService {
     private apiUrl = `${environment.apiUrl}/auth`;
 
     private authState = new BehaviorSubject<boolean | null>(null);
-
-    private currentUserSubject = new BehaviorSubject<RegisterResponse | null>(null);
-    currentUser$ = this.currentUserSubject.asObservable();
     
     authState$ = this.authState.asObservable().pipe(
         filter((val): val is boolean => val !== null)
@@ -33,7 +31,7 @@ export class AuthService {
         return this.authState.value;
     }
 
-    constructor(private http: HttpClient) {}
+    constructor(private http: HttpClient, private userService: UserService) {}
 
     register(data: RegisterRequest): Observable<RegisterResponse> {
         return this.http.post<RegisterResponse>(`${this.apiUrl}/register`, data, { withCredentials: true });
@@ -46,7 +44,7 @@ export class AuthService {
                 this.authState.next(true);
                 localStorage.setItem('isAuthenticated', 'true');
 
-                this.getCurrentUser().subscribe();
+                this.userService.getCurrentUser().subscribe();
             })
         );
     }
@@ -67,24 +65,17 @@ export class AuthService {
         return this.http.post<EmailResponse>(`${this.apiUrl}/reset-password`, data, { withCredentials: true });
     }
 
-    getCurrentUser(): Observable<RegisterResponse> {
-        return this.http.get<RegisterResponse>(`${this.apiUrl}/me`, { withCredentials: true })
-        .pipe(
-            tap((user) => this.currentUserSubject.next(user))
-        );
-    }
-
     logout(): Observable<void> {
         return this.http.post<void>(`${this.apiUrl}/logout`, {}, { withCredentials: true })
         .pipe(
             tap(() => {
                 this.authState.next(false);
                 localStorage.removeItem('isAuthenticated');
-                this.currentUserSubject.next(null);
+                this.userService.currentUserSubject.next(null);
             }),
             catchError((err) => {
                 this.authState.next(false);
-                this.currentUserSubject.next(null);
+                this.userService.currentUserSubject.next(null);
                 return throwError(() => err);
             })
         );
@@ -100,21 +91,21 @@ export class AuthService {
         return this.http.get<RegisterResponse>(`${this.apiUrl}/me`, { withCredentials: true }).pipe(
             tap((user) => { 
                 console.log('ME SUCCESS');
-                this.currentUserSubject.next(user);
+                this.userService.currentUserSubject.next(user);
                 this.authState.next(true); 
             }),
             map(() => true),
             catchError((err) => {
                 console.log('ME FAILED', err.status, err);
                 this.authState.next(false);
-                this.currentUserSubject.next(null);
+                this.userService.currentUserSubject.next(null);
                 return of(false);
             })
         );
     }
 
     hasAnyRole(requiredRoles: string[]): boolean {
-        const user = this.currentUserSubject.value;
+        const user = this.userService.currentUserSubject.value;
         if (!user) return false;
 
         const userRoles: string[] = Array.isArray((user as any).roles) 
