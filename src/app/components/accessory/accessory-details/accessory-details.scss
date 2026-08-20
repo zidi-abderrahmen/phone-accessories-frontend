@@ -367,6 +367,26 @@
   }
 }
 
+.action-cart--added {
+  background-color: var(--pa-success);
+  border-color: var(--pa-success);
+  color: #ffffff;
+}
+
+.pa-spinner {
+  display: inline-block;
+  width: 0.875rem;
+  height: 0.875rem;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-top-color: currentColor;
+  border-radius: var(--pa-radius-full);
+  animation: pa-spin 0.7s linear infinite;
+}
+
+@keyframes pa-spin {
+  to { transform: rotate(360deg); }
+}
+
 // --------------------------------------------
 // SKELETON
 // --------------------------------------------

@@ -4,6 +4,10 @@ import { Location, CommonModule } from '@angular/common';
 import { Subject, takeUntil } from 'rxjs';
 import { AccessoryResponse } from '../../../core/models/accessory/accessory-response';
 import { AccessoryService } from '../../../core/services/accessory/accessory.service';
+import { AuthService } from '../../../core/services/auth/auth.service';
+import { CartService } from '../../../core/services/cart/cart.service';
+import { CartItemRequest } from '../../../core/models/cart/items/cart-item-request';
+import { UserService } from '../../../core/services/user/user.service';
 
 type PageState = 'loading' | 'loaded' | 'not-found' | 'error';
 
@@ -19,6 +23,9 @@ export class AccessoriesDetails implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly location = inject(Location);
   private readonly accessoryService = inject(AccessoryService);
+  private readonly authService = inject(AuthService);
+  private readonly userService = inject(UserService);
+  private readonly cartService = inject(CartService);
   private readonly destroy$ = new Subject<void>();
 
   state = signal<PageState>('loading');
@@ -26,13 +33,27 @@ export class AccessoriesDetails implements OnInit, OnDestroy {
   accessoryId: number | null = null;
   errorMessage: string | null = null;
 
+  isAuthenticated = signal(false);
+
+  // Add-to-cart feedback state
+  addingToCart = signal(false);
+  addedToCart = signal(false);
+  private addedToCartTimeout: ReturnType<typeof setTimeout> | null = null;
+
   ngOnInit(): void {
     this.extractAccessoryId();
+
+    this.userService.currentUser$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((user) => this.isAuthenticated.set(!!user));
   }
 
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+    if (this.addedToCartTimeout) {
+      clearTimeout(this.addedToCartTimeout);
+    }
   }
 
   private extractAccessoryId(): void {
@@ -95,16 +116,56 @@ export class AccessoriesDetails implements OnInit, OnDestroy {
 
   buyNow(): void {
     if (!this.accessory || this.accessory.stock <= 0) return;
-    // TODO: Wire in checkout flow
+    // TODO: Wire in checkout flow once one exists
     // this.router.navigate(['/checkout'], { state: { accessory: this.accessory } });
     console.log('Buy now:', this.accessory.title);
   }
 
   addToCart(): void {
-    if (!this.accessory || this.accessory.stock <= 0) return;
-    // TODO: Wire in cart service
-    // this.cartService.addItem(this.accessory);
-    console.log('Add to cart:', this.accessory.title);
+    if (!this.accessory || this.accessory.stock <= 0 || this.addingToCart()) {
+      return;
+    }
+
+    // Cart endpoints require an authenticated session — send anonymous
+    // shoppers to log in instead of firing a request that will 401.
+    if (!this.isAuthenticated()) {
+      this.router.navigate(['/login'], {
+        queryParams: { returnUrl: this.router.url },
+      });
+      return;
+    }
+
+    this.addingToCart.set(true);
+
+    const payload: CartItemRequest = {
+      accessoryId: this.accessory.id,
+      quantity: 1,
+    };
+
+    this.cartService
+      .addItemToCart(payload)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.addingToCart.set(false);
+          this.flashAdded();
+        },
+        error: (err) => {
+          this.addingToCart.set(false);
+          // TODO: surface this through a shared toast/alert pattern once
+          // one exists in the design system — for now it's logged so the
+          // failure isn't silent.
+          console.error('Failed to add to cart:', err);
+        },
+      });
+  }
+
+  private flashAdded(): void {
+    this.addedToCart.set(true);
+    if (this.addedToCartTimeout) {
+      clearTimeout(this.addedToCartTimeout);
+    }
+    this.addedToCartTimeout = setTimeout(() => this.addedToCart.set(false), 2000);
   }
 
   // ------------------------------------------------------------------
