@@ -3,12 +3,14 @@ import { inject } from '@angular/core';
 import { BehaviorSubject, catchError, filter, switchMap, take, throwError } from 'rxjs';
 import { AuthService } from '../../services/auth/auth.service';
 import { Router } from '@angular/router';
+import { UserService } from '../../services/user/user.service';
 
 let isRefreshing = false;
 const refreshTokenSubject = new BehaviorSubject<boolean | null>(null);
 
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
+  const userService = inject(UserService);
   const router = inject(Router);
 
   return next(req).pipe(
@@ -20,7 +22,7 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
         req.url.includes('/logout');
 
       // Use AuthService's current auth state instead of localStorage (may be stale)
-      const wasAuthenticated = authService.isAuthenticatedValue() === true;
+      const wasAuthenticated = userService.isAuthenticatedValue() === true;
 
       if (error.status === 401 && !isAuthRoute && wasAuthenticated) {
         if (!isRefreshing) {

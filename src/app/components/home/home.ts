@@ -34,7 +34,6 @@ type LoadState = 'idle' | 'loading' | 'loaded' | 'error';
 export class Home implements OnInit {
   private readonly categoryService = inject(CategoryService);
   private readonly accessoryService = inject(AccessoryService);
-  private readonly authService = inject(AuthService);
   private readonly cartService = inject(CartService);
   private readonly userService = inject(UserService);
   private readonly router = inject(Router);
@@ -69,7 +68,7 @@ export class Home implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((user) => this.currentUser.set(user));
 
-    this.authService
+    this.userService
       .checkAuth()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe();

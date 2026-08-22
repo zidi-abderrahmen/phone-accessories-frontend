@@ -5,7 +5,7 @@ import { firstValueFrom } from "rxjs";
 import { routes } from "./app.routes";
 import { credentialsInterceptor } from "./core/interceptors/cookies/credentials-interceptor";
 import { errorInterceptor } from "./core/interceptors/error/error-interceptor";
-import { AuthService } from "./core/services/auth/auth.service";
+import { UserService } from "./core/services/user/user.service";
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -13,8 +13,8 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
     provideAppInitializer(() => {
-      const authService = inject(AuthService);
-      return firstValueFrom(authService.checkAuth());
+      const userService = inject(UserService);
+      return firstValueFrom(userService.checkAuth());
     })
   ]
 };
