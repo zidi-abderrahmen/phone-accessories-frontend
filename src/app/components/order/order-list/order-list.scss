@@ -1,0 +1,448 @@
+@use '../../../../styles' as *;
+
+:host {
+  display: block;
+}
+
+// ---------------------------------------------------------------------------
+// Header
+// ---------------------------------------------------------------------------
+
+.orders {
+  padding-top: var(--pa-space-8);
+  padding-bottom: var(--pa-space-20);
+
+  @include respond-to(lg) {
+    padding-top: var(--pa-space-12);
+  }
+}
+
+.orders__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--pa-space-6);
+}
+
+.orders__title {
+  font-size: clamp(1.5rem, 3vw, 2rem); // section-header scale, not hero scale
+  font-weight: 700;
+}
+
+.orders__meta {
+  display: flex;
+  gap: var(--pa-space-10);
+}
+
+.orders__stat {
+  dt {
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--pa-text-tertiary);
+    margin-bottom: var(--pa-space-1);
+  }
+
+  dd {
+    font-family: var(--pa-font-mono);
+    font-size: 1.125rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: var(--pa-text-primary);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// List shell — 1px dividers, no per-row cards
+// ---------------------------------------------------------------------------
+
+.orders__list {
+  margin-top: var(--pa-space-8);
+  border-top: 1px solid var(--pa-border);
+  border-radius: var(--pa-radius-lg); // clipped by overflow on rows below
+  overflow: hidden;
+}
+
+// ---------------------------------------------------------------------------
+// Row
+// ---------------------------------------------------------------------------
+
+.order-row {
+  border-bottom: 1px solid var(--pa-border);
+  background-color: transparent;
+  transition: background-color var(--pa-transition-fast);
+
+  &:hover {
+    background-color: var(--pa-surface-hover);
+  }
+
+  &--open {
+    background-color: var(--pa-surface);
+  }
+
+  &--cancelled .order-row__summary {
+    opacity: 0.55;
+  }
+}
+
+.order-row__summary {
+  display: grid;
+  grid-template-columns: 4.5rem minmax(0, 1.4fr) auto auto 7.5rem 1.25rem;
+  align-items: center;
+  gap: var(--pa-space-5);
+  width: 100%;
+  padding: var(--pa-space-4) var(--pa-space-4);
+  background: none;
+  border: 0;
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: inset var(--pa-focus-ring);
+  }
+
+  &:active:not(:disabled) {
+    transition-duration: 50ms;
+  }
+
+  @include respond-to(lg) {
+    padding-inline: var(--pa-space-6);
+  }
+}
+
+.order-row__id {
+  font-family: var(--pa-font-mono);
+  font-size: 0.85rem;
+  color: var(--pa-text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+.order-row__customer {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--pa-text-primary);
+
+  small {
+    font-size: 0.8125rem;
+    font-weight: 400;
+    color: var(--pa-text-tertiary);
+  }
+
+  @include truncate;
+}
+
+.order-row__items {
+  font-size: 0.875rem;
+  color: var(--pa-text-secondary);
+  white-space: nowrap;
+}
+
+.order-row__total {
+  font-family: var(--pa-font-mono);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  color: var(--pa-text-primary);
+}
+
+.order-row__chevron {
+  width: 1rem;
+  height: 1rem;
+  color: var(--pa-text-muted);
+  transition: transform var(--pa-transition-base), color var(--pa-transition-fast);
+
+  .order-row--open & {
+    transform: rotate(180deg);
+    color: var(--pa-primary);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Status pill — semantic token mapping
+// ---------------------------------------------------------------------------
+
+.order-status {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--pa-space-2);
+  padding: 0.28rem 0.75rem;
+  border-radius: var(--pa-radius-full);
+  border: 1px solid transparent;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  white-space: nowrap;
+
+  &[data-status='Pending'] {
+    background-color: var(--pa-warning-muted);
+    border-color: var(--pa-warning-subtle);
+    color: var(--pa-warning);
+  }
+
+  &[data-status='Confirmed'] {
+    background-color: var(--pa-info-muted);
+    border-color: var(--pa-info-subtle);
+    color: var(--pa-info);
+  }
+
+  &[data-status='Shipped'] {
+    background-color: var(--pa-primary-muted);
+    border-color: var(--pa-primary-subtle);
+    color: var(--pa-primary);
+  }
+
+  &[data-status='Delivered'] {
+    background-color: var(--pa-success-muted);
+    border-color: var(--pa-success-subtle);
+    color: var(--pa-success);
+  }
+
+  &[data-status='Cancelled'] {
+    background-color: var(--pa-bg-sunken);
+    border-color: var(--pa-border);
+    color: var(--pa-text-tertiary);
+  }
+}
+
+.order-status__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: var(--pa-radius-full);
+  background-color: currentColor;
+
+  // Only "in-flight" states get a pulse; terminal states stay static
+  [data-status='Pending'] &,
+  [data-status='Shipped'] & {
+    animation: order-pulse 2s ease-in-out infinite;
+  }
+}
+
+@keyframes order-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.45; transform: scale(0.75); }
+}
+
+// ---------------------------------------------------------------------------
+// Expanded detail
+// ---------------------------------------------------------------------------
+
+.order-row__detail {
+  padding: var(--pa-space-5) var(--pa-space-4) var(--pa-space-6);
+  border-top: 1px solid var(--pa-border-subtle);
+  background-color: var(--pa-surface);
+  animation: detail-in var(--pa-transition-slower);
+
+  @include respond-to(lg) {
+    padding-inline: var(--pa-space-6);
+  }
+}
+
+@keyframes detail-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--pa-space-8);
+
+  @include respond-to(md) {
+    grid-template-columns: 1.6fr 1fr;
+    gap: var(--pa-space-10);
+  }
+}
+
+.detail-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--pa-text-tertiary);
+  margin-bottom: var(--pa-space-3);
+}
+
+.line-items {
+  list-style: none;
+}
+
+.line-item {
+  display: grid;
+  grid-template-columns: 3rem 1fr auto;
+  align-items: baseline;
+  gap: var(--pa-space-4);
+  padding-block: var(--pa-space-2);
+
+  & + & {
+    border-top: 1px solid var(--pa-border-subtle);
+  }
+}
+
+.line-item__qty {
+  font-family: var(--pa-font-mono);
+  font-size: 0.85rem;
+  color: var(--pa-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.line-item__name {
+  font-size: 0.9375rem;
+  color: var(--pa-text-primary);
+}
+
+.line-item__price {
+  font-family: var(--pa-font-mono);
+  font-size: 0.875rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--pa-text-secondary);
+}
+
+.detail-address {
+  font-style: normal;
+  line-height: 1.65;
+  font-size: 0.9375rem;
+  color: var(--pa-text-secondary);
+  margin-bottom: var(--pa-space-5);
+}
+
+.detail-facts {
+  display: flex;
+  gap: var(--pa-space-8);
+
+  dt {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--pa-text-tertiary);
+  }
+
+  dd {
+    font-size: 0.9375rem;
+    color: var(--pa-text-primary);
+    margin-top: var(--pa-space-1);
+  }
+}
+
+.order-note {
+  margin-top: var(--pa-space-6);
+  padding-left: var(--pa-space-4);
+  border-left: 2px solid var(--pa-primary);
+  color: var(--pa-text-secondary);
+  font-size: 0.9375rem;
+  font-style: italic;
+  max-width: 60ch;
+}
+
+.order-row__actions {
+  margin-top: var(--pa-space-6);
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: var(--pa-space-4);
+}
+
+.inline-error {
+  margin: 0;
+}
+
+// ---------------------------------------------------------------------------
+// Empty / error states
+// ---------------------------------------------------------------------------
+
+.orders__state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--pa-space-2);
+  padding: var(--pa-space-16) var(--pa-space-4);
+  margin-top: var(--pa-space-8);
+  text-align: center;
+  border: 1px dashed var(--pa-border);
+  border-radius: var(--pa-radius-lg);
+  animation: pa-fade-in 0.4s var(--pa-ease-out) forwards;
+}
+
+.orders__state-icon {
+  width: 2.25rem;
+  height: 2.25rem;
+  color: var(--pa-text-muted);
+  margin-bottom: var(--pa-space-3);
+}
+
+.orders__state-title {
+  font-weight: 600;
+  color: var(--pa-text-primary);
+  margin: 0;
+}
+
+.orders__state-copy {
+  color: var(--pa-text-secondary);
+  font-size: 0.9375rem;
+  max-width: 44ch;
+  margin-bottom: var(--pa-space-5);
+}
+
+// ---------------------------------------------------------------------------
+// Skeletons — reuses global .pa-skeleton shimmer
+// ---------------------------------------------------------------------------
+
+.order-row--skeleton {
+  display: grid;
+  grid-template-columns: 4.5rem minmax(0, 1.4fr) auto auto 7.5rem 1.25rem;
+  align-items: center;
+  gap: var(--pa-space-5);
+  padding: var(--pa-space-4);
+  border-bottom: 1px solid var(--pa-border);
+}
+
+.sk {
+  height: 0.85rem;
+
+  &--id       { width: 70%; }
+  &--customer { width: 90%; }
+  &--items    { width: 60px; }
+  &--pill     { width: 5.5rem; height: 1.6rem; border-radius: var(--pa-radius-full); }
+  &--total    { width: 80%; justify-self: end; }
+  &--chevron  { width: 1rem; height: 1rem; }
+}
+
+// ---------------------------------------------------------------------------
+// Mobile override — strict two-column asymmetric collapse
+// ---------------------------------------------------------------------------
+
+@media (max-width: 767px) {
+  .order-row__summary,
+  .order-row--skeleton {
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      'id        pill'
+      'customer  pill'
+      'items     items'
+      'total     chevron';
+    gap: var(--pa-space-1) var(--pa-space-3);
+  }
+
+  .order-row__id       { grid-area: id; }
+  .order-row__customer { grid-area: customer; }
+  .order-row__items    { grid-area: items; margin-top: var(--pa-space-1); }
+  .order-status        { grid-area: pill; justify-self: end; }
+  .order-row__total    { grid-area: total; justify-self: start; }
+  .order-row__chevron  { grid-area: chevron; justify-self: end; align-self: center; }
+
+  .sk--pill { grid-area: pill; justify-self: end; }
+  .sk--chevron { grid-area: chevron; justify-self: end; }
+}
