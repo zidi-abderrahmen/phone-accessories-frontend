@@ -8,7 +8,7 @@
         <p class="pa-roles__subtitle">Manage the roles available across the application.</p>
       </div>
 
-      @if (authService.hasAnyRole(['SUPER_ADMIN'])) {
+      @if (userService.hasAnyRole(['SUPER_ADMIN'])) {
         <button type="button" class="pa-btn pa-btn--primary" (click)="openCreateModal()">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -131,13 +131,13 @@
           <p>Deleted roles will show up here.</p>
         } @else if (filter() === 'ACTIVE') {
           <h3>No active roles</h3>
-          @if (authService.hasAnyRole(['SUPER_ADMIN'])) {
+          @if (userService.hasAnyRole(['SUPER_ADMIN'])) {
             <p>Create a role to get started.</p>
             <button type="button" class="pa-btn pa-btn--primary pa-btn--sm" (click)="openCreateModal()">New role</button>
           }
         } @else {
           <h3>No roles yet</h3>
-          @if (authService.hasAnyRole(['SUPER_ADMIN'])) {
+          @if (userService.hasAnyRole(['SUPER_ADMIN'])) {
             <p>Create your first role to get started.</p>
             <button type="button" class="pa-btn pa-btn--primary pa-btn--sm" (click)="openCreateModal()">New role</button>
           }
@@ -159,7 +159,7 @@
               <th>Status</th>
               <th>Created</th>
               <th>Updated</th>
-              @if (authService.hasAnyRole(['SUPER_ADMIN'])) { <th class="pa-roles-table__actions-col">Actions</th> }
+              @if (userService.hasAnyRole(['SUPER_ADMIN'])) { <th class="pa-roles-table__actions-col">Actions</th> }
             </tr>
           </thead>
           <tbody>
@@ -175,7 +175,7 @@
                 </td>
                 <td class="pa-roles-table__date">{{ formatDate(role.createdAt) }}</td>
                 <td class="pa-roles-table__date">{{ formatDate(role.updatedAt) }}</td>
-                @if (authService.hasAnyRole(['SUPER_ADMIN'])) {
+                @if (userService.hasAnyRole(['SUPER_ADMIN'])) {
                    <td>
                     <div class="pa-roles-table__row-actions">
                         @if (!role.deleted) {
@@ -261,7 +261,7 @@
               }
             </dl>
 
-            @if (authService.hasAnyRole(['SUPER_ADMIN'])) {
+            @if (userService.hasAnyRole(['SUPER_ADMIN'])) {
                 <div class="pa-roles-card__actions">
                 @if (!role.deleted) {
                     <button type="button" class="pa-btn pa-btn--secondary pa-btn--sm" (click)="openEditModal(role)">
@@ -298,7 +298,7 @@
 </div>
 
 <!-- Create / edit modal -->
-@if (isModalOpen() && authService.hasAnyRole(['SUPER_ADMIN'])) {
+@if (isModalOpen() && userService.hasAnyRole(['SUPER_ADMIN'])) {
   <div class="pa-modal-backdrop" (click)="closeModal()">
     <div class="pa-modal" role="dialog" aria-modal="true" [attr.aria-label]="isEditMode() ? 'Edit role' : 'New role'"
          (click)="$event.stopPropagation()">
@@ -352,7 +352,7 @@
 }
 
 <!-- Permanent delete confirmation -->
-@if (authService.hasAnyRole(['SUPER_ADMIN']) && deletingRoleId() !== null && deletingRole(); as role) {
+@if (userService.hasAnyRole(['SUPER_ADMIN']) && deletingRoleId() !== null && deletingRole(); as role) {
   <div class="pa-modal-backdrop" (click)="cancelHardDelete()">
     <div class="pa-modal pa-modal--danger" role="alertdialog" aria-modal="true" aria-label="Permanently delete role"
          (click)="$event.stopPropagation()">

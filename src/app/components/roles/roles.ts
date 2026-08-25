@@ -6,6 +6,7 @@ import { UserRoleService } from '../../core/services/user-role/user-role.service
 import da from '@angular/common/locales/da';
 import { AuthService } from '../../core/services/auth/auth.service';
 import { FormsModule } from '@angular/forms';
+import { UserService } from '../../core/services/user/user.service';
 
 type RoleFilter = 'ALL' | 'ACTIVE' | 'DELETED';
 
@@ -25,6 +26,7 @@ interface FilterTab {
 export class Roles {
   private readonly roleService = inject(UserRoleService);
   readonly authService = inject(AuthService);
+  readonly userService = inject(UserService);
 
   protected readonly tabs: FilterTab[] = [
     { value: 'ALL', label: 'All' },
