@@ -24,7 +24,7 @@
         <p class="page-header__subtitle">Browse our collection of phone accessory categories</p>
       </div>
       <a
-        *ngIf="authService.hasAnyRole(['SUPER_ADMIN', 'ADMIN'])"
+        *ngIf="userService.hasAnyRole(['SUPER_ADMIN', 'ADMIN'])"
         routerLink="/admin/categories/create"
         class="pa-btn pa-btn--primary"
       >
@@ -95,7 +95,7 @@
         Get started by creating your first category.
       </p>
       <a
-        *ngIf="authService.hasAnyRole(['SUPER_ADMIN', 'ADMIN'])"
+        *ngIf="userService.hasAnyRole(['SUPER_ADMIN', 'ADMIN'])"
         routerLink="/admin/categories/create"
         class="pa-btn pa-btn--primary"
       >
@@ -125,7 +125,7 @@
             loading="lazy"
           />
           <div
-            *ngIf="authService.hasAnyRole(['SUPER_ADMIN', 'ADMIN'])"
+            *ngIf="userService.hasAnyRole(['SUPER_ADMIN', 'ADMIN'])"
             class="card-actions-overlay"
           >
             <button

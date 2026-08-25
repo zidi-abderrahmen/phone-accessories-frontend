@@ -5,6 +5,7 @@ import { Page } from '../../core/models/page';
 import { CategoryService } from '../../core/services/category/category.service';
 import { CommonModule, DatePipe } from '@angular/common';
 import { AuthService } from '../../core/services/auth/auth.service';
+import { UserService } from '../../core/services/user/user.service';
 
 @Component({
   selector: 'app-categories',
@@ -17,6 +18,7 @@ export class Categories implements OnInit {
   private categoryService = inject(CategoryService);
   private router = inject(Router);
   authService = inject(AuthService);
+  userService = inject(UserService);
 
   // Data state
   categories = signal<CategoryResponse[]>([]);
