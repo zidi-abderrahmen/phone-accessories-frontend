@@ -9,6 +9,7 @@ import { CategoryService } from '../../../core/services/category/category.servic
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { FormsModule } from '@angular/forms';
 import { SearchRequest } from '../../../core/models/accessory/search/search-request';
+import { UserService } from '../../../core/services/user/user.service';
 
 @Component({
   selector: 'app-accessories',
@@ -23,6 +24,7 @@ export class Accessories implements OnInit {
   private router = inject(Router);
   private activateRoute = inject(ActivatedRoute);
   authService = inject(AuthService);
+  userService = inject(UserService);
 
   // Data state
   accessories = signal<AccessoryResponse[]>([]);

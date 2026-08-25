@@ -109,7 +109,7 @@
           </button>
         }
 
-        @if (authService.hasAnyRole(['SUPER_ADMIN', 'ADMIN'])) {
+        @if (userService.hasAnyRole(['SUPER_ADMIN', 'ADMIN'])) {
           <a routerLink="/admin/accessories/create" class="pa-btn pa-btn--primary">
             Create Accessory
           </a>
@@ -165,7 +165,7 @@
             Get started by adding your first accessory.
           }
         </p>
-        @if (authService.hasAnyRole(['SUPER_ADMIN', 'ADMIN']) && !searchQuery()) {
+        @if (userService.hasAnyRole(['SUPER_ADMIN', 'ADMIN']) && !searchQuery()) {
           <a routerLink="/admin/accessories/create" class="pa-btn pa-btn--primary">
             Create Accessory
           </a>
@@ -193,7 +193,7 @@
                 loading="lazy"
                 (error)="$any($event.target).src = 'https://placehold.net/800x600.png'"
               />
-              @if (authService.hasAnyRole(['SUPER_ADMIN', 'ADMIN'])) {
+              @if (userService.hasAnyRole(['SUPER_ADMIN', 'ADMIN'])) {
                 <div class="card-actions-overlay">
                   <button
                     class="pa-btn pa-btn--sm pa-btn--icon action-edit"
