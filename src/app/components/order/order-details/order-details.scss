@@ -1,0 +1,390 @@
+// ============================================================
+// ORDER DETAILS PAGE — Phone Accessories
+// Extends the global --pa-* design system (see styles.scss)
+// Reuses .pa-status-badge and .pa-order-items patterns from
+// the Order History page for visual consistency.
+// ============================================================
+
+@use '../../../../styles' as *; // adjust path to your global stylesheet if different
+
+// --------------------------------------------------------------
+// Page shell
+// --------------------------------------------------------------
+
+.pa-order-details {
+  padding-top: var(--pa-space-8);
+  padding-bottom: var(--pa-space-24);
+  min-height: 70dvh;
+
+  &__back {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--pa-space-2);
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--pa-text-secondary);
+    margin-bottom: var(--pa-space-6);
+
+    svg {
+      width: 1rem;
+      height: 1rem;
+    }
+
+    &:hover {
+      color: var(--pa-text-primary);
+    }
+  }
+
+  &__header {
+    margin-bottom: var(--pa-space-8);
+  }
+
+  &__heading {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--pa-space-3);
+    margin-bottom: var(--pa-space-5);
+
+    h1 {
+      font-size: clamp(1.5rem, 3vw, 2rem);
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      font-family: var(--pa-font-mono);
+    }
+  }
+
+  &__key-facts {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--pa-space-4);
+    padding: var(--pa-space-5);
+    background-color: var(--pa-bg-sunken);
+    border-radius: var(--pa-radius-lg);
+  }
+
+  &__fact {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  &__fact-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--pa-text-muted);
+  }
+
+  &__fact-value {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--pa-text-primary);
+
+    &--strong {
+      font-family: var(--pa-font-mono);
+      font-size: 1.0625rem;
+    }
+  }
+
+  &__layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--pa-space-6);
+    align-items: start;
+
+    @include respond-to(lg) {
+      grid-template-columns: 1fr 340px;
+      gap: var(--pa-space-8);
+    }
+  }
+
+  &__main {
+    display: flex;
+    flex-direction: column;
+    gap: var(--pa-space-6);
+    min-width: 0;
+  }
+
+  &__loading {
+    padding-top: var(--pa-space-4);
+  }
+}
+
+// --------------------------------------------------------------
+// Error state
+// --------------------------------------------------------------
+
+.pa-order-details__error {
+  text-align: center;
+  padding: var(--pa-space-16) var(--pa-space-4);
+  max-width: 32rem;
+  margin: 0 auto;
+
+  svg {
+    width: 2.5rem;
+    height: 2.5rem;
+    margin: 0 auto var(--pa-space-4);
+    color: var(--pa-danger);
+  }
+
+  h1 {
+    font-size: 1.25rem;
+    margin-bottom: var(--pa-space-2);
+  }
+
+  p {
+    color: var(--pa-text-secondary);
+    margin-bottom: var(--pa-space-6);
+    line-height: 1.6;
+  }
+
+  &-actions {
+    display: flex;
+    justify-content: center;
+    gap: var(--pa-space-3);
+    flex-wrap: wrap;
+  }
+}
+
+// --------------------------------------------------------------
+// Status badges (shared visual language with Order History)
+// --------------------------------------------------------------
+
+.pa-status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.3125rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-radius: var(--pa-radius-full);
+  white-space: nowrap;
+
+  &--pending {
+    background-color: var(--pa-warning-muted);
+    color: var(--pa-warning);
+  }
+
+  &--processing {
+    background-color: var(--pa-info-muted);
+    color: var(--pa-info);
+  }
+
+  &--shipped {
+    background-color: var(--pa-primary-muted);
+    color: var(--pa-primary);
+  }
+
+  &--delivered {
+    background-color: var(--pa-success-muted);
+    color: var(--pa-success);
+  }
+
+  &--cancelled {
+    background-color: var(--pa-danger-muted);
+    color: var(--pa-danger);
+  }
+}
+
+// --------------------------------------------------------------
+// Detail card (customer / shipping / items)
+// --------------------------------------------------------------
+
+.pa-detail-card {
+  @extend .pa-card;
+
+  &__title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 1.0625rem;
+    font-weight: 700;
+    letter-spacing: -0.015em;
+    margin-bottom: var(--pa-space-5);
+  }
+
+  &__title-count {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--pa-text-tertiary);
+    text-transform: none;
+    letter-spacing: normal;
+  }
+
+  &__notes {
+    margin-top: var(--pa-space-5);
+    padding-top: var(--pa-space-5);
+    border-top: 1px solid var(--pa-border);
+    font-size: 0.875rem;
+    color: var(--pa-text-secondary);
+    line-height: 1.6;
+  }
+}
+
+.pa-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--pa-space-6);
+
+  @include respond-to(sm) {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  &__group-title {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--pa-text-tertiary);
+    margin-bottom: var(--pa-space-3);
+  }
+
+  dl div {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--pa-space-3);
+    padding: var(--pa-space-2) 0;
+    border-bottom: 1px solid var(--pa-border-subtle);
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+
+  dt {
+    font-size: 0.875rem;
+    color: var(--pa-text-tertiary);
+    flex-shrink: 0;
+  }
+
+  dd {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--pa-text-primary);
+    text-align: right;
+    word-break: break-word;
+  }
+}
+
+// --------------------------------------------------------------
+// Order items (same visual language as Order History)
+// --------------------------------------------------------------
+
+.pa-order-items {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--pa-space-4);
+
+  &__row {
+    display: flex;
+    align-items: center;
+    gap: var(--pa-space-4);
+    padding-bottom: var(--pa-space-4);
+    border-bottom: 1px solid var(--pa-border-subtle);
+
+    &:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+  }
+
+  &__image {
+    width: 3.5rem;
+    height: 3.5rem;
+    flex-shrink: 0;
+    border-radius: var(--pa-radius-md);
+    overflow: hidden;
+    background-color: var(--pa-bg-sunken);
+    border: 1px solid var(--pa-border);
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+
+  &__info {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    flex: 1;
+    gap: 2px;
+  }
+
+  &__title {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--pa-text-primary);
+    @include truncate;
+  }
+
+  &__qty {
+    font-size: 0.8125rem;
+    color: var(--pa-text-tertiary);
+  }
+
+  &__total {
+    font-family: var(--pa-font-mono);
+    font-weight: 600;
+    font-size: 0.9375rem;
+    color: var(--pa-text-primary);
+    flex-shrink: 0;
+  }
+}
+
+// --------------------------------------------------------------
+// Summary sidebar
+// --------------------------------------------------------------
+
+.pa-order-details__summary {
+  @include respond-to(lg) {
+    position: sticky;
+    top: calc(4rem + var(--pa-space-6));
+  }
+}
+
+.pa-order-summary-card {
+  &__title {
+    font-size: 1.0625rem;
+    font-weight: 700;
+    margin-bottom: var(--pa-space-5);
+  }
+
+  &__row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.9375rem;
+    color: var(--pa-text-secondary);
+    padding: var(--pa-space-2) 0;
+
+    &--total {
+      font-size: 1.0625rem;
+      font-weight: 700;
+      color: var(--pa-text-primary);
+      padding-top: var(--pa-space-3);
+    }
+  }
+
+  &__trust {
+    display: flex;
+    align-items: center;
+    gap: var(--pa-space-2);
+    margin-top: var(--pa-space-5);
+    padding-top: var(--pa-space-5);
+    border-top: 1px solid var(--pa-border);
+    font-size: 0.8125rem;
+    color: var(--pa-text-tertiary);
+
+    svg {
+      width: 1.125rem;
+      height: 1.125rem;
+      flex-shrink: 0;
+      color: var(--pa-primary);
+    }
+  }
+}
