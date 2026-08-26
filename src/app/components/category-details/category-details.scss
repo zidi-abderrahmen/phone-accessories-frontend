@@ -44,6 +44,63 @@
   }
 }
 
+.card-actions-overlay {
+  position: absolute;
+  top: var(--pa-space-3);
+  right: var(--pa-space-3);
+  display: flex;
+  gap: var(--pa-space-2);
+  opacity: 0;
+  transform: translateY(-4px);
+  transition:
+    opacity var(--pa-transition-fast),
+    transform var(--pa-transition-fast);
+
+  @media (pointer: coarse) {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .action-wishlist,
+  .action-edit,
+  .action-delete {
+    background-color: var(--pa-surface);
+    border-color: var(--pa-border);
+    color: var(--pa-text-secondary);
+    box-shadow: var(--pa-shadow-sm);
+
+    &:hover {
+      background-color: var(--pa-surface-hover);
+      color: var(--pa-text-primary);
+      transform: translateY(-1px);
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+  }
+
+  .action-wishlist:hover {
+    background-color: var(--pa-danger-muted);
+    color: var(--pa-danger);
+    border-color: var(--pa-danger-subtle);
+  }
+
+  .action-wishlist--added {
+    background-color: var(--pa-danger-muted);
+    color: var(--pa-danger);
+    border-color: var(--pa-danger-subtle);
+  }
+
+  .action-delete:hover {
+    background-color: var(--pa-danger-muted);
+    color: var(--pa-danger);
+    border-color: var(--pa-danger-subtle);
+  }
+}
+
 // --------------------------------------------
 // BREADCRUMB
 // --------------------------------------------
@@ -904,9 +961,45 @@
 
     &:hover {
       color: var(--pa-text-primary);
+
+      .card-actions-overlay {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
   }
 }
+
+.action-wishlist {
+    background-color: var(--pa-surface);
+    border-color: var(--pa-border);
+    color: var(--pa-text-secondary);
+    box-shadow: var(--pa-shadow-sm);
+
+    &:hover {
+      background-color: var(--pa-surface-hover);
+      color: var(--pa-text-primary);
+      transform: translateY(-1px);
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+  }
+
+  .action-wishlist:hover {
+    background-color: var(--pa-danger-muted);
+    color: var(--pa-danger);
+    border-color: var(--pa-danger-subtle);
+  }
+
+  .action-wishlist--added {
+    background-color: var(--pa-danger-muted);
+    color: var(--pa-danger);
+    border-color: var(--pa-danger-subtle);
+  }
 
 .card-badges {
   display: flex;

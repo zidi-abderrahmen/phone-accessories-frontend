@@ -232,6 +232,34 @@
               }
               {{ addingToCart() ? 'Adding…' : (addedToCart() ? 'Added to Cart' : 'Add to Cart') }}
             </button>
+            <button
+              type="button"
+              class="pa-btn pa-btn--secondary pa-btn--icon action-wishlist"
+              [class.action-wishlist--added]="wishlistSet().has(accessoryId || -1)"
+              [disabled]="addingToWishlist()"
+              (click)="addToWishlist()"
+              [attr.aria-label]="wishlistSet().has(accessoryId || -1) ? 'Added to wishlist' : 'Add to wishlist'"
+              title="Add to wishlist"
+            >
+              @if (addingToWishlist()) {
+                <span class="pa-spinner" aria-hidden="true"></span>
+              } @else {
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  [attr.fill]="wishlistSet().has(accessoryId || -1) ? 'currentColor' : 'none'"
+                  stroke="currentColor"
+                  stroke-width="1.75"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z" />
+                </svg>
+              }
+            </button>
           </div>
         </div>
       </article>

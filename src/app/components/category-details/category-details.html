@@ -265,6 +265,20 @@
           />
         </div>
         <div class="card-content">
+          <div class="card-actions-overlay">
+            <button
+              class="pa-btn pa-btn--sm pa-btn--icon action-wishlist"
+              [class.action-wishlist--added]="wishlistSet().has(accessory.id)"
+              [disabled]="isWishlistPending(accessory)"
+              (click)="addToWishlist($event, accessory)"
+              [attr.aria-label]="wishlistSet().has(accessory.id) ? 'Added to wishlist' : 'Add ' + accessory.title + ' to wishlist'"
+              title="Add to wishlist"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" [attr.fill]="wishlistSet().has(accessory.id) ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z" />
+              </svg>
+            </button>
+          </div>
           <div class="card-badges">
             <span class="card-category">{{ accessory.category?.name }}</span>
             <span

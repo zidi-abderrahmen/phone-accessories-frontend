@@ -1,0 +1,288 @@
+// ============================================================
+// WISHLIST PAGE — Phone Accessories
+// Extends the global --pa-* design system (see styles.scss)
+// Reuses the product-card visual language from Home/Accessories.
+// ============================================================
+
+@use '../../../styles' as *; // adjust path to your global stylesheet if different
+
+// --------------------------------------------------------------
+// Page shell
+// --------------------------------------------------------------
+
+.pa-wishlist {
+  padding-top: var(--pa-space-8);
+  padding-bottom: var(--pa-space-24);
+  min-height: 70dvh;
+
+  &__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--pa-space-4);
+    margin-bottom: var(--pa-space-8);
+  }
+
+  &__title {
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    font-weight: 700;
+    letter-spacing: -0.025em;
+  }
+
+  &__subtitle {
+    color: var(--pa-text-tertiary);
+    font-size: 0.9375rem;
+    margin-top: var(--pa-space-1);
+  }
+
+  &__error-banner {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--pa-space-2);
+    padding: var(--pa-space-3) var(--pa-space-4);
+    background-color: var(--pa-danger-muted);
+    border: 1px solid var(--pa-danger-subtle);
+    border-radius: var(--pa-radius-md);
+    color: var(--pa-danger);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    margin-bottom: var(--pa-space-6);
+
+    svg {
+      width: 1.125rem;
+      height: 1.125rem;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+  }
+
+  &__grid {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--pa-space-5);
+
+    @include respond-to(sm) {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    @include respond-to(lg) {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+}
+
+// --------------------------------------------------------------
+// Loading skeleton
+// --------------------------------------------------------------
+
+.pa-wishlist-skeleton {
+  padding: var(--pa-space-3);
+  border: 1px solid var(--pa-border);
+  border-radius: var(--pa-radius-lg);
+  background-color: var(--pa-surface);
+}
+
+// --------------------------------------------------------------
+// Error / empty state
+// --------------------------------------------------------------
+
+.pa-wishlist__state {
+  text-align: center;
+  padding: var(--pa-space-16) var(--pa-space-4);
+  max-width: 30rem;
+  margin: 0 auto;
+
+  svg {
+    width: 2.5rem;
+    height: 2.5rem;
+    margin: 0 auto var(--pa-space-4);
+    color: var(--pa-text-muted);
+  }
+
+  h2 {
+    font-size: 1.25rem;
+    margin-bottom: var(--pa-space-2);
+  }
+
+  p {
+    color: var(--pa-text-secondary);
+    margin-bottom: var(--pa-space-6);
+    line-height: 1.6;
+  }
+
+  &-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 4rem;
+    height: 4rem;
+    margin: 0 auto var(--pa-space-4);
+    border-radius: var(--pa-radius-full);
+    background-color: var(--pa-bg-sunken);
+
+    svg {
+      margin: 0;
+      color: var(--pa-text-muted);
+    }
+  }
+}
+
+// --------------------------------------------------------------
+// Wishlist item card
+// --------------------------------------------------------------
+
+.pa-wish-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--pa-border);
+  border-radius: var(--pa-radius-lg);
+  background-color: var(--pa-surface);
+  overflow: hidden;
+  transition: border-color var(--pa-transition-fast),
+              box-shadow var(--pa-transition-fast);
+
+  &:hover {
+    border-color: var(--pa-border-strong);
+    box-shadow: var(--pa-shadow-sm);
+  }
+
+  &__remove {
+    position: absolute;
+    top: var(--pa-space-2);
+    right: var(--pa-space-2);
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    border: none;
+    border-radius: var(--pa-radius-full);
+    background-color: var(--pa-surface);
+    color: var(--pa-text-tertiary);
+    box-shadow: var(--pa-shadow-sm);
+    cursor: pointer;
+    transition: color var(--pa-transition-fast), background-color var(--pa-transition-fast);
+
+    svg {
+      width: 0.9375rem;
+      height: 0.9375rem;
+    }
+
+    &:hover {
+      color: var(--pa-danger);
+      background-color: var(--pa-danger-muted);
+    }
+
+    &:focus-visible {
+      @include focus-ring;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  &__image {
+    position: relative;
+    display: block;
+    aspect-ratio: 1 / 1;
+    background-color: var(--pa-bg-sunken);
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+
+  &__stock {
+    position: absolute;
+    bottom: var(--pa-space-2);
+    left: var(--pa-space-2);
+    padding: 0.2rem 0.5rem;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    border-radius: var(--pa-radius-full);
+    background-color: var(--pa-success-muted);
+    color: var(--pa-success);
+
+    &--out {
+      background-color: var(--pa-danger-muted);
+      color: var(--pa-danger);
+    }
+  }
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: var(--pa-space-3) var(--pa-space-3) 0;
+  }
+
+  &__category {
+    font-size: 0.6875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--pa-text-muted);
+  }
+
+  &__title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--pa-text-primary);
+    line-height: 1.4;
+    @include truncate;
+
+    &:hover {
+      color: var(--pa-primary);
+    }
+  }
+
+  &__price {
+    font-family: var(--pa-font-mono);
+    font-weight: 700;
+    font-size: 0.9375rem;
+    color: var(--pa-text-primary);
+    margin-top: 2px;
+  }
+
+  &__actions {
+    display: flex;
+    flex-direction: column;
+    gap: var(--pa-space-2);
+    padding: var(--pa-space-3);
+    margin-top: auto;
+  }
+
+  &__cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--pa-space-2);
+
+    svg {
+      width: 0.9375rem;
+      height: 0.9375rem;
+    }
+  }
+
+  &__details {
+    text-align: center;
+  }
+}
+
+// --------------------------------------------------------------
+// Reduced motion
+// --------------------------------------------------------------
+
+@media (prefers-reduced-motion: reduce) {
+  .pa-wish-card {
+    transition: none;
+  }
+}

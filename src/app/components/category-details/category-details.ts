@@ -1,10 +1,14 @@
-import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, computed, DestroyRef, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { Subject, finalize, forkJoin, takeUntil } from 'rxjs';
 import { CategoryResponse } from '../../core/models/category/category-response';
 import { CategoryService } from '../../core/services/category/category.service';
 import { AccessoryResponse } from '../../core/models/accessory/accessory-response';
 import { CommonModule, Location } from '@angular/common';
+import { UserService } from '../../core/services/user/user.service';
+import { WishlistService } from '../../core/services/wishlist/wishlist.service';
+import { HttpErrorResponse } from '@angular/common/http';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 type PageState = 'loading' | 'loaded' | 'empty' | 'not-found' | 'error';
 type SortOption = 'newest' | 'price-asc' | 'price-desc';
@@ -23,6 +27,9 @@ export class CategoryDetails implements OnInit, OnDestroy {
   private readonly location = inject(Location);
   private readonly categoryService = inject(CategoryService);
   private readonly destroy$ = new Subject<void>();
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly userService = inject(UserService);
+  private readonly wishlistService = inject(WishlistService);
 
   readonly placeholderImage = 'assets/placeholder-product.svg';
 
@@ -37,8 +44,15 @@ export class CategoryDetails implements OnInit, OnDestroy {
   errorMessage: string | null = null;
   categoryId: number | null = null;
 
+  protected readonly pendingWishlistIds = signal<ReadonlySet<number>>(new Set());
+  protected readonly addedWishlistId = signal<number | null>(null);
+  private addedWishlistTimeout: ReturnType<typeof setTimeout> | null = null;
+  protected wishlistIds = signal<number[]>([]);
+  protected readonly wishlistSet = computed(() => new Set(this.wishlistIds()));
+
   ngOnInit(): void {
     this.extractCategoryId();
+    this.loadWishlistIds();
   }
 
   ngOnDestroy(): void {
@@ -62,6 +76,88 @@ export class CategoryDetails implements OnInit, OnDestroy {
         this.categoryId = id;
         this.loadCategoryAndAccessories(id);
       });
+  }
+
+  isWishlistPending(accessory: AccessoryResponse): boolean {
+    return this.pendingWishlistIds().has(accessory.id);
+  }
+
+  addToWishlist(event: Event, accessory: AccessoryResponse): void {
+    event.stopPropagation();
+
+    if (this.isWishlistPending(accessory)) return;
+
+    if (!this.userService.isAuthenticatedValue()) {
+      this.router.navigate(['/login'], { queryParams: { returnUrl: this.router.url } });
+      return;
+    }
+
+    this.setWishlistPending(accessory.id, true);
+
+    if (this.wishlistSet().has(accessory.id)) {
+      this.wishlistService.removeFromWishlist(accessory.id).subscribe({
+        next: () => {
+          this.setWishlistPending(accessory.id, false);
+          this.removeByValue(accessory.id);
+        },
+        error: (err: HttpErrorResponse) => {
+          this.setWishlistPending(accessory.id, false);
+          console.error('Failed to remove from wishlist:', err);
+        }
+      });
+    } else {
+      this.wishlistService
+      .addToWishlist(accessory.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.setWishlistPending(accessory.id, false);
+          this.flashWishlistAdded(accessory.id);
+          this.wishlistIds.update(wishlistIds => [...wishlistIds, accessory.id]);
+        },
+        error: (err: HttpErrorResponse) => {
+          this.setWishlistPending(accessory.id, false);
+          console.error('Failed to add to wishlist:', err);
+        }
+      });
+    }
+  }
+
+  private setWishlistPending(id: number, pending: boolean): void {
+    const next = new Set(this.pendingWishlistIds());
+    if (pending) {
+      next.add(id);
+    } else {
+      next.delete(id);
+    }
+    this.pendingWishlistIds.set(next);
+  }
+
+  private flashWishlistAdded(id: number): void {
+    this.addedWishlistId.set(id);
+    if (this.addedWishlistTimeout) {
+      clearTimeout(this.addedWishlistTimeout);
+    }
+    this.addedWishlistTimeout = setTimeout(() => this.addedWishlistId.set(null), 2000);
+  }
+
+  private loadWishlistIds(): void {
+      this.wishlistService.getMyWishlist().subscribe({
+        next: (wishlist) => {
+          const items = wishlist?.items ?? [];
+          const newIds = items.map(item => item.accessory.id);
+          this.wishlistIds.set(newIds);
+          console.log(this.wishlistIds().length);
+          console.log(this.wishlistSet().size);
+        },
+        error: (err) => {
+          console.log('Error loading wishlist ids.', err);
+        }
+      });
+  }
+
+  private removeByValue(value: number): void {
+    this.wishlistIds.update(numbers => numbers.filter(num => num !== value));
   }
 
   loadCategoryAndAccessories(id: number): void {

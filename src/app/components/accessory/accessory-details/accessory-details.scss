@@ -373,6 +373,40 @@
   color: #ffffff;
 }
 
+.action-wishlist {
+  width: 48px;
+  height: 48px;
+  align-self: center;
+
+  @media (min-width: 480px) {
+    flex: 0 0 auto;
+  }
+
+  &:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none !important;
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--pa-focus-ring);
+  }
+
+  &:hover:not(:disabled) {
+    background-color: var(--pa-danger-muted);
+    color: var(--pa-danger);
+    border-color: var(--pa-danger-subtle);
+  }
+}
+
+.action-wishlist--added {
+  background-color: var(--pa-danger-muted);
+  color: var(--pa-danger);
+  border-color: var(--pa-danger-subtle);
+}
+
 .pa-spinner {
   display: inline-block;
   width: 0.875rem;

@@ -678,6 +678,7 @@
     transform: translateY(0);
   }
 
+  .action-wishlist,
   .action-edit,
   .action-delete {
     background-color: var(--pa-surface);
@@ -690,6 +691,24 @@
       color: var(--pa-text-primary);
       transform: translateY(-1px);
     }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+  }
+
+  .action-wishlist:hover {
+    background-color: var(--pa-danger-muted);
+    color: var(--pa-danger);
+    border-color: var(--pa-danger-subtle);
+  }
+
+  .action-wishlist--added {
+    background-color: var(--pa-danger-muted);
+    color: var(--pa-danger);
+    border-color: var(--pa-danger-subtle);
   }
 
   .action-delete:hover {
