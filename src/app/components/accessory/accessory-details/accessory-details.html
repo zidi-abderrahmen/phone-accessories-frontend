@@ -263,6 +263,279 @@
           </div>
         </div>
       </article>
+
+      <!-- ============================================================ -->
+      <!-- REVIEWS SECTION                                                -->
+      <!-- ============================================================ -->
+      <section class="reviews-section" aria-label="Customer reviews">
+        <div class="reviews-header">
+          <div class="reviews-header__titles">
+            <h2 class="reviews-header__title">Customer Reviews</h2>
+
+            @if (reviewCount() > 0) {
+              <div class="reviews-header__summary">
+                <span class="reviews-stars" [attr.aria-label]="averageRatingRounded() + ' out of 5 stars'">
+                  @for (star of ratingStars; track star) {
+                    <svg
+                      class="reviews-star"
+                      [class.reviews-star--filled]="starState(averageRating(), star) === 'filled'"
+                      viewBox="0 0 24 24"
+                      [attr.fill]="starState(averageRating(), star) === 'filled' ? 'currentColor' : 'none'"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      aria-hidden="true"
+                    >
+                      <polygon points="12 2 15 9 22 9.5 17 14.5 18.5 22 12 18 5.5 22 7 14.5 2 9.5 9 9 12 2" />
+                    </svg>
+                  }
+                </span>
+                <span class="reviews-header__avg">{{ averageRatingRounded() }}</span>
+                <span class="reviews-header__count">
+                  · {{ reviewCount() }} review{{ reviewCount() === 1 ? '' : 's' }}
+                </span>
+              </div>
+            }
+          </div>
+
+          @if (!hasOwnReview() && reviewFormMode() === null) {
+            <button type="button" class="pa-btn pa-btn--primary pa-btn--sm" (click)="openCreateForm()">
+              Write a review
+            </button>
+          }
+        </div>
+
+        <!-- Create / Edit form -->
+        @if (reviewFormMode() !== null) {
+          <div class="review-form pa-card">
+            <h3 class="review-form__title">
+              {{ reviewFormMode() === 'edit' ? 'Edit your review' : 'Write a review' }}
+            </h3>
+
+            <div class="review-form__field">
+              <label class="review-form__label" id="review-rating-label">Rating</label>
+              <div
+                class="review-form__stars"
+                role="radiogroup"
+                aria-labelledby="review-rating-label"
+                (mouseleave)="clearHoverRating()"
+              >
+                @for (star of ratingStars; track star) {
+                  <button
+                    type="button"
+                    class="review-form__star-btn"
+                    role="radio"
+                    [attr.aria-checked]="formRating() === star"
+                    [attr.aria-label]="star + ' star' + (star > 1 ? 's' : '')"
+                    (mouseenter)="setHoverRating(star)"
+                    (focus)="setHoverRating(star)"
+                    (click)="setFormRating(star)"
+                  >
+                    <svg
+                      viewBox="0 0 24 24"
+                      [attr.fill]="star <= displayFormRating() ? 'currentColor' : 'none'"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      aria-hidden="true"
+                    >
+                      <polygon points="12 2 15 9 22 9.5 17 14.5 18.5 22 12 18 5.5 22 7 14.5 2 9.5 9 9 12 2" />
+                    </svg>
+                  </button>
+                }
+              </div>
+            </div>
+
+            <div class="review-form__field">
+              <label class="review-form__label" for="review-comment">Comment</label>
+              <textarea
+                id="review-comment"
+                class="review-form__textarea"
+                rows="4"
+                placeholder="Share your experience with this product…"
+                [(ngModel)]="formComment"
+                name="reviewComment"
+              ></textarea>
+            </div>
+
+            @if (reviewFormError()) {
+              <p class="review-form__error" role="alert">{{ reviewFormError() }}</p>
+            }
+
+            <div class="review-form__actions">
+              <button
+                type="button"
+                class="pa-btn pa-btn--secondary pa-btn--sm"
+                [disabled]="isSubmittingReview()"
+                (click)="cancelReviewForm()"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                class="pa-btn pa-btn--primary pa-btn--sm"
+                [class.pa-btn--loading]="isSubmittingReview()"
+                [disabled]="isSubmittingReview()"
+                (click)="submitReview()"
+              >
+                {{ reviewFormMode() === 'edit' ? 'Save changes' : 'Submit review' }}
+              </button>
+            </div>
+          </div>
+        }
+
+        <!-- Loading state -->
+        @if (reviewsState() === 'loading') {
+          <div class="reviews-skeleton" aria-busy="true" aria-label="Loading reviews">
+            @for (i of [1, 2, 3]; track i) {
+              <div class="review-skeleton-card">
+                <div class="pa-skeleton" style="height:1rem;width:30%;margin-bottom:var(--pa-space-2);"></div>
+                <div class="pa-skeleton" style="height:0.875rem;width:20%;margin-bottom:var(--pa-space-3);"></div>
+                <div class="pa-skeleton" style="height:0.875rem;width:100%;margin-bottom:var(--pa-space-1);"></div>
+                <div class="pa-skeleton" style="height:0.875rem;width:80%;"></div>
+              </div>
+            }
+          </div>
+        }
+
+        <!-- Error state -->
+        @if (reviewsState() === 'error') {
+          <div class="reviews-state-message" role="alert">
+            <p>We couldn’t load reviews for this accessory.</p>
+            <button type="button" class="pa-btn pa-btn--secondary pa-btn--sm" (click)="retryLoadReviews()">
+              Try again
+            </button>
+          </div>
+        }
+
+        <!-- Empty state -->
+        @if (reviewsState() === 'loaded' && reviews().length === 0) {
+          <div class="reviews-state-message">
+            <p>Be the first to review this accessory.</p>
+          </div>
+        }
+
+        <!-- Review list -->
+        @if (reviewsState() === 'loaded' && reviews().length > 0) {
+          <ul class="review-list">
+            @for (review of reviews(); track trackByReviewId($index, review)) {
+              <li class="review-card">
+                <div class="review-card__header">
+                  <div class="review-card__meta">
+                    <span class="review-card__name">{{ reviewerName(review) }}</span>
+                    <span class="review-card__date">
+                      {{ review.createdAt | date: 'mediumDate' }}
+                      @if (isEdited(review)) {
+                        <span class="review-card__edited">(edited)</span>
+                      }
+                    </span>
+                  </div>
+
+                  @if (review.mine) {
+                    <div class="review-card__actions">
+                      <button
+                        type="button"
+                        class="pa-btn pa-btn--text pa-btn--sm"
+                        (click)="openEditForm(review)"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        type="button"
+                        class="pa-btn pa-btn--text pa-btn--sm review-card__delete"
+                        (click)="requestDeleteReview(review)"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  }
+                </div>
+
+                <span class="reviews-stars reviews-stars--sm" [attr.aria-label]="review.rating + ' out of 5 stars'">
+                  @for (star of ratingStars; track star) {
+                    <svg
+                      class="reviews-star"
+                      [class.reviews-star--filled]="starState(review.rating, star) === 'filled'"
+                      viewBox="0 0 24 24"
+                      [attr.fill]="starState(review.rating, star) === 'filled' ? 'currentColor' : 'none'"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      aria-hidden="true"
+                    >
+                      <polygon points="12 2 15 9 22 9.5 17 14.5 18.5 22 12 18 5.5 22 7 14.5 2 9.5 9 9 12 2" />
+                    </svg>
+                  }
+                </span>
+
+                <p class="review-card__comment">{{ review.comment }}</p>
+              </li>
+            }
+          </ul>
+
+          @if (hasMoreReviews()) {
+            <div class="reviews-load-more">
+              <button
+                type="button"
+                class="pa-btn pa-btn--secondary"
+                [class.pa-btn--loading]="reviewsState() === 'loading-more'"
+                [disabled]="reviewsState() === 'loading-more'"
+                (click)="loadMoreReviews()"
+              >
+                Load more reviews
+              </button>
+            </div>
+          }
+        }
+      </section>
     }
   </main>
 </div>
+
+<!-- Delete review confirmation modal -->
+@if (reviewPendingDelete(); as reviewToDelete) {
+  <div
+    class="modal-overlay"
+    (click)="cancelDeleteReview()"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="delete-review-modal-title"
+  >
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-content__icon modal-content__icon--danger">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 6h18" />
+          <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+          <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+          <line x1="10" x2="10" y1="11" y2="17" />
+          <line x1="14" x2="14" y1="11" y2="17" />
+        </svg>
+      </div>
+      <h3 id="delete-review-modal-title" class="modal-content__title">Delete review</h3>
+      <p class="modal-content__text">
+        Are you sure you want to delete your review? This action cannot be undone.
+      </p>
+
+      @if (reviewDeleteError()) {
+        <p class="review-form__error" role="alert">{{ reviewDeleteError() }}</p>
+      }
+
+      <div class="modal-actions">
+        <button class="pa-btn pa-btn--secondary" (click)="cancelDeleteReview()" [disabled]="isDeletingReview()">
+          Cancel
+        </button>
+        <button
+          class="pa-btn pa-btn--danger"
+          (click)="confirmDeleteReview()"
+          [disabled]="isDeletingReview()"
+          [class.pa-btn--loading]="isDeletingReview()"
+        >
+          {{ isDeletingReview() ? 'Deleting...' : 'Delete review' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
