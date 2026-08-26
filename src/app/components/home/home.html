@@ -205,6 +205,18 @@
                 } @else if (isLowStock(accessory)) {
                   <span class="pa-product-card__badge pa-product-card__badge--low-stock">Low stock</span>
                 }
+                <button
+                  type="button"
+                  class="pa-product-card__wishlist"
+                  [class.pa-product-card__wishlist--active]="wishlistSet().has(accessory.id)"
+                  [disabled]="isWishlistPending(accessory)"
+                  (click)="addToWishlist($event, accessory)"
+                  [attr.aria-label]="wishlistSet().has(accessory.id) ? 'Added to wishlist' : 'Add to wishlist'"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" [attr.fill]="addedWishlistId() === accessory.id ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z"></path>
+                  </svg>
+                </button>
                 <img class="pa-product-card__image" [src]="accessory.imageUrl || 'https://placehold.net/800x600.png'" [alt]="accessory.title" loading="lazy">
               </span>
 
@@ -220,7 +232,7 @@
                     type="button"
                     class="pa-product-card__add-btn"
                     [disabled]="isOutOfStock(accessory)"
-                    (click)="addToCart($event, accessory)"
+                    (click)="addToCart(accessory)"
                     aria-label="Add to cart"
                   >
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">

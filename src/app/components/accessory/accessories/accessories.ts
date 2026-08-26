@@ -1,5 +1,5 @@
 import { CommonModule, CurrencyPipe } from '@angular/common';
-import { Component, inject, OnInit, signal, computed } from '@angular/core';
+import { Component, inject, OnInit, signal, computed, DestroyRef } from '@angular/core';
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { AccessoryResponse } from '../../../core/models/accessory/accessory-response';
 import { CategoryResponse } from '../../../core/models/category/category-response';
@@ -10,6 +10,9 @@ import { AuthService } from '../../../core/services/auth/auth.service';
 import { FormsModule } from '@angular/forms';
 import { SearchRequest } from '../../../core/models/accessory/search/search-request';
 import { UserService } from '../../../core/services/user/user.service';
+import { WishlistService } from '../../../core/services/wishlist/wishlist.service';
+import { HttpErrorResponse } from '@angular/common/http';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-accessories',
@@ -21,10 +24,12 @@ import { UserService } from '../../../core/services/user/user.service';
 export class Accessories implements OnInit {
   private accessoryService = inject(AccessoryService);
   private categoryService = inject(CategoryService);
+  private wishlistService = inject(WishlistService);
   private router = inject(Router);
   private activateRoute = inject(ActivatedRoute);
   authService = inject(AuthService);
   userService = inject(UserService);
+  private readonly destroyRef = inject(DestroyRef);
 
   // Data state
   accessories = signal<AccessoryResponse[]>([]);
@@ -54,6 +59,17 @@ export class Accessories implements OnInit {
   accessoryToDelete: AccessoryResponse | null = null;
   deleting = signal(false);
 
+  // Add-to-wishlist state, keyed by accessory id.
+  // NOTE: WishlistService only exposes addToWishlist(accessoryId) /
+  // removeFromWishlist(wishlistItemId) — since we don't have the
+  // wishlist item's own id here, this button is a one-shot "add" action
+  // with transient confirmation, not a persistent toggle.
+  protected readonly pendingWishlistIds = signal<ReadonlySet<number>>(new Set());
+  protected readonly addedWishlistId = signal<number | null>(null);
+  private addedWishlistTimeout: ReturnType<typeof setTimeout> | null = null;
+  protected wishlistIds = signal<number[]>([]);
+  protected readonly wishlistSet = computed(() => new Set(this.wishlistIds()));
+
   // Computed: are any filters active?
   hasActiveFilters = computed(() =>
     !!this.searchQuery() ||
@@ -65,6 +81,7 @@ export class Accessories implements OnInit {
 
   ngOnInit(): void {
     this.loadCategories();
+    this.loadWishlistIds();
 
     const keyword = this.activateRoute.snapshot.queryParams['keyword'];
     if (keyword) {
@@ -219,6 +236,92 @@ export class Accessories implements OnInit {
     if (page >= 0 && page < this.totalPages && page !== this.currentPage) {
       this.search(page);
     }
+  }
+
+  isWishlistPending(accessory: AccessoryResponse): boolean {
+    return this.pendingWishlistIds().has(accessory.id);
+  }
+
+  addToWishlist(event: Event, accessory: AccessoryResponse): void {
+    event.stopPropagation();
+
+    if (this.isWishlistPending(accessory)) return;
+
+    if (!this.userService.isAuthenticatedValue()) {
+      this.router.navigate(['/login'], { queryParams: { returnUrl: this.router.url } });
+      return;
+    }
+
+    this.setWishlistPending(accessory.id, true);
+
+    if (this.wishlistSet().has(accessory.id)) {
+      this.wishlistService.removeFromWishlist(accessory.id).subscribe({
+        next: () => {
+          this.setWishlistPending(accessory.id, false);
+          this.removeByValue(accessory.id);
+          console.log(this.wishlistIds().length);
+          console.log(this.wishlistSet().size);
+        },
+        error: (err: HttpErrorResponse) => {
+          this.setWishlistPending(accessory.id, false);
+          console.error('Failed to remove from wishlist:', err);
+        }
+      });
+    } else {
+      this.wishlistService
+      .addToWishlist(accessory.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.setWishlistPending(accessory.id, false);
+          this.flashWishlistAdded(accessory.id);
+          this.wishlistIds.update(wishlistIds => [...wishlistIds, accessory.id]);
+          console.log(this.wishlistIds().length);
+          console.log(this.wishlistSet().size);
+        },
+        error: (err: HttpErrorResponse) => {
+          this.setWishlistPending(accessory.id, false);
+          console.error('Failed to add to wishlist:', err);
+        }
+      });
+    }
+  }
+
+  private setWishlistPending(id: number, pending: boolean): void {
+    const next = new Set(this.pendingWishlistIds());
+    if (pending) {
+      next.add(id);
+    } else {
+      next.delete(id);
+    }
+    this.pendingWishlistIds.set(next);
+  }
+
+  private flashWishlistAdded(id: number): void {
+    this.addedWishlistId.set(id);
+    if (this.addedWishlistTimeout) {
+      clearTimeout(this.addedWishlistTimeout);
+    }
+    this.addedWishlistTimeout = setTimeout(() => this.addedWishlistId.set(null), 2000);
+  }
+
+  private loadWishlistIds(): void {
+      this.wishlistService.getMyWishlist().subscribe({
+        next: (wishlist) => {
+          const items = wishlist?.items ?? [];
+          const newIds = items.map(item => item.accessory.id);
+          this.wishlistIds.set(newIds);
+          console.log(this.wishlistIds().length);
+          console.log(this.wishlistSet().size);
+        },
+        error: (err) => {
+          console.log('Error loading wishlist ids.', err);
+        }
+      });
+  }
+
+  private removeByValue(value: number): void {
+    this.wishlistIds.update(numbers => numbers.filter(num => num !== value));
   }
 
   getStockLabel(stock: number): { text: string; variant: 'in' | 'low' | 'out' } {
