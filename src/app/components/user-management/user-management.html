@@ -1,0 +1,396 @@
+<div class="user-mgmt-page">
+  <main class="user-mgmt-main" id="main-content">
+
+    <!-- Page header -->
+    <header class="page-header">
+      <div class="page-header__content">
+        <h1 class="page-header__title">User Management</h1>
+        <p class="page-header__subtitle">View, filter, and manage all registered users</p>
+      </div>
+      @if (userService.hasAnyRole(['SUPER_ADMIN'])) {
+        <div class="page-header__actions">
+            <button type="button" class="pa-btn pa-btn--primary" (click)="openCreateModal()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+                <line x1="19" x2="19" y1="8" y2="14" />
+                <line x1="16" x2="22" y1="11" y2="11" />
+            </svg>
+            Create Admin
+            </button>
+        </div>
+      }
+    </header>
+
+    <!-- Filters -->
+    <div class="filters-bar">
+      <div class="search-wrapper">
+        <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="11" cy="11" r="8" />
+          <path d="m21 21-4.3-4.3" />
+        </svg>
+        <input
+          type="search"
+          class="search-input"
+          placeholder="Search by name or email…"
+          [value]="searchQuery()"
+          (input)="onSearchInput($event)"
+          aria-label="Search users by name or email"
+        />
+        <button type="button" class="search-clear" *ngIf="searchQuery()" (click)="clearSearch()" aria-label="Clear search">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M18 6 6 18" />
+            <path d="m6 6 12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <label class="filter-checkbox">
+        <input type="checkbox" [checked]="blockedFilter()" (change)="onBlockedFilterChange($any($event.target).checked)" />
+        Blocked
+      </label>
+
+      <label class="filter-checkbox">
+        <input type="checkbox" [checked]="deletedFilter()" (change)="onDeletedFilterChange($any($event.target).checked)" />
+        Deleted
+      </label>
+
+      <button type="button" class="pa-btn pa-btn--primary" (click)="onSearchClick()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="11" cy="11" r="8" />
+          <path d="m21 21-4.3-4.3" />
+        </svg>
+        Search
+      </button>
+
+      <button type="button" class="pa-btn pa-btn--secondary pa-btn--sm" *ngIf="hasActiveFilters()" (click)="clearAllFilters()">
+        Clear filters
+      </button>
+    </div>
+
+    <!-- Notifications -->
+    <div class="alert alert-success" role="status" aria-live="polite" *ngIf="successMessage()">
+      {{ successMessage() }}
+    </div>
+    <div class="alert alert-error" role="alert" aria-live="assertive" *ngIf="errorMessage()">
+      {{ errorMessage() }}
+    </div>
+
+    <!-- Loading state -->
+    <div class="table-skeleton" *ngIf="loading()" aria-busy="true" aria-label="Loading users">
+      <div class="table-skeleton__row" *ngFor="let i of [1,2,3,4,5]">
+        <div class="pa-skeleton" style="height: 1rem; width: 25%;"></div>
+        <div class="pa-skeleton" style="height: 1rem; width: 30%;"></div>
+        <div class="pa-skeleton" style="height: 1rem; width: 15%;"></div>
+        <div class="pa-skeleton" style="height: 1rem; width: 10%;"></div>
+      </div>
+    </div>
+
+    <!-- Empty state -->
+    <div class="empty-state" *ngIf="!loading() && !errorMessage() && filteredUsers().length === 0">
+      <div class="empty-state__icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+          <circle cx="9" cy="7" r="4" />
+          <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+          <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+        </svg>
+      </div>
+      <h3 class="empty-state__title">No users found</h3>
+      <p class="empty-state__description">
+        <ng-container *ngIf="searchQuery(); else noFilterEmpty">
+          No users match "{{ searchQuery() }}" on this page. Try clearing your search.
+        </ng-container>
+        <ng-template #noFilterEmpty>
+          No users match the current filters.
+        </ng-template>
+      </p>
+    </div>
+
+    <!-- Users table -->
+    <div class="table-wrapper" *ngIf="!loading() && !errorMessage() && filteredUsers().length > 0">
+      <table class="users-table">
+        <thead>
+          <tr>
+            <th scope="col">Full Name</th>
+            <th scope="col">Email</th>
+            <th scope="col">Roles</th>
+            <th scope="col">Enabled</th>
+            <th scope="col">Blocked</th>
+            <th scope="col">Deleted</th>
+            <th scope="col">Created At</th>
+            <th scope="col" class="users-table__actions-col">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let user of filteredUsers(); trackBy: trackByUserId">
+            <td>
+              <div class="user-cell">
+                <span class="user-cell__avatar" aria-hidden="true">{{ initials(user) }}</span>
+                <span class="user-cell__name">{{ fullName(user) }}</span>
+              </div>
+            </td>
+            <td class="pa-font-mono">{{ user.email }}</td>
+            <td>
+              <div class="role-pills">
+                <span class="role-pill" *ngFor="let role of roleLabels(user)">{{ role }}</span>
+                <span class="pa-text-muted" *ngIf="roleLabels(user).length === 0">—</span>
+              </div>
+            </td>
+            <td>
+              <span class="status-dot" [class.status-dot--positive]="user.enabled" [class.status-dot--neutral]="!user.enabled">
+                {{ user.enabled ? 'Yes' : 'No' }}
+              </span>
+            </td>
+            <td>
+              <span class="status-dot" [class.status-dot--negative]="user.blocked" [class.status-dot--neutral]="!user.blocked">
+                {{ user.blocked ? 'Yes' : 'No' }}
+              </span>
+            </td>
+            <td>
+              <span class="status-dot" [class.status-dot--negative]="user.deleted" [class.status-dot--neutral]="!user.deleted">
+                {{ user.deleted ? 'Yes' : 'No' }}
+              </span>
+            </td>
+            <td class="pa-font-mono">{{ user.createdAt | date: 'mediumDate' }}</td>
+            <td>
+              <div class="row-actions">
+                <button
+                  type="button"
+                  class="pa-btn pa-btn--secondary pa-btn--sm"
+                  *ngIf="!user.blocked"
+                  [disabled]="processingUserId() === user.id"
+                  (click)="requestAction('block', user)"
+                >
+                  Block
+                </button>
+                <button
+                  type="button"
+                  class="pa-btn pa-btn--secondary pa-btn--sm"
+                  *ngIf="user.blocked"
+                  [disabled]="processingUserId() === user.id"
+                  (click)="requestAction('unblock', user)"
+                >
+                  Unblock
+                </button>
+
+                <button
+                  type="button"
+                  class="pa-btn pa-btn--danger pa-btn--sm"
+                  *ngIf="!user.deleted"
+                  [disabled]="processingUserId() === user.id"
+                  (click)="requestAction('delete', user)"
+                >
+                  Delete
+                </button>
+                <button
+                  type="button"
+                  class="pa-btn pa-btn--secondary pa-btn--sm"
+                  *ngIf="user.deleted"
+                  [disabled]="processingUserId() === user.id"
+                  (click)="requestAction('restore', user)"
+                >
+                  Restore
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <nav class="pagination" aria-label="User pagination" *ngIf="!loading() && totalPages > 1">
+      <button
+        class="pa-btn pa-btn--secondary pa-btn--sm"
+        [disabled]="currentPage === 0"
+        (click)="goToPage(currentPage - 1)"
+        aria-label="Previous page"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m15 18-6-6 6-6" />
+        </svg>
+        Previous
+      </button>
+
+      <span class="page-info">
+        Page <strong>{{ currentPage + 1 }}</strong> of <strong>{{ totalPages }}</strong>
+        <span class="page-info__total">({{ totalElements }} total)</span>
+      </span>
+
+      <button
+        class="pa-btn pa-btn--secondary pa-btn--sm"
+        [disabled]="currentPage === totalPages - 1"
+        (click)="goToPage(currentPage + 1)"
+        aria-label="Next page"
+      >
+        Next
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m9 18 6-6-6-6" />
+        </svg>
+      </button>
+    </nav>
+  </main>
+</div>
+
+<!-- Confirm action modal (block / unblock / delete / restore) -->
+<div
+  class="modal-overlay"
+  *ngIf="pendingAction() as action"
+  (click)="cancelAction()"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="confirm-action-title"
+>
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div
+      class="modal-content__icon"
+      [class.modal-content__icon--danger]="action.type === 'block' || action.type === 'delete'"
+      [class.modal-content__icon--neutral]="action.type === 'unblock' || action.type === 'restore'"
+    >
+      <svg *ngIf="action.type === 'block'" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10" />
+        <line x1="4.9" y1="4.9" x2="19.1" y2="19.1" />
+      </svg>
+      <svg *ngIf="action.type === 'unblock'" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10" />
+        <path d="m9 12 2 2 4-4" />
+      </svg>
+      <svg *ngIf="action.type === 'delete'" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 6h18" />
+        <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+        <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+      </svg>
+      <svg *ngIf="action.type === 'restore'" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+        <path d="M3 3v5h5" />
+      </svg>
+    </div>
+
+    <h3 id="confirm-action-title" class="modal-content__title">
+      <ng-container [ngSwitch]="action.type">
+        <ng-container *ngSwitchCase="'block'">Block user</ng-container>
+        <ng-container *ngSwitchCase="'unblock'">Unblock user</ng-container>
+        <ng-container *ngSwitchCase="'delete'">Delete user</ng-container>
+        <ng-container *ngSwitchCase="'restore'">Restore user</ng-container>
+      </ng-container>
+    </h3>
+
+    <p class="modal-content__text">
+      <ng-container [ngSwitch]="action.type">
+        <span *ngSwitchCase="'block'">
+          Are you sure you want to block <strong>{{ fullName(action.user) }}</strong>? They won't be able to access their account until unblocked.
+        </span>
+        <span *ngSwitchCase="'unblock'">
+          Are you sure you want to unblock <strong>{{ fullName(action.user) }}</strong>?
+        </span>
+        <span *ngSwitchCase="'delete'">
+          Are you sure you want to delete <strong>{{ fullName(action.user) }}</strong>? This is a soft delete — the account can be restored later.
+        </span>
+        <span *ngSwitchCase="'restore'">
+          Are you sure you want to restore <strong>{{ fullName(action.user) }}</strong>'s account?
+        </span>
+      </ng-container>
+    </p>
+
+    <p class="modal-content__error" role="alert" *ngIf="actionError()">{{ actionError() }}</p>
+
+    <div class="modal-actions">
+      <button class="pa-btn pa-btn--secondary" (click)="cancelAction()" [disabled]="confirmingAction()">
+        Cancel
+      </button>
+      <button
+        class="pa-btn"
+        [class.pa-btn--danger]="action.type === 'block' || action.type === 'delete'"
+        [class.pa-btn--primary]="action.type === 'unblock' || action.type === 'restore'"
+        [class.pa-btn--loading]="confirmingAction()"
+        [disabled]="confirmingAction()"
+        (click)="confirmAction()"
+      >
+        {{ confirmingAction() ? 'Working…' : 'Confirm' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Create admin modal -->
+<div
+  class="modal-overlay"
+  *ngIf="showCreateModal()"
+  (click)="closeCreateModal()"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="create-admin-title"
+>
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <h3 id="create-admin-title" class="modal-content__title">Create administrator</h3>
+    <p class="modal-content__text">
+      This creates a new user account with administrator privileges.
+    </p>
+
+    <form class="create-admin-form" (ngSubmit)="submitCreateAdmin()">
+      <div class="form-grid">
+        <div class="form-field">
+          <label for="admin-first-name">First name</label>
+          <input
+            id="admin-first-name"
+            type="text"
+            name="firstName"
+            [(ngModel)]="createForm.firstName"
+            autocomplete="given-name"
+            required
+          />
+        </div>
+        <div class="form-field">
+          <label for="admin-last-name">Last name</label>
+          <input
+            id="admin-last-name"
+            type="text"
+            name="lastName"
+            [(ngModel)]="createForm.lastName"
+            autocomplete="family-name"
+            required
+          />
+        </div>
+        <div class="form-field form-field--full">
+          <label for="admin-email">Email</label>
+          <input
+            id="admin-email"
+            type="email"
+            name="email"
+            [(ngModel)]="createForm.email"
+            autocomplete="email"
+            required
+          />
+        </div>
+        <div class="form-field form-field--full">
+          <label for="admin-password">Password</label>
+          <input
+            id="admin-password"
+            type="password"
+            name="password"
+            [(ngModel)]="createForm.password"
+            autocomplete="new-password"
+            required
+          />
+        </div>
+      </div>
+
+      <p class="modal-content__error" role="alert" *ngIf="createError()">{{ createError() }}</p>
+
+      <div class="modal-actions">
+        <button type="button" class="pa-btn pa-btn--secondary" (click)="closeCreateModal()" [disabled]="creatingAdmin()">
+          Cancel
+        </button>
+        <button
+          type="submit"
+          class="pa-btn pa-btn--primary"
+          [class.pa-btn--loading]="creatingAdmin()"
+          [disabled]="creatingAdmin()"
+        >
+          {{ creatingAdmin() ? 'Creating…' : 'Create administrator' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
