@@ -1,0 +1,515 @@
+// ============================================================
+// USER MANAGEMENT PAGE — Phone Accessories (Admin)
+// Extends the global --pa-* design system (see styles.scss)
+// Reuses the filter-bar / empty-state / modal / alert / skeleton
+// visual language already established in accessories.scss.
+// ============================================================
+
+:host {
+  display: block;
+}
+
+.user-mgmt-page {
+  min-height: 100dvh;
+  background-color: var(--pa-bg);
+}
+
+.user-mgmt-main {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: var(--pa-space-6) var(--pa-space-4) var(--pa-space-16);
+
+  @media (min-width: 640px) {
+    padding: var(--pa-space-8) var(--pa-space-6) var(--pa-space-16);
+  }
+
+  @media (min-width: 1024px) {
+    padding: var(--pa-space-10) var(--pa-space-8) var(--pa-space-20);
+  }
+}
+
+// --------------------------------------------
+// PAGE HEADER
+// --------------------------------------------
+
+.page-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pa-space-4);
+  margin-bottom: var(--pa-space-6);
+
+  @media (min-width: 640px) {
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+  }
+
+  &__title {
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    color: var(--pa-text-primary);
+    margin: 0;
+  }
+
+  &__subtitle {
+    font-size: 0.9375rem;
+    color: var(--pa-text-secondary);
+    margin: var(--pa-space-1) 0 0;
+  }
+
+  &__actions {
+    display: flex;
+    gap: var(--pa-space-2);
+    flex-shrink: 0;
+  }
+}
+
+// --------------------------------------------
+// FILTERS BAR
+// --------------------------------------------
+
+.filters-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--pa-space-3);
+  margin-bottom: var(--pa-space-6);
+  padding: var(--pa-space-4);
+  background-color: var(--pa-bg-sunken);
+  border-radius: var(--pa-radius-lg);
+}
+
+.search-wrapper {
+  position: relative;
+  flex: 1 1 16rem;
+  min-width: 12rem;
+
+  .search-icon {
+    position: absolute;
+    left: 0.875rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--pa-text-muted);
+    pointer-events: none;
+  }
+
+  .search-input {
+    width: 100%;
+    padding-left: 2.5rem;
+    padding-right: 2.5rem;
+    background-color: var(--pa-surface);
+  }
+
+  .search-clear {
+    position: absolute;
+    right: 0.625rem;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    border: none;
+    background: none;
+    color: var(--pa-text-muted);
+    cursor: pointer;
+    border-radius: var(--pa-radius-full);
+
+    &:hover {
+      color: var(--pa-text-primary);
+      background-color: var(--pa-bg-sunken);
+    }
+  }
+}
+
+.filter-checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--pa-space-2);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--pa-text-secondary);
+  cursor: pointer;
+  white-space: nowrap;
+
+  input {
+    accent-color: var(--pa-primary);
+    width: 1rem;
+    height: 1rem;
+  }
+}
+
+// --------------------------------------------
+// ALERTS
+// --------------------------------------------
+
+.alert {
+  padding: var(--pa-space-3) var(--pa-space-4);
+  border-radius: var(--pa-radius-md);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  margin-bottom: var(--pa-space-5);
+}
+
+.alert-success {
+  background-color: var(--pa-success-muted);
+  color: var(--pa-success);
+  border: 1px solid var(--pa-success);
+}
+
+.alert-error {
+  background-color: var(--pa-danger-muted);
+  color: var(--pa-danger);
+  border: 1px solid var(--pa-danger-subtle);
+}
+
+// --------------------------------------------
+// TABLE SKELETON
+// --------------------------------------------
+
+.table-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pa-space-4);
+  padding: var(--pa-space-5);
+  border: 1px solid var(--pa-border);
+  border-radius: var(--pa-radius-lg);
+
+  &__row {
+    display: flex;
+    gap: var(--pa-space-6);
+    align-items: center;
+  }
+}
+
+// --------------------------------------------
+// EMPTY STATE
+// --------------------------------------------
+
+.empty-state {
+  text-align: center;
+  padding: var(--pa-space-16) var(--pa-space-4);
+  max-width: 28rem;
+  margin: 0 auto;
+
+  &__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 4rem;
+    height: 4rem;
+    margin: 0 auto var(--pa-space-4);
+    border-radius: var(--pa-radius-full);
+    background-color: var(--pa-bg-sunken);
+    color: var(--pa-text-muted);
+  }
+
+  &__title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--pa-text-primary);
+    margin: 0 0 var(--pa-space-2);
+  }
+
+  &__description {
+    font-size: 0.9375rem;
+    color: var(--pa-text-secondary);
+    line-height: 1.6;
+    margin: 0;
+  }
+}
+
+// --------------------------------------------
+// TABLE
+// --------------------------------------------
+
+.table-wrapper {
+  overflow-x: auto;
+  border: 1px solid var(--pa-border);
+  border-radius: var(--pa-radius-lg);
+}
+
+.users-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 860px;
+
+  thead {
+    background-color: var(--pa-bg-sunken);
+  }
+
+  th {
+    text-align: left;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--pa-text-muted);
+    padding: var(--pa-space-3) var(--pa-space-4);
+    white-space: nowrap;
+  }
+
+  td {
+    padding: var(--pa-space-3) var(--pa-space-4);
+    font-size: 0.875rem;
+    color: var(--pa-text-primary);
+    border-top: 1px solid var(--pa-border);
+    vertical-align: middle;
+  }
+
+  tbody tr {
+    transition: background-color var(--pa-transition-fast);
+
+    &:hover {
+      background-color: var(--pa-bg-sunken);
+    }
+  }
+
+  &__actions-col {
+    text-align: right;
+  }
+}
+
+.user-cell {
+  display: flex;
+  align-items: center;
+  gap: var(--pa-space-3);
+
+  &__avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    flex-shrink: 0;
+    border-radius: var(--pa-radius-full);
+    background-color: var(--pa-primary-muted);
+    color: var(--pa-primary);
+    font-size: 0.8125rem;
+    font-weight: 700;
+  }
+
+  &__name {
+    font-weight: 600;
+  }
+}
+
+.role-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--pa-space-1);
+}
+
+.role-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.15rem 0.55rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-radius: var(--pa-radius-full);
+  background-color: var(--pa-primary-muted);
+  color: var(--pa-primary);
+  white-space: nowrap;
+}
+
+.status-dot {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--pa-space-1);
+  font-size: 0.8125rem;
+  font-weight: 600;
+
+  &::before {
+    content: '';
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: var(--pa-radius-full);
+    background-color: currentColor;
+  }
+
+  &--positive {
+    color: var(--pa-success);
+  }
+
+  &--negative {
+    color: var(--pa-danger);
+  }
+
+  &--neutral {
+    color: var(--pa-text-muted);
+  }
+}
+
+.row-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--pa-space-2);
+  flex-wrap: wrap;
+}
+
+// --------------------------------------------
+// PAGINATION
+// --------------------------------------------
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--pa-space-4);
+  margin-top: var(--pa-space-8);
+  flex-wrap: wrap;
+}
+
+.page-info {
+  font-size: 0.875rem;
+  color: var(--pa-text-secondary);
+
+  strong {
+    color: var(--pa-text-primary);
+  }
+
+  &__total {
+    color: var(--pa-text-muted);
+    font-weight: 400;
+    font-size: 0.8125rem;
+    margin-left: var(--pa-space-1);
+  }
+}
+
+// --------------------------------------------
+// MODALS (confirm action + create admin)
+// --------------------------------------------
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: var(--pa-z-modal);
+  padding: var(--pa-space-4);
+  animation: pa-fade-in 0.2s var(--pa-ease-out) forwards;
+}
+
+.modal-content {
+  background-color: var(--pa-surface);
+  border: 1px solid var(--pa-border);
+  border-radius: var(--pa-radius-xl);
+  padding: var(--pa-space-6);
+  max-width: 28rem;
+  width: 100%;
+  box-shadow: var(--pa-shadow-2xl);
+  animation: pa-scale-in 0.25s var(--pa-ease-out) forwards;
+
+  &__icon {
+    width: 3rem;
+    height: 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--pa-radius-lg);
+    margin-bottom: var(--pa-space-4);
+
+    &--danger {
+      background-color: var(--pa-danger-muted);
+      color: var(--pa-danger);
+    }
+
+    &--neutral {
+      background-color: var(--pa-primary-muted);
+      color: var(--pa-primary);
+    }
+
+    svg {
+      width: 1.25rem;
+      height: 1.25rem;
+    }
+  }
+
+  &__title {
+    margin: 0 0 var(--pa-space-3) 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--pa-text-primary);
+    letter-spacing: -0.015em;
+  }
+
+  &__text {
+    margin: 0 0 var(--pa-space-5) 0;
+    color: var(--pa-text-secondary);
+    line-height: 1.7;
+    font-size: 0.9375rem;
+
+    strong {
+      color: var(--pa-text-primary);
+      font-weight: 600;
+    }
+  }
+
+  &__error {
+    margin: 0 0 var(--pa-space-4) 0;
+    font-size: 0.875rem;
+    color: var(--pa-danger);
+    background-color: var(--pa-danger-muted);
+    border: 1px solid var(--pa-danger-subtle);
+    border-radius: var(--pa-radius-md);
+    padding: var(--pa-space-3) var(--pa-space-4);
+  }
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--pa-space-3);
+}
+
+// --------------------------------------------
+// CREATE ADMIN FORM
+// --------------------------------------------
+
+.create-admin-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pa-space-5);
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--pa-space-4);
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pa-space-2);
+
+  &--full {
+    grid-column: 1 / -1;
+  }
+
+  label {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--pa-text-secondary);
+  }
+}
+
+// --------------------------------------------
+// REDUCED MOTION
+// --------------------------------------------
+
+@media (prefers-reduced-motion: reduce) {
+  .modal-overlay,
+  .modal-content {
+    animation: none;
+    opacity: 1;
+  }
+}
