@@ -21,7 +21,7 @@ export class ReviewService {
             params = params.set('sort', sort);
         }
 
-        return this.http.get<ReviewResponse>(`${this.apiUrl}/accessory/${id}`, { withCredentials: true, params });
+        return this.http.get<ReviewResponse>(`${this.apiUrl}/accessory/${id}`, { params });
     }
 
     createReview(id: number, data: ReviewRequest): Observable<ReviewResponse> {
