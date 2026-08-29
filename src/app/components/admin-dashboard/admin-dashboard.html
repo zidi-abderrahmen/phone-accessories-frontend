@@ -1,0 +1,205 @@
+<div class="admin-dashboard-page">
+  <main class="admin-dashboard-main" id="main-content">
+
+    <header class="page-header">
+      <div class="page-header__content">
+        <h1 class="page-header__title">Dashboard</h1>
+        <p class="page-header__subtitle">Overview of platform activity and quick access to management tools</p>
+      </div>
+    </header>
+
+    <!-- ============================================================ -->
+    <!-- LOADING STATE                                                  -->
+    <!-- ============================================================ -->
+    <div class="kpi-grid" *ngIf="state() === 'loading'" aria-busy="true" aria-label="Loading dashboard">
+      <div class="kpi-card kpi-card--skeleton" *ngFor="let i of [1,2,3,4,5]">
+        <div class="pa-skeleton" style="width:2.5rem;height:2.5rem;border-radius:var(--pa-radius-lg);margin-bottom:var(--pa-space-4);"></div>
+        <div class="pa-skeleton" style="height:1.75rem;width:60%;margin-bottom:var(--pa-space-2);"></div>
+        <div class="pa-skeleton" style="height:0.875rem;width:80%;"></div>
+      </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- ERROR STATE                                                    -->
+    <!-- ============================================================ -->
+    <div class="dashboard-error" *ngIf="state() === 'error'" role="alert">
+      <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="10" />
+        <line x1="12" y1="8" x2="12" y2="12" />
+        <line x1="12" y1="16" x2="12.01" y2="16" />
+      </svg>
+      <h2>Something went wrong</h2>
+      <p>{{ errorMessage() }}</p>
+      <button type="button" class="pa-btn pa-btn--primary" (click)="loadDashboard()">Try again</button>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- LOADED — KPIs + RECENT ORDERS + QUICK NAV                     -->
+    <!-- ============================================================ -->
+    <ng-container *ngIf="state() === 'loaded' && dashboard() as data">
+
+      <!-- KPI cards -->
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <span class="kpi-card__icon kpi-card__icon--orders" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z" />
+              <path d="M3 6h18" />
+              <path d="M16 10a4 4 0 0 1-8 0" />
+            </svg>
+          </span>
+          <span class="kpi-card__value">{{ data.totalOrders | number }}</span>
+          <span class="kpi-card__label">Total Orders</span>
+        </div>
+
+        <div class="kpi-card">
+          <span class="kpi-card__icon kpi-card__icon--pending" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10" />
+              <path d="M12 6v6l4 2" />
+            </svg>
+          </span>
+          <span class="kpi-card__value">{{ data.totalPendingOrders | number }}</span>
+          <span class="kpi-card__label">Pending Orders</span>
+        </div>
+
+        <div class="kpi-card">
+          <span class="kpi-card__icon kpi-card__icon--revenue" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="2" x2="12" y2="22" />
+              <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+            </svg>
+          </span>
+          <span class="kpi-card__value">${{ data.totalRevenue | number: '1.2-2' }}</span>
+          <span class="kpi-card__label">Total Revenue</span>
+        </div>
+
+        <div class="kpi-card">
+          <span class="kpi-card__icon kpi-card__icon--users" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+              <circle cx="9" cy="7" r="4" />
+              <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+              <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+            </svg>
+          </span>
+          <span class="kpi-card__value">{{ data.totalUsers | number }}</span>
+          <span class="kpi-card__label">Total Users</span>
+        </div>
+
+        <div class="kpi-card">
+          <span class="kpi-card__icon kpi-card__icon--accessories" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m7.5 4.27 9 5.15" />
+              <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z" />
+              <path d="m3.3 7 8.7 5 8.7-5" />
+              <path d="M12 22V12" />
+            </svg>
+          </span>
+          <span class="kpi-card__value">{{ data.TotalAccessories | number }}</span>
+          <span class="kpi-card__label">Total Accessories</span>
+        </div>
+      </div>
+
+      <!-- Recent orders -->
+      <section class="dashboard-section" aria-label="Recent orders">
+        <div class="dashboard-section__header">
+          <h2>Recent Orders</h2>
+          <a routerLink="/admin/orders" class="pa-btn pa-btn--text pa-btn--sm">View all</a>
+        </div>
+
+        <!-- Empty state -->
+        <div class="recent-orders-empty" *ngIf="data.lastOrders.length === 0">
+          <p>No orders yet. New orders will show up here.</p>
+        </div>
+
+        <!-- Table -->
+        <div class="table-wrapper" *ngIf="data.lastOrders.length > 0">
+          <table class="orders-table">
+            <thead>
+              <tr>
+                <th scope="col">Order ID</th>
+                <th scope="col">Customer</th>
+                <th scope="col">Status</th>
+                <th scope="col">Total</th>
+                <th scope="col">Payment</th>
+                <th scope="col">Created</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let order of data.lastOrders; trackBy: trackByOrderId">
+                <td class="pa-font-mono">#{{ order.id }}</td>
+                <td>{{ order.customerFullName }}</td>
+                <td>
+                  <span
+                    class="pa-status-badge"
+                    [class.pa-status-badge--pending]="order.status === OrderStatus.PENDING"
+                    [class.pa-status-badge--processing]="order.status === OrderStatus.PROCESSING"
+                    [class.pa-status-badge--shipped]="order.status === OrderStatus.SHIPPED"
+                    [class.pa-status-badge--delivered]="order.status === OrderStatus.DELIVERED"
+                    [class.pa-status-badge--cancelled]="order.status === OrderStatus.CANCELLED"
+                  >
+                    {{ statusLabel(order.status) }}
+                  </span>
+                </td>
+                <td class="pa-font-mono">${{ order.totalAmount | number: '1.2-2' }}</td>
+                <td>{{ paymentLabel(order.paymentMethod) }}</td>
+                <td class="pa-font-mono">
+                  <ng-container *ngIf="orderDate(order) as date; else noDate">
+                    {{ date | date: 'mediumDate' }}
+                  </ng-container>
+                  <ng-template #noDate>—</ng-template>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Quick navigation -->
+      <section class="dashboard-section" aria-label="Quick navigation">
+        <div class="dashboard-section__header">
+          <h2>Quick Navigation</h2>
+        </div>
+
+        <div class="quick-links-grid">
+          <a
+            class="quick-link-card"
+            *ngFor="let link of quickLinks"
+            [routerLink]="link.route"
+          >
+            <span class="quick-link-card__icon" [attr.data-icon]="link.icon" aria-hidden="true">
+              <svg *ngIf="link.icon === 'users'" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+                <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+              </svg>
+              <svg *ngIf="link.icon === 'category'" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="7" height="7" rx="1" />
+                <rect x="14" y="3" width="7" height="7" rx="1" />
+                <rect x="14" y="14" width="7" height="7" rx="1" />
+                <rect x="3" y="14" width="7" height="7" rx="1" />
+              </svg>
+              <svg *ngIf="link.icon === 'accessory'" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="5" y="2" width="14" height="20" rx="2" />
+                <line x1="12" y1="18" x2="12.01" y2="18" />
+              </svg>
+              <svg *ngIf="link.icon === 'role'" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z" />
+                <path d="m9 12 2 2 4-4" />
+              </svg>
+            </span>
+            <span class="quick-link-card__body">
+              <span class="quick-link-card__title">{{ link.label }}</span>
+              <span class="quick-link-card__desc">{{ link.description }}</span>
+            </span>
+            <svg class="quick-link-card__arrow" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="m9 18 6-6-6-6" />
+            </svg>
+          </a>
+        </div>
+      </section>
+    </ng-container>
+  </main>
+</div>
