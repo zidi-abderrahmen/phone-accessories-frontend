@@ -1,0 +1,396 @@
+// ============================================================
+// ADMIN DASHBOARD PAGE — Phone Accessories
+// Extends the global --pa-* design system (see styles.scss)
+// Reuses the page-header / table / status-badge visual language
+// already established across the admin pages.
+// ============================================================
+
+:host {
+  display: block;
+}
+
+.admin-dashboard-page {
+  min-height: 100dvh;
+  background-color: var(--pa-bg);
+}
+
+.admin-dashboard-main {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: var(--pa-space-6) var(--pa-space-4) var(--pa-space-16);
+
+  @media (min-width: 640px) {
+    padding: var(--pa-space-8) var(--pa-space-6) var(--pa-space-16);
+  }
+
+  @media (min-width: 1024px) {
+    padding: var(--pa-space-10) var(--pa-space-8) var(--pa-space-20);
+  }
+}
+
+// --------------------------------------------
+// PAGE HEADER
+// --------------------------------------------
+
+.page-header {
+  margin-bottom: var(--pa-space-8);
+
+  &__title {
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    color: var(--pa-text-primary);
+    margin: 0;
+  }
+
+  &__subtitle {
+    font-size: 0.9375rem;
+    color: var(--pa-text-secondary);
+    margin: var(--pa-space-1) 0 0;
+  }
+}
+
+// --------------------------------------------
+// KPI CARDS
+// --------------------------------------------
+
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--pa-space-4);
+  margin-bottom: var(--pa-space-10);
+
+  @media (min-width: 640px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  @media (min-width: 1024px) {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+.kpi-card {
+  display: flex;
+  flex-direction: column;
+  padding: var(--pa-space-5);
+  border: 1px solid var(--pa-border);
+  border-radius: var(--pa-radius-lg);
+  background-color: var(--pa-surface);
+  transition: border-color var(--pa-transition-fast);
+
+  &:hover {
+    border-color: var(--pa-border-strong);
+  }
+
+  &--skeleton {
+    justify-content: flex-start;
+  }
+
+  &__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: var(--pa-radius-lg);
+    margin-bottom: var(--pa-space-4);
+
+    &--orders {
+      background-color: var(--pa-primary-muted);
+      color: var(--pa-primary);
+    }
+
+    &--pending {
+      background-color: var(--pa-warning-muted);
+      color: var(--pa-warning);
+    }
+
+    &--revenue {
+      background-color: var(--pa-success-muted);
+      color: var(--pa-success);
+    }
+
+    &--users {
+      background-color: var(--pa-info-muted);
+      color: var(--pa-info);
+    }
+
+    &--accessories {
+      background-color: var(--pa-bg-sunken);
+      color: var(--pa-text-secondary);
+    }
+  }
+
+  &__value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--pa-text-primary);
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__label {
+    font-size: 0.8125rem;
+    color: var(--pa-text-tertiary);
+    margin-top: var(--pa-space-1);
+  }
+}
+
+// --------------------------------------------
+// SECTIONS (shared header pattern)
+// --------------------------------------------
+
+.dashboard-section {
+  margin-bottom: var(--pa-space-12);
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--pa-space-4);
+
+    h2 {
+      font-size: 1.125rem;
+      font-weight: 700;
+      letter-spacing: -0.015em;
+      color: var(--pa-text-primary);
+      margin: 0;
+    }
+  }
+}
+
+// --------------------------------------------
+// ERROR STATE
+// --------------------------------------------
+
+.dashboard-error {
+  text-align: center;
+  padding: var(--pa-space-16) var(--pa-space-4);
+  max-width: 28rem;
+  margin: 0 auto;
+
+  svg {
+    color: var(--pa-danger);
+    margin: 0 auto var(--pa-space-4);
+  }
+
+  h2 {
+    font-size: 1.25rem;
+    margin: 0 0 var(--pa-space-2);
+    color: var(--pa-text-primary);
+  }
+
+  p {
+    color: var(--pa-text-secondary);
+    margin: 0 0 var(--pa-space-6);
+    line-height: 1.6;
+  }
+}
+
+// --------------------------------------------
+// RECENT ORDERS — TABLE
+// --------------------------------------------
+
+.recent-orders-empty {
+  padding: var(--pa-space-10) var(--pa-space-4);
+  text-align: center;
+  border: 1px dashed var(--pa-border);
+  border-radius: var(--pa-radius-lg);
+  color: var(--pa-text-tertiary);
+  font-size: 0.9375rem;
+
+  p {
+    margin: 0;
+  }
+}
+
+.table-wrapper {
+  overflow-x: auto;
+  border: 1px solid var(--pa-border);
+  border-radius: var(--pa-radius-lg);
+}
+
+.orders-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 720px;
+
+  thead {
+    background-color: var(--pa-bg-sunken);
+  }
+
+  th {
+    text-align: left;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--pa-text-muted);
+    padding: var(--pa-space-3) var(--pa-space-4);
+    white-space: nowrap;
+  }
+
+  td {
+    padding: var(--pa-space-3) var(--pa-space-4);
+    font-size: 0.875rem;
+    color: var(--pa-text-primary);
+    border-top: 1px solid var(--pa-border);
+    white-space: nowrap;
+  }
+
+  tbody tr {
+    transition: background-color var(--pa-transition-fast);
+
+    &:hover {
+      background-color: var(--pa-bg-sunken);
+    }
+  }
+}
+
+// Status badge — same visual language as Order History / Order Details
+.pa-status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.625rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-radius: var(--pa-radius-full);
+  white-space: nowrap;
+
+  &--pending {
+    background-color: var(--pa-warning-muted);
+    color: var(--pa-warning);
+  }
+
+  &--processing {
+    background-color: var(--pa-info-muted);
+    color: var(--pa-info);
+  }
+
+  &--shipped {
+    background-color: var(--pa-primary-muted);
+    color: var(--pa-primary);
+  }
+
+  &--delivered {
+    background-color: var(--pa-success-muted);
+    color: var(--pa-success);
+  }
+
+  &--cancelled {
+    background-color: var(--pa-danger-muted);
+    color: var(--pa-danger);
+  }
+}
+
+// --------------------------------------------
+// QUICK NAVIGATION
+// --------------------------------------------
+
+.quick-links-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--pa-space-4);
+
+  @media (min-width: 640px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (min-width: 1024px) {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.quick-link-card {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--pa-space-3);
+  padding: var(--pa-space-5);
+  border: 1px solid var(--pa-border);
+  border-radius: var(--pa-radius-lg);
+  background-color: var(--pa-surface);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color var(--pa-transition-fast),
+              background-color var(--pa-transition-fast),
+              transform var(--pa-transition-fast);
+
+  &:hover {
+    border-color: var(--pa-primary);
+    background-color: var(--pa-primary-muted);
+    transform: translateY(-1px);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--pa-focus-ring);
+  }
+
+  &__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    flex-shrink: 0;
+    border-radius: var(--pa-radius-md);
+    background-color: var(--pa-bg-sunken);
+    color: var(--pa-text-secondary);
+  }
+
+  &:hover &__icon {
+    background-color: var(--pa-surface);
+    color: var(--pa-primary);
+  }
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__title {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--pa-text-primary);
+  }
+
+  &__desc {
+    font-size: 0.8125rem;
+    color: var(--pa-text-tertiary);
+    line-height: 1.5;
+  }
+
+  &__arrow {
+    flex-shrink: 0;
+    margin-top: 2px;
+    color: var(--pa-text-muted);
+    transition: transform var(--pa-transition-fast), color var(--pa-transition-fast);
+  }
+
+  &:hover &__arrow {
+    transform: translateX(2px);
+    color: var(--pa-primary);
+  }
+}
+
+// --------------------------------------------
+// REDUCED MOTION
+// --------------------------------------------
+
+@media (prefers-reduced-motion: reduce) {
+  .kpi-card,
+  .quick-link-card,
+  .quick-link-card__arrow {
+    transition: none;
+  }
+
+  .quick-link-card:hover {
+    transform: none;
+  }
+}
