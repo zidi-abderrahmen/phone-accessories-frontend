@@ -2,11 +2,11 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { CommonModule } from '@angular/common';
 import { RoleRequest } from '../../core/models/user/role/role-request';
 import { RoleResponse } from '../../core/models/user/role/role-response';
-import { UserRoleService } from '../../core/services/user-role/user-role.service';
 import da from '@angular/common/locales/da';
 import { AuthService } from '../../core/services/auth/auth.service';
 import { FormsModule } from '@angular/forms';
 import { UserService } from '../../core/services/user/user.service';
+import { UserManagementService } from '../../core/services/user-management/user-management.service';
 
 type RoleFilter = 'ALL' | 'ACTIVE' | 'DELETED';
 
@@ -24,7 +24,7 @@ interface FilterTab {
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class Roles {
-  private readonly roleService = inject(UserRoleService);
+  private readonly userManagementService = inject(UserManagementService);
   readonly authService = inject(AuthService);
   readonly userService = inject(UserService);
 
@@ -84,8 +84,8 @@ export class Roles {
 
     const request$ =
       this.filter() === 'ALL'
-        ? this.roleService.getAllRoles()
-        : this.roleService.getAllByDeleted(this.filter() === 'DELETED');
+        ? this.userManagementService.getAllRoles()
+        : this.userManagementService.getAllByDeleted(this.filter() === 'DELETED');
 
     request$.subscribe({
       next: (roles) => {
@@ -155,8 +155,8 @@ export class Roles {
     const payload: RoleRequest = { name, deleted: editing?.deleted ?? false };
 
     const request$ = editing
-      ? this.roleService.updateRole(editing.id, payload)
-      : this.roleService.createRole(payload);
+      ? this.userManagementService.updateRole(editing.id, payload)
+      : this.userManagementService.createRole(payload);
 
     request$.subscribe({
       next: () => {
@@ -179,7 +179,7 @@ export class Roles {
     this.actionError.set(null);
     this.softDeletingId.set(role.id);
 
-    this.roleService.softDeleteRole(role.id).subscribe({
+    this.userManagementService.softDeleteRole(role.id).subscribe({
       next: () => {
         this.softDeletingId.set(null);
         this.loadRoles();
@@ -199,7 +199,7 @@ export class Roles {
 
     const data: RoleRequest = { name: role.name, deleted: false };
     
-    this.roleService.updateRole(role.id, data).subscribe({
+    this.userManagementService.updateRole(role.id, data).subscribe({
       next: () => {
         this.restoringId.set(null);
         this.loadRoles();
@@ -229,7 +229,7 @@ export class Roles {
 
     this.deletingInProgress.set(true);
 
-    this.roleService.hardDeleteRole(role.id).subscribe({
+    this.userManagementService.hardDeleteRole(role.id).subscribe({
       next: () => {
         this.deletingInProgress.set(false);
         this.deletingRoleId.set(null);
