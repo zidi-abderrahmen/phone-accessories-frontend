@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit, signal, HostListener } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, signal, HostListener } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { AccessoryRequest } from '../../../core/models/accessory/accessory-request';
@@ -8,6 +8,10 @@ import { CategoryResponse } from '../../../core/models/category/category-respons
 import { AccessoryService } from '../../../core/services/accessory/accessory.service';
 import { CategoryService } from '../../../core/services/category/category.service';
 import { InputField } from '../../../shared/components/input-field/input-field';
+import { ImageUploadService } from '../../../core/services/image-upload/image-upload.service';
+
+const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024; // 5MB
 
 @Component({
   selector: 'app-accessory-create',
@@ -16,16 +20,16 @@ import { InputField } from '../../../shared/components/input-field/input-field';
   templateUrl: './create-accessory.html',
   styleUrl: './create-accessory.scss',
 })
-export class CreateAccessory implements OnInit {
+export class CreateAccessory implements OnInit, OnDestroy {
   private fb = inject(FormBuilder);
   private accessoryService = inject(AccessoryService);
   private categoryService = inject(CategoryService);
+  private imageUploadService = inject(ImageUploadService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
 
-  // Reactive form built from AccessoryRequest DTO
   accessoryForm = this.fb.nonNullable.group({
-    imageUrl: ['', [Validators.required, Validators.maxLength(500)]],
+    imageUrl: ['', [Validators.maxLength(500)]],
     title: ['', [Validators.required, Validators.maxLength(100)]],
     description: ['', [Validators.required, Validators.maxLength(1000)]],
     productCode: ['', [Validators.required, Validators.maxLength(50)]],
@@ -55,6 +59,11 @@ export class CreateAccessory implements OnInit {
   successMessage = '';
   errorMessage = '';
 
+  // Image picker state
+  selectedFile = signal<File | null>(null);
+  previewUrl = signal<string | null>(null);
+  imageError = '';
+
   get f() {
     return this.accessoryForm.controls;
   }
@@ -70,6 +79,10 @@ export class CreateAccessory implements OnInit {
   ngOnInit(): void {
     this.loadCategories();
     this.detectEditMode();
+  }
+
+  ngOnDestroy(): void {
+    this.revokePreviewUrlIfBlob();
   }
 
   // ------------------------------------------------------------------
@@ -134,6 +147,7 @@ export class CreateAccessory implements OnInit {
       stock: accessory.stock,
     });
     this.selectedCategoryName = accessory.category.name;
+    this.previewUrl.set(accessory.imageUrl || null);
   }
 
   // ------------------------------------------------------------------
@@ -259,6 +273,51 @@ export class CreateAccessory implements OnInit {
   }
 
   // ------------------------------------------------------------------
+  // Image picker
+  // ------------------------------------------------------------------
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0] ?? null;
+    input.value = ''; // allow re-selecting the same file later
+
+    if (!file) return;
+
+    this.imageError = '';
+
+    if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+      this.imageError = 'Only JPEG, PNG, or WEBP images are allowed.';
+      return;
+    }
+
+    if (file.size > MAX_IMAGE_SIZE_BYTES) {
+      this.imageError = 'Image must be 5MB or smaller.';
+      return;
+    }
+
+    this.revokePreviewUrlIfBlob();
+    this.selectedFile.set(file);
+    this.previewUrl.set(URL.createObjectURL(file));
+  }
+
+  /** Discards a newly picked file and reverts the preview to the
+   *  existing accessory image (edit mode) or clears it (create mode). */
+  discardSelectedFile(): void {
+    this.revokePreviewUrlIfBlob();
+    this.selectedFile.set(null);
+    this.imageError = '';
+    const existing = this.accessoryForm.get('imageUrl')!.value;
+    this.previewUrl.set(existing || null);
+  }
+
+  private revokePreviewUrlIfBlob(): void {
+    const current = this.previewUrl();
+    if (current && current.startsWith('blob:')) {
+      URL.revokeObjectURL(current);
+    }
+  }
+
+  // ------------------------------------------------------------------
   // Form Submission
   // ------------------------------------------------------------------
 
@@ -266,12 +325,46 @@ export class CreateAccessory implements OnInit {
     this.submitted = true;
     this.successMessage = '';
     this.errorMessage = '';
+    this.imageError = '';
 
-    if (this.accessoryForm.invalid) {
+    const { imageUrl, ...otherControls } = this.f;
+    const restInvalid = Object.values(otherControls).some((control) => control.invalid);
+    if (restInvalid) {
+      return;
+    }
+
+    const hasExistingImage = !!this.accessoryForm.get('imageUrl')!.value;
+    if (!this.selectedFile() && !(this.isEditMode && hasExistingImage)) {
+      this.imageError = 'Please select an image.';
       return;
     }
 
     this.loading.set(true);
+
+    if (this.selectedFile()) {
+      this.uploadImageThenSave();
+    } else {
+      this.saveAccessory();
+    }
+  }
+
+  private uploadImageThenSave(): void {
+    const file = this.selectedFile();
+    if (!file) return;
+
+    this.imageUploadService.uploadImage(file, 'accessories').subscribe({
+      next: (response) => {
+        this.accessoryForm.patchValue({ imageUrl: response.url });
+        this.saveAccessory();
+      },
+      error: () => {
+        this.loading.set(false);
+        this.imageError = 'Failed to upload image. Please try again.';
+      },
+    });
+  }
+
+  private saveAccessory(): void {
     const rawFormValue = this.accessoryForm.getRawValue();
     const request: AccessoryRequest = {
       ...rawFormValue,

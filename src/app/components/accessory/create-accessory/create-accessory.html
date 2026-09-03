@@ -258,44 +258,77 @@
           />
         </div>
 
-        <!-- Image URL Field -->
+        <!-- Image Field -->
         <div class="form-group">
-          <label for="imageUrl" class="form-label">
-            Image URL
+          <label class="form-label" id="accessory-image-label">
+            Accessory Image
             <span class="form-label__required" aria-label="required">*</span>
           </label>
+
           <input
-            id="imageUrl"
-            type="url"
-            formControlName="imageUrl"
-            class="form-control"
-            placeholder="https://example.com/image.jpg"
-            [class.is-invalid]="submitted && f.imageUrl.errors"
-            maxlength="500"
+            #fileInput
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            class="image-upload__input"
+            aria-labelledby="accessory-image-label"
+            (change)="onFileSelected($event)"
           />
-          <div class="form-hint">
-            <span>{{ f.imageUrl.value?.length || 0 }} / 500</span>
-          </div>
-          @if (submitted && f.imageUrl.errors) {
-            <div class="invalid-feedback" role="alert">
-              @if (f.imageUrl.errors['required']) {
-                <span>Image URL is required.</span>
-              }
-              @if (f.imageUrl.errors['maxlength']) {
-                <span>Image URL must not exceed 500 characters.</span>
-              }
+
+          @if (!previewUrl()) {
+            <button
+              type="button"
+              class="image-upload__dropzone"
+              [class.is-invalid]="submitted && imageError"
+              (click)="fileInput.click()"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="28"
+                height="28"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="17 8 12 3 7 8" />
+                <line x1="12" y1="3" x2="12" y2="15" />
+              </svg>
+              <span class="image-upload__dropzone-title">Click to upload an image</span>
+              <span class="image-upload__dropzone-hint">JPEG, PNG or WEBP · up to 5MB</span>
+            </button>
+          }
+
+          @if (previewUrl()) {
+            <div class="image-preview">
+              <img
+                [src]="previewUrl()"
+                alt="Accessory image preview"
+                class="image-preview__img"
+              />
+              <div class="image-preview__actions">
+                <button type="button" class="pa-btn pa-btn--secondary pa-btn--sm" (click)="fileInput.click()">
+                  Change image
+                </button>
+                @if (selectedFile()) {
+                  <button
+                    type="button"
+                    class="pa-btn pa-btn--text pa-btn--sm image-preview__remove"
+                    (click)="discardSelectedFile()"
+                  >
+                    Undo selection
+                  </button>
+                }
+              </div>
             </div>
           }
 
-          <!-- Image Preview -->
-          @if (f.imageUrl.value && !f.imageUrl.errors) {
-            <div class="image-preview">
-              <img
-                [src]="f.imageUrl.value"
-                alt="Category image preview"
-                class="image-preview__img"
-                (error)="$any($event.target).style.display = 'none'"
-              />
+          @if (submitted && imageError) {
+            <div class="invalid-feedback" role="alert">
+              <span>{{ imageError }}</span>
             </div>
           }
         </div>

@@ -1,10 +1,14 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { CategoryRequest } from '../../core/models/category/category-request';
 import { CategoryService } from '../../core/services/category/category.service';
 import { InputField } from '../../shared/components/input-field/input-field';
+import { ImageUploadService } from '../../core/services/image-upload/image-upload.service';
+
+const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024; // 5MB
 
 @Component({
   selector: 'app-create-category',
@@ -13,17 +17,17 @@ import { InputField } from '../../shared/components/input-field/input-field';
   templateUrl: './create-category.html',
   styleUrl: './create-category.scss',
 })
-export class CreateCategory implements OnInit {
+export class CreateCategory implements OnInit, OnDestroy {
   private fb = inject(FormBuilder);
   private categoryService = inject(CategoryService);
+  private imageUploadService = inject(ImageUploadService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
 
-  // Reactive form with non-nullable controls for strict typing
   categoryForm = this.fb.nonNullable.group({
     name: ['', [Validators.required, Validators.maxLength(50)]],
     description: ['', [Validators.required, Validators.maxLength(500)]],
-    imageUrl: ['', [Validators.required, Validators.maxLength(500)]],
+    imageUrl: ['', [Validators.maxLength(500)]],
   });
 
   // Mode detection
@@ -36,6 +40,11 @@ export class CreateCategory implements OnInit {
   pageLoading = signal(false); // Used only when fetching existing data in edit mode
   successMessage = '';
   errorMessage = '';
+
+  // Image picker state
+  selectedFile = signal<File | null>(null);
+  previewUrl = signal<string | null>(null);
+  imageError = '';
 
   // Convenience getter for form controls
   get f() {
@@ -70,6 +79,10 @@ export class CreateCategory implements OnInit {
     }
   }
 
+  ngOnDestroy(): void {
+    this.revokePreviewUrlIfBlob();
+  }
+
   // Fetch existing category data and prefill the form
   private loadCategory(id: number): void {
     this.pageLoading.set(true);
@@ -80,6 +93,7 @@ export class CreateCategory implements OnInit {
           description: category.description,
           imageUrl: category.imageUrl,
         });
+        this.previewUrl.set(category.imageUrl || null);
         this.pageLoading.set(false);
       },
       error: (err) => {
@@ -95,16 +109,97 @@ export class CreateCategory implements OnInit {
     });
   }
 
+  // ------------------------------------------------------------------
+  // Image picker
+  // ------------------------------------------------------------------
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0] ?? null;
+    input.value = ''; // allow re-selecting the same file later
+
+    if (!file) return;
+
+    this.imageError = '';
+
+    if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+      this.imageError = 'Only JPEG, PNG, or WEBP images are allowed.';
+      return;
+    }
+
+    if (file.size > MAX_IMAGE_SIZE_BYTES) {
+      this.imageError = 'Image must be 5MB or smaller.';
+      return;
+    }
+
+    this.revokePreviewUrlIfBlob();
+    this.selectedFile.set(file);
+    this.previewUrl.set(URL.createObjectURL(file));
+  }
+
+  /** Discards a newly picked file and reverts the preview to the
+   *  existing category image (edit mode) or clears it (create mode). */
+  discardSelectedFile(): void {
+    this.revokePreviewUrlIfBlob();
+    this.selectedFile.set(null);
+    this.imageError = '';
+    const existing = this.categoryForm.get('imageUrl')!.value;
+    this.previewUrl.set(existing || null);
+  }
+
+  private revokePreviewUrlIfBlob(): void {
+    const current = this.previewUrl();
+    if (current && current.startsWith('blob:')) {
+      URL.revokeObjectURL(current);
+    }
+  }
+
+  // ------------------------------------------------------------------
+  // Submit
+  // ------------------------------------------------------------------
+
   onSubmit(): void {
     this.submitted = true;
     this.successMessage = '';
     this.errorMessage = '';
+    this.imageError = '';
 
-    if (this.categoryForm.invalid) {
+    if (this.f.name.invalid || this.f.description.invalid) {
+      return;
+    }
+
+    const hasExistingImage = !!this.categoryForm.get('imageUrl')!.value;
+    if (!this.selectedFile() && !(this.isEditMode && hasExistingImage)) {
+      this.imageError = 'Please select an image.';
       return;
     }
 
     this.loading.set(true);
+
+    if (this.selectedFile()) {
+      this.uploadImageThenSave();
+    } else {
+      this.saveCategory();
+    }
+  }
+
+  private uploadImageThenSave(): void {
+    const file = this.selectedFile();
+    if (!file) return;
+
+    this.imageUploadService.uploadImage(file, 'categories').subscribe({
+      next: (response) => {
+        this.categoryForm.patchValue({ imageUrl: response.url });
+        this.saveCategory();
+      },
+      error: () => {
+        this.loading.set(false);
+        this.imageError = 'Failed to upload image. Please try again.';
+      },
+    });
+  }
+
+  private saveCategory(): void {
     const request: CategoryRequest = this.categoryForm.getRawValue();
 
     if (this.isEditMode && this.categoryId !== null) {
