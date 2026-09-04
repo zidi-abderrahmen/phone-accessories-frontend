@@ -384,7 +384,7 @@ export class CreateAccessory implements OnInit, OnDestroy {
         this.loading.set(false);
         this.successMessage = `Accessory "${response.title}" created successfully!`;
         setTimeout(() => {
-          this.router.navigate(['/admin/accessories']);
+          this.router.navigate(['/accessories']);
         }, 1500);
       },
       error: (err) => this.handleApiError(err),
@@ -397,7 +397,7 @@ export class CreateAccessory implements OnInit, OnDestroy {
         this.loading.set(false);
         this.successMessage = `Accessory "${response.title}" updated successfully!`;
         setTimeout(() => {
-          this.router.navigate(['/admin/accessories']);
+          this.router.navigate(['/accessories']);
         }, 1500);
       },
       error: (err) => this.handleApiError(err),
