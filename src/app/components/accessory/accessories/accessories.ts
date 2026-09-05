@@ -230,10 +230,6 @@ export class Accessories implements OnInit {
   }
 
   goToPage(page: number): void {
-    if (page >= 0 && page < this.totalPages && page !== this.currentPage) {
-      this.search(page);
-    }
-
     const targetPage = Number(page); 
     
     if (
