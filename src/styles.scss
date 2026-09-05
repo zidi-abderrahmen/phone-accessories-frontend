@@ -248,6 +248,16 @@ body {
   transition: background-color var(--pa-transition-base), color var(--pa-transition-base);
 }
 
+html, body {
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  scrollbar-width: none;
+
+  -ms-overflow-style: none;
+}
+
 // Selection
 ::selection {
   background-color: var(--pa-primary-muted);
