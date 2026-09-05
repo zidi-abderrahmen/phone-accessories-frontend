@@ -1,6 +1,10 @@
 const fs = require('fs');
 
-const apiUrl = process.env.API_URL || 'YOUR_API_URL';
+const apiUrl = process.env.API_URL;
+
+if (!apiUrl) {
+  throw new Error('API_URL environment variable is not set');
+}
 
 const envFile = `export const environment = {
   production: true,
@@ -8,4 +12,5 @@ const envFile = `export const environment = {
 };`;
 
 fs.writeFileSync('./src/environments/environment.ts', envFile);
-console.log('Environment file generated with API_URL');
+
+console.log('Environment file generated successfully.');
