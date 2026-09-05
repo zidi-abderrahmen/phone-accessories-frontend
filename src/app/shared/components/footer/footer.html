@@ -1,0 +1,47 @@
+<footer class="pa-footer">
+  <div class="pa-footer__grid">
+    <div class="pa-footer__brand">
+      <span class="pa-footer__logo">Phone Accessories</span>
+      <p>Premium mobile gear and smartphone essentials, built to protect, power, and upgrade your everyday.</p>
+    </div>
+
+    <div>
+      <h3 class="pa-footer__heading">Shop</h3>
+      <ul class="pa-footer__links">
+        @for (link of shopLinks; track link.label) {
+          <li>
+            <a [routerLink]="link.path" [queryParams]="link.queryParams ?? null">{{ link.label }}</a>
+          </li>
+        }
+      </ul>
+    </div>
+
+    <div>
+      <h3 class="pa-footer__heading">Customer Service</h3>
+      <ul class="pa-footer__links">
+        @for (link of supportLinks; track link.path) {
+          <li><a [routerLink]="link.path">{{ link.label }}</a></li>
+        }
+      </ul>
+    </div>
+
+    <div>
+      <h3 class="pa-footer__heading">Account</h3>
+      <ul class="pa-footer__links">
+        @if (isAuthenticated()) {
+          @for (link of accountLinks; track link.path) {
+            <li><a [routerLink]="link.path">{{ link.label }}</a></li>
+          }
+        } @else {
+          @for (link of guestLinks; track link.path) {
+            <li><a [routerLink]="link.path">{{ link.label }}</a></li>
+          }
+        }
+      </ul>
+    </div>
+  </div>
+
+  <div class="pa-footer__bottom">
+    <p>© {{ currentYear }} Phone Accessories. All rights reserved.</p>
+  </div>
+</footer>
