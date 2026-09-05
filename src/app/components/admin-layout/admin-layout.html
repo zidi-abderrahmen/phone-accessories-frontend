@@ -1,0 +1,13 @@
+<div class="pa-admin">
+    <aside class="pa-admin__sidebar" aria-label="Admin navigation">
+    <div class="pa-admin__brand">Admin</div>
+    <nav class="pa-admin__nav">
+        @for (link of links; track link.path) {
+        <a [routerLink]="link.path" routerLinkActive="pa-admin__link--active" class="pa-admin__link">{{ link.label }}</a>
+        }
+    </nav>
+    </aside>
+    <section class="pa-admin__content">
+    <router-outlet></router-outlet>
+    </section>
+</div>
