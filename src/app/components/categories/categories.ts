@@ -56,7 +56,7 @@ export class Categories implements OnInit {
         this.page = response;
         this.categories.set(response.content);
         this.filteredCategories = [...response.content];
-        this.currentPage = response.pageNumber;
+        this.currentPage = response.pageNumber ?? 0;
         this.pageSize = response.size;
         this.totalElements = response.totalElements;
         this.totalPages = response.totalPages;
@@ -140,8 +140,16 @@ export class Categories implements OnInit {
 
   // Pagination controls
   goToPage(page: number): void {
-    if (page >= 0 && page < this.totalPages && page !== this.currentPage) {
-      this.loadCategories(page, this.pageSize);
+    // Eagerly parse to number in case a URL param injected a string
+    const targetPage = Number(page); 
+    
+    if (
+      !this.loading() && // Prevent triggers if currently fetching
+      targetPage >= 0 && 
+      targetPage < this.totalPages && 
+      targetPage !== this.currentPage
+    ) {
+      this.loadCategories(targetPage, this.pageSize);
     }
   }
 
