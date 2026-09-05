@@ -55,65 +55,6 @@
 }
 
 // --------------------------------------------
-// BREADCRUMB
-// --------------------------------------------
-
-.breadcrumb {
-  margin-bottom: var(--pa-space-5);
-}
-
-.breadcrumb-list {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: var(--pa-space-1);
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.breadcrumb-item {
-  font-size: 0.875rem;
-  color: var(--pa-text-secondary);
-
-  &--current {
-    color: var(--pa-text-primary);
-    font-weight: 500;
-  }
-}
-
-.breadcrumb-link {
-  color: var(--pa-text-secondary);
-  text-decoration: none;
-  transition: color var(--pa-transition-fast);
-  border-radius: var(--pa-radius-sm);
-  padding: 2px 4px;
-  margin: -2px -4px;
-
-  &:hover {
-    color: var(--pa-primary);
-    text-decoration: underline;
-    text-underline-offset: 2px;
-  }
-
-  &:focus-visible {
-    outline: none;
-    box-shadow: var(--pa-focus-ring);
-  }
-}
-
-.breadcrumb-separator {
-  color: var(--pa-text-muted);
-  display: flex;
-  align-items: center;
-
-  svg {
-    width: 14px;
-    height: 14px;
-  }
-}
-
-// --------------------------------------------
 // PAGE HEADER
 // --------------------------------------------
 

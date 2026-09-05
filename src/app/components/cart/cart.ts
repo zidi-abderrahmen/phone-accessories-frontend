@@ -24,13 +24,14 @@ import { CartResponse } from '../../core/models/cart/cart-response';
 import { CartItemResponse } from '../../core/models/cart/items/cart-item-response';
 import { RegisterResponse } from '../../core/models/user/register/register.response';
 import { UserService } from '../../core/services/user/user.service';
+import { Navbar } from "../../shared/components/navbar/navbar";
 
 type LoadState = 'loading' | 'loaded' | 'error';
 
 @Component({
   selector: 'app-cart',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, Navbar],
   templateUrl: './cart.html',
   styleUrl: './cart.scss'
 })

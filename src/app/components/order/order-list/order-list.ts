@@ -4,13 +4,15 @@ import { OrderStatus } from '../../../core/models/checkout/enums/OrderStatus';
 import { PaymentMethod } from '../../../core/models/checkout/enums/PaymentMethod';
 import { OrderResponse } from '../../../core/models/checkout/order-response';
 import { OrderService } from '../../../core/services/checkout/order.service';
+import { RouterLink } from '@angular/router';
+import { Navbar } from "../../../shared/components/navbar/navbar";
 
 type RowState = 'idle' | 'busy' | 'error';
 
 @Component({
   selector: 'app-order-list',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink, Navbar],
   templateUrl: './order-list.html',
   styleUrl: './order-list.scss',
 })

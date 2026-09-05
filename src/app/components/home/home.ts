@@ -1,6 +1,6 @@
 import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CategoryService } from '../../core/services/category/category.service';
 import { AccessoryService } from '../../core/services/accessory/accessory.service';
@@ -13,13 +13,15 @@ import { CartItemRequest } from '../../core/models/cart/items/cart-item-request'
 import { RegisterResponse } from '../../core/models/user/register/register.response';
 import { UserService } from '../../core/services/user/user.service';
 import { HttpErrorResponse } from '@angular/common/http';
+import { Navbar } from "../../shared/components/navbar/navbar";
+import { Footer } from "../../shared/components/footer/footer";
 
 type LoadState = 'idle' | 'loading' | 'loaded' | 'error';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, RouterLinkActive, RouterLink],
+  imports: [CommonModule, RouterLink, Navbar, Footer],
   templateUrl: './home.html',
   styleUrl: './home.scss'
 })

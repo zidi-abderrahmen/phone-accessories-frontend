@@ -9,6 +9,7 @@ import { UserService } from '../../core/services/user/user.service';
 import { WishlistService } from '../../core/services/wishlist/wishlist.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Footer } from "../../shared/components/footer/footer";
 
 type PageState = 'loading' | 'loaded' | 'empty' | 'not-found' | 'error';
 type SortOption = 'newest' | 'price-asc' | 'price-desc';
@@ -16,7 +17,7 @@ type SortOption = 'newest' | 'price-asc' | 'price-desc';
 @Component({
   selector: 'app-category-details',
   standalone: true,
-  imports: [RouterModule, CommonModule],
+  imports: [RouterModule, CommonModule, Footer],
   templateUrl: './category-details.html',
   styleUrl: './category-details.scss',
 })

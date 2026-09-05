@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators, type FormGroup } from '@angular/forms';
+import { Navbar } from "../../shared/components/navbar/navbar";
 
 type SubmitStatus = 'idle' | 'submitting' | 'success' | 'error';
 
@@ -42,7 +43,7 @@ interface FaqPreviewItem {
 @Component({
   selector: 'app-about-contact',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, Navbar],
   templateUrl: './about-contact.html',
   styleUrl: './about-contact.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

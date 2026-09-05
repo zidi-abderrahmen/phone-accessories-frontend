@@ -6,11 +6,13 @@ import { CategoryService } from '../../core/services/category/category.service';
 import { CommonModule, DatePipe } from '@angular/common';
 import { AuthService } from '../../core/services/auth/auth.service';
 import { UserService } from '../../core/services/user/user.service';
+import { Navbar } from "../../shared/components/navbar/navbar";
+import { Footer } from "../../shared/components/footer/footer";
 
 @Component({
   selector: 'app-categories',
   standalone: true,
-  imports: [RouterModule, DatePipe, CommonModule],
+  imports: [RouterModule, DatePipe, CommonModule, Navbar, Footer],
   templateUrl: './categories.html',
   styleUrl: './categories.scss',
 })

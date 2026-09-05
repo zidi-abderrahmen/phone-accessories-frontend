@@ -16,6 +16,7 @@ import { AuthService } from '../../core/services/auth/auth.service';
 import { ChangePasswordRequest } from '../../core/models/user/password/change-password-request';
 import { PasswordInput } from '../../shared/components/password-input/password-input';
 import { RegisterResponse } from '../../core/models/user/register/register.response';
+import { Navbar } from "../../shared/components/navbar/navbar";
 
 function passwordsMatchValidator(control: AbstractControl): ValidationErrors | null {
   const value = control.value;
@@ -34,7 +35,7 @@ type SubmitState = 'idle' | 'success' | 'error';
 @Component({
   selector: 'app-change-password',
   standalone: true,
-  imports: [CommonModule, RouterLink, ReactiveFormsModule, PasswordInput],
+  imports: [CommonModule, RouterLink, ReactiveFormsModule, PasswordInput, Navbar],
   templateUrl: './change-password.html',
   styleUrl: './change-password.scss'
 })

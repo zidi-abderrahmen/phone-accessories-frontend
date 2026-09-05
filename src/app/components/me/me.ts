@@ -5,6 +5,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AuthService } from '../../core/services/auth/auth.service';
 import { RegisterResponse } from '../../core/models/user/register/register.response';
 import { UserService } from '../../core/services/user/user.service';
+import { Navbar } from "../../shared/components/navbar/navbar";
 
 type LoadState = 'idle' | 'loading' | 'loaded' | 'error';
 
@@ -24,7 +25,7 @@ interface ViewedAccessory {
 @Component({
   selector: 'app-me',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, Navbar],
   templateUrl: './me.html',
   styleUrl: './me.scss'
 })

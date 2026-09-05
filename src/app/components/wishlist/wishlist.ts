@@ -14,11 +14,12 @@ import { WishlistItemResponse } from '../../core/models/wishlist/items/wishlist-
 import { CartService } from '../../core/services/cart/cart.service';
 import { CartItemRequest } from '../../core/models/cart/items/cart-item-request';
 import { HttpErrorResponse } from '@angular/common/http';
+import { Navbar } from "../../shared/components/navbar/navbar";
 
 @Component({
   selector: 'app-wishlist',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, Navbar],
   templateUrl: './wishlist.html',
   styleUrl: './wishlist.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

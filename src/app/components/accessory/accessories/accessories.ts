@@ -13,11 +13,13 @@ import { UserService } from '../../../core/services/user/user.service';
 import { WishlistService } from '../../../core/services/wishlist/wishlist.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Navbar } from "../../../shared/components/navbar/navbar";
+import { Footer } from "../../../shared/components/footer/footer";
 
 @Component({
   selector: 'app-accessories',
   standalone: true,
-  imports: [RouterModule, CurrencyPipe, CommonModule, FormsModule],
+  imports: [RouterModule, CurrencyPipe, CommonModule, FormsModule, Navbar, Footer],
   templateUrl: './accessories.html',
   styleUrl: './accessories.scss',
 })
@@ -59,11 +61,6 @@ export class Accessories implements OnInit {
   accessoryToDelete: AccessoryResponse | null = null;
   deleting = signal(false);
 
-  // Add-to-wishlist state, keyed by accessory id.
-  // NOTE: WishlistService only exposes addToWishlist(accessoryId) /
-  // removeFromWishlist(wishlistItemId) — since we don't have the
-  // wishlist item's own id here, this button is a one-shot "add" action
-  // with transient confirmation, not a persistent toggle.
   protected readonly pendingWishlistIds = signal<ReadonlySet<number>>(new Set());
   protected readonly addedWishlistId = signal<number | null>(null);
   private addedWishlistTimeout: ReturnType<typeof setTimeout> | null = null;

@@ -9,6 +9,7 @@ import { AuthService } from '../../core/services/auth/auth.service';
 import { UpdateProfileRequest } from '../../core/models/user/profile/update-profile-request';
 import { InputField } from '../../shared/components/input-field/input-field';
 import { RegisterResponse } from '../../core/models/user/register/register.response';
+import { Navbar } from "../../shared/components/navbar/navbar";
 
 type LoadState = 'loading' | 'loaded' | 'error';
 type SubmitState = 'idle' | 'success' | 'error';
@@ -22,7 +23,7 @@ interface ProfileFormValue {
 @Component({
   selector: 'app-update-profile',
   standalone: true,
-  imports: [CommonModule, RouterLink, ReactiveFormsModule, InputField],
+  imports: [CommonModule, RouterLink, ReactiveFormsModule, InputField, Navbar],
   templateUrl: './update-profile.html',
   styleUrl: './update-profile.scss'
 })
