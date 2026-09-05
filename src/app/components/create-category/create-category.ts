@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import { CategoryRequest } from '../../core/models/category/category-request';
 import { CategoryService } from '../../core/services/category/category.service';
 import { InputField } from '../../shared/components/input-field/input-field';
@@ -21,7 +21,6 @@ export class CreateCategory implements OnInit, OnDestroy {
   private fb = inject(FormBuilder);
   private categoryService = inject(CategoryService);
   private imageUploadService = inject(ImageUploadService);
-  private router = inject(Router);
   private route = inject(ActivatedRoute);
 
   categoryForm = this.fb.nonNullable.group({
@@ -214,9 +213,7 @@ export class CreateCategory implements OnInit, OnDestroy {
       next: (response) => {
         this.loading.set(false);
         this.successMessage = `Category "${response.name}" created successfully!`;
-        setTimeout(() => {
-          this.router.navigate(['/admin/categories']);
-        }, 1500);
+        this.categoryForm.reset();
       },
       error: (err) => this.handleApiError(err),
     });
@@ -227,9 +224,7 @@ export class CreateCategory implements OnInit, OnDestroy {
       next: (response) => {
         this.loading.set(false);
         this.successMessage = `Category "${response.name}" updated successfully!`;
-        setTimeout(() => {
-          this.router.navigate(['/admin/categories']);
-        }, 1500);
+        this.categoryForm.reset();
       },
       error: (err) => this.handleApiError(err),
     });

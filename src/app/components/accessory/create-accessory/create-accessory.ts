@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnDestroy, OnInit, signal, HostListener } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import { AccessoryRequest } from '../../../core/models/accessory/accessory-request';
 import { AccessoryResponse } from '../../../core/models/accessory/accessory-response';
 import { CategoryResponse } from '../../../core/models/category/category-response';
@@ -25,7 +25,6 @@ export class CreateAccessory implements OnInit, OnDestroy {
   private accessoryService = inject(AccessoryService);
   private categoryService = inject(CategoryService);
   private imageUploadService = inject(ImageUploadService);
-  private router = inject(Router);
   private route = inject(ActivatedRoute);
 
   accessoryForm = this.fb.nonNullable.group({
@@ -383,9 +382,7 @@ export class CreateAccessory implements OnInit, OnDestroy {
       next: (response) => {
         this.loading.set(false);
         this.successMessage = `Accessory "${response.title}" created successfully!`;
-        setTimeout(() => {
-          this.router.navigate(['/accessories']);
-        }, 1500);
+        this.accessoryForm.reset();
       },
       error: (err) => this.handleApiError(err),
     });
@@ -396,9 +393,7 @@ export class CreateAccessory implements OnInit, OnDestroy {
       next: (response) => {
         this.loading.set(false);
         this.successMessage = `Accessory "${response.title}" updated successfully!`;
-        setTimeout(() => {
-          this.router.navigate(['/accessories']);
-        }, 1500);
+        this.accessoryForm.reset();
       },
       error: (err) => this.handleApiError(err),
     });
