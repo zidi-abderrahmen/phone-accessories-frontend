@@ -4,7 +4,7 @@ const apiUrl = process.env.API_URL || 'YOUR_API_URL';
 
 const envFile = `export const environment = {
   production: true,
-  nasaApiUrl: '${apiUrl}'
+  apiUrl: '${apiUrl}'
 };`;
 
 fs.writeFileSync('./src/environments/environment.ts', envFile);
