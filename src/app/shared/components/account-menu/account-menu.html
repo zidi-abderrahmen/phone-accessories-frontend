@@ -1,0 +1,19 @@
+<div class="pa-account-menu">
+    <button
+    type="button"
+    class="pa-nav__avatar"
+    (click)="toggle()"
+    [attr.aria-expanded]="isOpen()"
+    aria-haspopup="menu"
+    aria-label="My account"
+    >{{ initials() }}</button>
+
+    @if (isOpen()) {
+    <div class="pa-account-menu__panel" role="menu">
+        @for (link of links; track link.path) {
+        <a [routerLink]="link.path" role="menuitem" class="pa-account-menu__item" (click)="close()">{{ link.label }}</a>
+        }
+        <button type="button" role="menuitem" class="pa-account-menu__item pa-account-menu__item--danger" (click)="onLogout()">Logout</button>
+    </div>
+    }
+</div>
