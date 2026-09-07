@@ -151,7 +151,7 @@ export class Register implements OnInit, OnDestroy {
 
   private handleError(err: any): void {
     if (err.status === 409) {
-      this.errorMessage.set('An account with this email already exists. Please sign in instead.');
+      this.errorMessage.set(err.error?.message || 'An account with this email already exists. Please sign in instead.');
     } else if (err.status === 422) {
       this.errorMessage.set('The provided information is invalid. Please check your details and try again.');
     } else if (err.status === 0) {
