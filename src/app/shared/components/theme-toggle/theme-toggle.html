@@ -2,12 +2,12 @@
   type="button"
   class="pa-theme-toggle"
   (click)="toggleTheme()"
-  [attr.aria-label]="isDark() ? 'Switch to light mode' : 'Switch to dark mode'"
-  [attr.aria-pressed]="isDark()"
-  [attr.title]="isDark() ? 'Switch to light mode' : 'Switch to dark mode'"
+  [attr.aria-label]="isDarkTheme() ? 'Switch to light mode' : 'Switch to dark mode'"
+  [attr.aria-pressed]="isDarkTheme()"
+  [attr.title]="isDarkTheme() ? 'Switch to light mode' : 'Switch to dark mode'"
 >
   <span class="pa-theme-toggle__icon" aria-hidden="true">
-    @if (!isDark()) {
+    @if (!isDarkTheme()) {
       <!-- Moon icon (dark mode inactive — clicking switches to dark) -->
       <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>

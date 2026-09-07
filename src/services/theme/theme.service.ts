@@ -1,4 +1,4 @@
-import { effect, signal, Service } from '@angular/core';
+import { signal, Service, computed } from '@angular/core';
 
 type Theme = 'light' | 'dark';
 
@@ -10,7 +10,7 @@ const ATTRIBUTE = 'data-theme';
 export class ThemeService {
     private readonly theme = signal<Theme>(this.resolveInitialTheme());
 
-    readonly isDark = () => this.theme() === 'dark';
+    readonly isDark = computed(() => this.theme() === 'dark');
 
     constructor() {
         this.applyTheme(this.theme());
