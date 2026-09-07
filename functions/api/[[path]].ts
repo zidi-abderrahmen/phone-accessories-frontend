@@ -14,5 +14,7 @@ export async function onRequest(context: EventContext<{ API_URL: string }, any, 
     redirect: "manual",
   });
 
+  console.log(`Proxying request to: ${backendUrl}`);
+
   return fetch(proxyRequest);
 }
