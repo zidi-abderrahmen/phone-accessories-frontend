@@ -1,11 +1,12 @@
 import { inject, Service } from '@angular/core';
 import { environment } from '../../../../environments/environment';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, catchError, filter, map, Observable, of, take, tap } from 'rxjs';
+import { BehaviorSubject, catchError, filter, map, Observable, of, switchMap, take, tap } from 'rxjs';
 import { RegisterResponse } from '../../models/user/register/register.response';
 import { ChangePasswordRequest } from '../../models/user/password/change-password-request';
 import { ChangePasswordResponse } from '../../models/user/password/change-password-response';
 import { UpdateProfileRequest } from '../../models/user/profile/update-profile-request';
+import { AuthService } from '../auth/auth.service';
 
 @Service()
 export class UserService {
@@ -28,7 +29,7 @@ export class UserService {
     currentUserSubject = new BehaviorSubject<RegisterResponse | null>(null);
     currentUser$ = this.currentUserSubject.asObservable();
 
-    chagePassword(data: ChangePasswordRequest): Observable<ChangePasswordResponse> {
+    changePassword(data: ChangePasswordRequest): Observable<ChangePasswordResponse> {
         return this.http.put<ChangePasswordResponse>(`${this.apiUrl}/change-password`, data, { withCredentials: true });
     }
 
@@ -50,18 +51,36 @@ export class UserService {
             return this.authState$.pipe(take(1));
         }
 
-        return this.http.get<RegisterResponse>(`${this.apiUrl}/me`, { withCredentials: true }).pipe(
+        const authService = inject(AuthService);
+
+        const meRequest$ = this.http.get<RegisterResponse>(`${this.apiUrl}/me`, { withCredentials: true }).pipe(
             tap((user) => { 
                 console.log('ME SUCCESS');
                 this.currentUserSubject.next(user);
                 this.authState.next(true); 
             }),
-            map(() => true),
+            map(() => true)
+        );
+
+        const handleAuthFailure = (err: any) => {
+            console.log('AUTH FAILED', err.status, err);
+            this.authState.next(false);
+            this.currentUserSubject.next(null);
+            return of(false);
+        };
+
+        return meRequest$.pipe(
             catchError((err) => {
-                console.log('ME FAILED', err.status, err);
-                this.authState.next(false);
-                this.currentUserSubject.next(null);
-                return of(false);
+                if (err.status === 401) {
+                    console.log('401 from /me, attempting refresh...');
+                    
+                    return authService.refreshToken().pipe(
+                        switchMap(() => meRequest$),
+                        catchError((retryErr) => handleAuthFailure(retryErr))
+                    );
+                }
+                
+                return handleAuthFailure(err);
             })
         );
     }

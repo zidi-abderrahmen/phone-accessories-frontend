@@ -107,7 +107,7 @@ export class ChangePassword implements OnInit {
     this.errorMessage.set(null);
 
     this.userService
-      .chagePassword(payload)
+      .changePassword(payload)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
