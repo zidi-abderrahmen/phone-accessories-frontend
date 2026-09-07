@@ -1,4 +1,6 @@
-export async function onRequest(context: any) {
+import type { EventContext } from "@cloudflare/workers-types";
+
+export async function onRequest(context: EventContext<{ API_URL: string }, any, any>) {
   const { request, env } = context;
   const url = new URL(request.url);
   const backendUrl = env.API_URL + url.pathname + url.search;
