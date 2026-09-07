@@ -27,8 +27,10 @@ export const ADMIN_ROLES = ['SUPER_ADMIN', 'ADMIN'] as const;
 
 export const ADMIN_SIDEBAR_LINKS: NavLink[] = [
   { label: 'Dashboard', path: '/admin/dashboard' },
-  { label: 'Categories', path: '/admin/categories/create' },
-  { label: 'Accessories', path: '/admin/accessories/create' },
+  { label: 'Categories', path: '/categories' },
+  { label: 'Create Category', path: '/admin/categories/create' },
+  { label: 'Accessories', path: '/accessories' },
+  { label: 'Create Accessory', path: '/admin/accessories/create' },
   { label: 'Users', path: '/admin/users' },
   { label: 'Roles', path: '/admin/users/roles' },
   { label: 'Home', path: '/home' },
