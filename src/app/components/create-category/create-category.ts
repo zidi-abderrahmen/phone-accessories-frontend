@@ -9,6 +9,7 @@ import { ImageUploadService } from '../../core/services/image-upload/image-uploa
 
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024; // 5MB
+const MAX_IMAGE_PIXELS = 25 * 1_000_000; // 25 MP
 
 @Component({
   selector: 'app-create-category',
@@ -127,14 +128,35 @@ export class CreateCategory implements OnInit, OnDestroy {
     }
 
     if (file.size > MAX_IMAGE_SIZE_BYTES) {
-      this.imageError = 'Image must be 5MB or smaller.';
+      this.imageError = 'Image must be 5 MB or smaller.';
       return;
     }
 
-    this.revokePreviewUrlIfBlob();
-    this.selectedFile.set(file);
-    this.previewUrl.set(URL.createObjectURL(file));
-  }
+    const objectUrl = URL.createObjectURL(file);
+    const img = new Image();
+
+    img.onload = () => {
+      const totalPixels = img.width * img.height;
+
+      URL.revokeObjectURL(objectUrl);
+
+      if (totalPixels > MAX_IMAGE_PIXELS) {
+        this.imageError = 'Image must be 25 MP or smaller.';
+        return;
+      }
+
+      this.revokePreviewUrlIfBlob();
+      this.selectedFile.set(file);
+      this.previewUrl.set(URL.createObjectURL(file));
+    };
+
+    img.onerror = () => {
+      URL.revokeObjectURL(objectUrl);
+      this.imageError = 'Unable to read the image.';
+    };
+
+    img.src = objectUrl;
+  };
 
   /** Discards a newly picked file and reverts the preview to the
    *  existing category image (edit mode) or clears it (create mode). */
