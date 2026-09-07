@@ -4,9 +4,7 @@ import { Observable, catchError, tap, throwError } from "rxjs";
 import { environment } from "../../../../environments/environment";
 import { ForgotPasswordRequest } from "../../models/password/forgot.password.request";
 import { ResetPasswordRequest } from "../../models/password/reset.password.request";
-import { RefreshTokenResponse } from "../../models/reftoken/refresh.token.response";
 import { LoginRequest } from "../../models/user/login/login.request";
-import { LoginResponse } from "../../models/user/login/login.response";
 import { RegisterRequest } from "../../models/user/register/register.request";
 import { RegisterResponse } from "../../models/user/register/register.response";
 import { EmailResponse } from "../../models/verifemail/email.response";
@@ -26,8 +24,8 @@ export class AuthService {
         return this.http.post<RegisterResponse>(`${this.apiUrl}/register`, data, { withCredentials: true });
     }
 
-    login(credentials: LoginRequest): Observable<LoginResponse> {
-        return this.http.post<LoginResponse>(`${this.apiUrl}/login`, credentials, { withCredentials: true })
+    login(credentials: LoginRequest): Observable<RegisterResponse> {
+        return this.http.post<RegisterResponse>(`${this.apiUrl}/login`, credentials, { withCredentials: true })
         .pipe(
             tap(() => {
                 this.userService.authState.next(true);
@@ -38,8 +36,8 @@ export class AuthService {
         );
     }
 
-    refreshToken(): Observable<RefreshTokenResponse> {
-        return this.http.post<RefreshTokenResponse>(`${this.apiUrl}/refresh-token`, {}, { withCredentials: true });
+    refreshToken(): Observable<void> {
+        return this.http.post<void>(`${this.apiUrl}/refresh-token`, {}, { withCredentials: true });
     }
 
     verifyEmail(data: VerifyEmailRequest): Observable<EmailResponse> {
