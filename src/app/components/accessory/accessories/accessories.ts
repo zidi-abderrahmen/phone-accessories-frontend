@@ -101,7 +101,7 @@ export class Accessories implements OnInit {
   }
 
   // Central method: runs the server-side search with current filter state
-  search(page: number = 0): void {
+  search(page = 0): void {
     this.loading.set(true);
     this.clearMessages();
 

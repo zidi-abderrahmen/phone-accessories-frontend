@@ -1,15 +1,14 @@
 import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { UserService } from '../../core/services/user/user.service';
-import { AuthService } from '../../core/services/auth/auth.service';
 import { UpdateProfileRequest } from '../../core/models/user/profile/update-profile-request';
 import { InputField } from '../../shared/components/input-field/input-field';
 import { RegisterResponse } from '../../core/models/user/register/register.response';
-import { Navbar } from "../../shared/components/navbar/navbar";
+import { Navbar } from '../../shared/components/navbar/navbar';
 
 type LoadState = 'loading' | 'loaded' | 'error';
 type SubmitState = 'idle' | 'success' | 'error';
@@ -23,9 +22,9 @@ interface ProfileFormValue {
 @Component({
   selector: 'app-update-profile',
   standalone: true,
-  imports: [CommonModule, RouterLink, ReactiveFormsModule, InputField, Navbar],
+  imports: [RouterLink, ReactiveFormsModule, InputField, Navbar],
   templateUrl: './update-profile.html',
-  styleUrl: './update-profile.scss'
+  styleUrl: './update-profile.scss',
 })
 export class UpdateProfile implements OnInit {
   private readonly userService = inject(UserService);
@@ -34,7 +33,10 @@ export class UpdateProfile implements OnInit {
   protected readonly form = new FormGroup({
     firstName: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
     lastName: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
-    email: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.email] })
+    email: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.required, Validators.email],
+    }),
   });
 
   // Error-key -> message maps, consumed by the shared InputField component
@@ -43,7 +45,7 @@ export class UpdateProfile implements OnInit {
   protected readonly emailErrors = {
     required: 'Email is required.',
     email: 'Enter a valid email address.',
-    emailTaken: 'That email is already in use on another account.'
+    emailTaken: 'That email is already in use on another account.',
   };
 
   protected readonly profileState = signal<LoadState>('loading');
@@ -53,7 +55,7 @@ export class UpdateProfile implements OnInit {
 
   private readonly originalValues = signal<ProfileFormValue | null>(null);
   private readonly formValue = toSignal(this.form.valueChanges, {
-    initialValue: this.form.getRawValue()
+    initialValue: this.form.getRawValue(),
   });
 
   protected readonly hasChanges = computed(() => {
@@ -97,14 +99,14 @@ export class UpdateProfile implements OnInit {
           const values: ProfileFormValue = {
             firstName: u.firstName ?? '',
             lastName: u.lastName ?? '',
-            email: u.email ?? ''
+            email: u.email ?? '',
           };
 
           this.form.reset(values);
           this.originalValues.set(values);
           this.profileState.set('loaded');
         },
-        error: () => this.profileState.set('error')
+        error: () => this.profileState.set('error'),
       });
   }
 
@@ -144,7 +146,7 @@ export class UpdateProfile implements OnInit {
             this.form.controls.email.setErrors({ emailTaken: true });
             this.form.controls.email.markAsTouched();
           }
-        }
+        },
       });
   }
 

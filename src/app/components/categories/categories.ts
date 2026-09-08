@@ -47,7 +47,7 @@ export class Categories implements OnInit {
     this.loadCategories();
   }
 
-  loadCategories(page: number = 0, size: number = 10): void {
+  loadCategories(page = 0, size = 10): void {
     this.loading.set(true);
     this.clearMessages();
 

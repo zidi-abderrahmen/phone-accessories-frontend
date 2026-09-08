@@ -2,145 +2,205 @@
 
 <main id="main-content" class="pa-wishlist">
   <div class="pa-wishlist__container pa-container pa-container--wide">
-
     <header class="pa-wishlist__header">
       <div>
         <h1 class="pa-wishlist__title">My Wishlist</h1>
-        <p class="pa-wishlist__subtitle" *ngIf="!isLoading() && hasItems()">
-          {{ items().length }} item{{ items().length === 1 ? '' : 's' }} saved for later
-        </p>
+        @if (!isLoading() && hasItems()) {
+          <p class="pa-wishlist__subtitle">
+            {{ items().length }} item{{ items().length === 1 ? '' : 's' }} saved for later
+          </p>
+        }
       </div>
 
-      <button
-        type="button"
-        class="pa-btn pa-btn--secondary pa-btn--sm"
-        *ngIf="!isLoading() && hasItems()"
-        [disabled]="isClearing()"
-        [class.pa-btn--loading]="isClearing()"
-        (click)="clearWishlist()"
-      >
-        Clear wishlist
-      </button>
+      @if (!isLoading() && hasItems()) {
+        <button
+          type="button"
+          class="pa-btn pa-btn--secondary pa-btn--sm"
+          [disabled]="isClearing()"
+          [class.pa-btn--loading]="isClearing()"
+          (click)="clearWishlist()"
+        >
+          Clear wishlist
+        </button>
+      }
     </header>
 
-    <div class="pa-wishlist__error-banner" *ngIf="actionError()" role="alert">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <circle cx="12" cy="12" r="10" />
-        <line x1="12" y1="8" x2="12" y2="12" />
-        <line x1="12" y1="16" x2="12.01" y2="16" />
-      </svg>
-      <span>{{ actionError() }}</span>
-    </div>
+    @if (actionError()) {
+      <div class="pa-wishlist__error-banner" role="alert">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <circle cx="12" cy="12" r="10" />
+          <line x1="12" y1="8" x2="12" y2="12" />
+          <line x1="12" y1="16" x2="12.01" y2="16" />
+        </svg>
+        <span>{{ actionError() }}</span>
+      </div>
+    }
 
     <!-- ============================================================ -->
     <!-- LOADING STATE                                                  -->
     <!-- ============================================================ -->
-    <div class="pa-wishlist__grid" *ngIf="isLoading()">
-      <div class="pa-wishlist-skeleton" *ngFor="let i of [1, 2, 3, 4]">
-        <div class="pa-skeleton" style="aspect-ratio: 1 / 1; margin-bottom: var(--pa-space-3);"></div>
-        <div class="pa-skeleton" style="height: 0.9375rem; width: 70%; margin-bottom: var(--pa-space-2);"></div>
-        <div class="pa-skeleton" style="height: 0.8125rem; width: 45%;"></div>
+    @if (isLoading()) {
+      <div class="pa-wishlist__grid">
+        @for (i of [1, 2, 3, 4]; track i) {
+          <div class="pa-wishlist-skeleton">
+            <div
+              class="pa-skeleton"
+              style="aspect-ratio: 1 / 1; margin-bottom: var(--pa-space-3)"
+            ></div>
+            <div
+              class="pa-skeleton"
+              style="height: 0.9375rem; width: 70%; margin-bottom: var(--pa-space-2)"
+            ></div>
+            <div class="pa-skeleton" style="height: 0.8125rem; width: 45%"></div>
+          </div>
+        }
       </div>
-    </div>
+    }
 
     <!-- ============================================================ -->
     <!-- ERROR STATE                                                    -->
     <!-- ============================================================ -->
-    <div class="pa-wishlist__state" *ngIf="!isLoading() && loadError()" role="alert">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <circle cx="12" cy="12" r="10" />
-        <line x1="12" y1="8" x2="12" y2="12" />
-        <line x1="12" y1="16" x2="12.01" y2="16" />
-      </svg>
-      <h2>Something went wrong</h2>
-      <p>{{ loadError() }}</p>
-      <button type="button" class="pa-btn pa-btn--primary" (click)="loadWishlist()">Try again</button>
-    </div>
+    @if (!isLoading() && loadError()) {
+      <div class="pa-wishlist__state" role="alert">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <circle cx="12" cy="12" r="10" />
+          <line x1="12" y1="8" x2="12" y2="12" />
+          <line x1="12" y1="16" x2="12.01" y2="16" />
+        </svg>
+        <h2>Something went wrong</h2>
+        <p>{{ loadError() }}</p>
+        <button type="button" class="pa-btn pa-btn--primary" (click)="loadWishlist()">
+          Try again
+        </button>
+      </div>
+    }
 
     <!-- ============================================================ -->
     <!-- EMPTY STATE                                                    -->
     <!-- ============================================================ -->
-    <div class="pa-wishlist__state" *ngIf="!isLoading() && !loadError() && !hasItems()">
-      <div class="pa-wishlist__state-icon" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z" />
-        </svg>
+    @if (!isLoading() && !loadError() && !hasItems()) {
+      <div class="pa-wishlist__state">
+        <div class="pa-wishlist__state-icon" aria-hidden="true">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path
+              d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z"
+            />
+          </svg>
+        </div>
+        <h2>Your wishlist is empty</h2>
+        <p>Save products you love here so you can find them easily later.</p>
+        <a routerLink="/accessories" class="pa-btn pa-btn--primary pa-btn--lg">Continue shopping</a>
       </div>
-      <h2>Your wishlist is empty</h2>
-      <p>Save products you love here so you can find them easily later.</p>
-      <a routerLink="/accessories" class="pa-btn pa-btn--primary pa-btn--lg">Continue shopping</a>
-    </div>
+    }
 
     <!-- ============================================================ -->
     <!-- WISHLIST GRID                                                  -->
     <!-- ============================================================ -->
-    <ul class="pa-wishlist__grid" *ngIf="!isLoading() && !loadError() && hasItems()">
-      <li class="pa-wish-card" *ngFor="let item of items(); trackBy: trackByItemId">
-
-        <button
-          type="button"
-          class="pa-wish-card__remove"
-          [disabled]="processingItemId() === item.id"
-          [attr.aria-label]="'Remove ' + accessoryTitle(item) + ' from wishlist'"
-          (click)="removeItem(item)"
-        >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M18 6 6 18M6 6l12 12" />
-          </svg>
-        </button>
-
-        <a class="pa-wish-card__image" [routerLink]="['/accessories', accessoryId(item)]">
-          <img [src]="accessoryImage(item)" [alt]="accessoryTitle(item)" loading="lazy" />
-          <span
-            class="pa-wish-card__stock"
-            [class.pa-wish-card__stock--out]="!isInStock(item)"
-          >
-            {{ isInStock(item) ? 'In stock' : 'Out of stock' }}
-          </span>
-        </a>
-
-        <div class="pa-wish-card__body">
-          <span class="pa-wish-card__category" *ngIf="accessoryCategory(item)">
-            {{ accessoryCategory(item) }}
-          </span>
-          <a class="pa-wish-card__title" [routerLink]="['/accessories', accessoryId(item)]">
-            {{ accessoryTitle(item) }}
-          </a>
-          <span class="pa-wish-card__price">{{ accessoryPrice(item) | number: '1.2-2' }} TND</span>
-        </div>
-
-        <div class="pa-wish-card__actions">
-          <button
-            type="button"
-            class="pa-btn pa-btn--primary pa-btn--sm pa-wish-card__cta"
-            [disabled]="!isInStock(item)"
-            (click)="addToCart(item)"
-          >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <circle cx="9" cy="21" r="1" />
-              <circle cx="20" cy="21" r="1" />
-              <path d="M1 1h4l2.7 13.4a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6L23 6H6" />
-            </svg>
-            <span>Add to cart</span>
-          </button>
-
-          <button
-            type="button"
-            class="pa-btn pa-btn--secondary pa-btn--sm"
-            [disabled]="!isInStock(item)"
-            (click)="buyNow(item)"
-          >
-            Buy now
-          </button>
-
-          <a
-            class="pa-btn pa-btn--text pa-btn--sm pa-wish-card__details"
-            [routerLink]="['/accessories', accessoryId(item)]"
-          >
-            View details
-          </a>
-        </div>
-      </li>
-    </ul>
+    @if (!isLoading() && !loadError() && hasItems()) {
+      <ul class="pa-wishlist__grid">
+        @for (item of items(); track trackByItemId($index, item)) {
+          <li class="pa-wish-card">
+            <button
+              type="button"
+              class="pa-wish-card__remove"
+              [disabled]="processingItemId() === item.id"
+              [attr.aria-label]="'Remove ' + accessoryTitle(item) + ' from wishlist'"
+              (click)="removeItem(item)"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M18 6 6 18M6 6l12 12" />
+              </svg>
+            </button>
+            <a class="pa-wish-card__image" [routerLink]="['/accessories', accessoryId(item)]">
+              <img [src]="accessoryImage(item)" [alt]="accessoryTitle(item)" loading="lazy" />
+              <span class="pa-wish-card__stock" [class.pa-wish-card__stock--out]="!isInStock(item)">
+                {{ isInStock(item) ? 'In stock' : 'Out of stock' }}
+              </span>
+            </a>
+            <div class="pa-wish-card__body">
+              @if (accessoryCategory(item)) {
+                <span class="pa-wish-card__category">
+                  {{ accessoryCategory(item) }}
+                </span>
+              }
+              <a class="pa-wish-card__title" [routerLink]="['/accessories', accessoryId(item)]">
+                {{ accessoryTitle(item) }}
+              </a>
+              <span class="pa-wish-card__price"
+                >{{ accessoryPrice(item) | number: '1.2-2' }} TND</span
+              >
+            </div>
+            <div class="pa-wish-card__actions">
+              <button
+                type="button"
+                class="pa-btn pa-btn--primary pa-btn--sm pa-wish-card__cta"
+                [disabled]="!isInStock(item)"
+                (click)="addToCart(item)"
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <circle cx="9" cy="21" r="1" />
+                  <circle cx="20" cy="21" r="1" />
+                  <path d="M1 1h4l2.7 13.4a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6L23 6H6" />
+                </svg>
+                <span>Add to cart</span>
+              </button>
+              <button
+                type="button"
+                class="pa-btn pa-btn--secondary pa-btn--sm"
+                [disabled]="!isInStock(item)"
+                (click)="buyNow(item)"
+              >
+                Buy now
+              </button>
+              <a
+                class="pa-btn pa-btn--text pa-btn--sm pa-wish-card__details"
+                [routerLink]="['/accessories', accessoryId(item)]"
+              >
+                View details
+              </a>
+            </div>
+          </li>
+        }
+      </ul>
+    }
   </div>
 </main>

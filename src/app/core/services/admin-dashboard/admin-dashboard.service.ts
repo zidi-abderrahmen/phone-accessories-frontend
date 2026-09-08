@@ -11,7 +11,7 @@ export class AdminDashboardService {
 
     private http = inject(HttpClient);
 
-    getAdminDashboard(orderListLimit: number = 10): Observable<AdminDashboardResponse> {
+    getAdminDashboard(orderListLimit = 10): Observable<AdminDashboardResponse> {
         return this.http.get<AdminDashboardResponse>(`${this.apiUrl}/dashboard/order-limit/${orderListLimit}`, { withCredentials: true });
     }
 }

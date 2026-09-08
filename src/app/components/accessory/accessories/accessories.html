@@ -1,3 +1,5 @@
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
 <app-navbar />
 
 <div class="accessory-list-container">
@@ -305,10 +307,17 @@
         be undone and will permanently remove this accessory.
       </p>
       <div class="modal-actions">
-        <button class="pa-btn pa-btn--secondary" (click)="cancelDelete()" [disabled]="deleting()">
+        <button
+        type="button"
+        class="pa-btn pa-btn--secondary"
+        (click)="cancelDelete()"
+        [disabled]="deleting()"
+        >
           Cancel
         </button>
+
         <button
+          type="button"
           class="pa-btn pa-btn--danger"
           (click)="deleteAccessory()"
           [disabled]="deleting()"

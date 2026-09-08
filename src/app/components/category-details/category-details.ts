@@ -190,7 +190,7 @@ export class CategoryDetails implements OnInit, OnDestroy {
       });
   }
 
-  private handleCategoryError(err: any): void {
+  private handleCategoryError(err: HttpErrorResponse): void {
     if (err.status === 404) {
       this.state.set('not-found');
       this.errorMessage = 'The category you are looking for does not exist.';

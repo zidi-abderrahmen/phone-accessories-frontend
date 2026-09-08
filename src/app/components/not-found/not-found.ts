@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
 import { Router } from '@angular/router';
 
 @Component({
@@ -6,11 +6,10 @@ import { Router } from '@angular/router';
   templateUrl: './not-found.html',
   styleUrls: ['./not-found.scss'],
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NotFound {
-
-  constructor(private readonly router: Router) {}
+  private readonly router = inject(Router);
 
   goHome(): void {
     this.router.navigate(['/']);

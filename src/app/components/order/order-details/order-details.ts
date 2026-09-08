@@ -13,6 +13,7 @@ import { PaymentMethod } from '../../../core/models/checkout/enums/PaymentMethod
 import { ShippingMethod } from '../../../core/models/checkout/enums/ShippingMethod';
 import { OrderResponse } from '../../../core/models/checkout/order-response';
 import { OrderService } from '../../../core/services/checkout/order.service';
+import { AccessoryResponse } from '../../../core/models/accessory/accessory-response';
 
 /**
  * ASSUMPTIONS — please verify against your actual project structure:
@@ -103,11 +104,11 @@ export class OrderDetails implements OnInit {
   }
 
   itemImage(item: OrderResponse['items'][number]): string {
-    return (item.accessory as any)?.imageUrl ?? '';
+    return (item.accessory as AccessoryResponse)?.imageUrl ?? '';
   }
 
   itemTitle(item: OrderResponse['items'][number]): string {
-    return (item.accessory as any)?.name ?? 'Product';
+    return (item.accessory as AccessoryResponse)?.title ?? 'Accessory';
   }
 
   statusLabel(status: OrderStatus): string {

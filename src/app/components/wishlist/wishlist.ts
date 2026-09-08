@@ -15,6 +15,7 @@ import { CartService } from '../../core/services/cart/cart.service';
 import { CartItemRequest } from '../../core/models/cart/items/cart-item-request';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Navbar } from "../../shared/components/navbar/navbar";
+import { AccessoryResponse } from '../../core/models/accessory/accessory-response';
 
 @Component({
   selector: 'app-wishlist',
@@ -137,30 +138,28 @@ export class Wishlist implements OnInit {
   // Display helpers
   // ---------------------------------------------------------------------
   accessoryImage(item: WishlistItemResponse): string {
-    return (item.accessory as any)?.imageUrl ?? '';
+    return (item.accessory as AccessoryResponse)?.imageUrl ?? '';
   }
 
   accessoryTitle(item: WishlistItemResponse): string {
-    return (item.accessory as any)?.name ?? 'Product';
+    return (item.accessory as AccessoryResponse)?.title ?? 'Accessory';
   }
 
   accessoryCategory(item: WishlistItemResponse): string {
-    const category = (item.accessory as any)?.category;
+    const category = (item.accessory as AccessoryResponse)?.category;
     return typeof category === 'string' ? category : category?.name ?? '';
   }
 
   accessoryPrice(item: WishlistItemResponse): number {
-    return (item.accessory as any)?.price ?? 0;
+    return (item.accessory as AccessoryResponse)?.price ?? 0;
   }
 
   accessoryId(item: WishlistItemResponse): number {
-    return (item.accessory as any)?.id ?? item.id;
+    return (item.accessory as AccessoryResponse)?.id ?? item.id;
   }
 
   isInStock(item: WishlistItemResponse): boolean {
-    const accessory = item.accessory as any;
-    if (typeof accessory?.inStock === 'boolean') return accessory.inStock;
-    if (typeof accessory?.stockQuantity === 'number') return accessory.stockQuantity > 0;
+    const accessory = item.accessory as AccessoryResponse;
     if (typeof accessory?.stock === 'number') return accessory.stock > 0;
     return true;
   }

@@ -38,9 +38,7 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
             catchError((refreshError) => {
               isRefreshing = false;
               refreshTokenSubject.next(false);
-              authService.logout().subscribe({
-                error: () => {}
-              });
+              authService.logout();
               router.navigate(['/home']);
               return throwError(() => refreshError);
             })

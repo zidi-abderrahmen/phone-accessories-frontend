@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterModule } from '@angular/router';
@@ -6,6 +5,7 @@ import { CategoryRequest } from '../../core/models/category/category-request';
 import { CategoryService } from '../../core/services/category/category.service';
 import { InputField } from '../../shared/components/input-field/input-field';
 import { ImageUploadService } from '../../core/services/image-upload/image-upload.service';
+import { HttpErrorResponse } from '@angular/common/http';
 
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024; // 5MB
@@ -14,7 +14,7 @@ const MAX_IMAGE_PIXELS = 25 * 1_000_000; // 25 MP
 @Component({
   selector: 'app-create-category',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule, InputField],
+  imports: [ReactiveFormsModule, RouterModule, InputField],
   templateUrl: './create-category.html',
   styleUrl: './create-category.scss',
 })
@@ -156,7 +156,7 @@ export class CreateCategory implements OnInit, OnDestroy {
     };
 
     img.src = objectUrl;
-  };
+  }
 
   /** Discards a newly picked file and reverts the preview to the
    *  existing category image (edit mode) or clears it (create mode). */
@@ -253,7 +253,7 @@ export class CreateCategory implements OnInit, OnDestroy {
   }
 
   // Centralized error handler for both create and update operations
-  private handleApiError(err: any): void {
+  private handleApiError(err: HttpErrorResponse): void {
     this.loading.set(false);
 
     if (err.status === 400) {
@@ -261,7 +261,7 @@ export class CreateCategory implements OnInit, OnDestroy {
         this.errorMessage = err.error.message;
       } else if (Array.isArray(err.error?.errors)) {
         this.errorMessage = err.error.errors
-          .map((e: any) => e.defaultMessage || e.message)
+          .map((e: unknown) => (e as { defaultMessage?: string; message?: string }).defaultMessage || (e as { message?: string }).message)
           .join(' • ');
       } else {
         this.errorMessage = 'Invalid data submitted. Please check all fields.';

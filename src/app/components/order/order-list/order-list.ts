@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed } from '@angular/core';
+import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { OrderStatus } from '../../../core/models/checkout/enums/OrderStatus';
 import { PaymentMethod } from '../../../core/models/checkout/enums/PaymentMethod';
@@ -16,7 +16,7 @@ type RowState = 'idle' | 'busy' | 'error';
   templateUrl: './order-list.html',
   styleUrl: './order-list.scss',
 })
-export class OrderList {
+export class OrderList implements OnInit {
   private readonly orderService = inject(OrderService);
 
   // --- state ---
@@ -84,7 +84,11 @@ export class OrderList {
   }
 
   private clearRow(id: number): void {
-    this.rowState.update(({ [id]: _removed, ...rest }) => rest);
+    this.rowState.update((map) => {
+      const next = { ...map };
+      delete next[id];
+      return next;
+    });
     this.busyOrderId.set(null);
   }
 

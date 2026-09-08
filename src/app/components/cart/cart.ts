@@ -3,23 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-
-// NOTE: paths below assume the following project layout, mirroring the
-// depth used by the other pages/services in this project:
-//   src/app/pages/cart/cart.ts                          (this file)
-//   src/app/core/services/cart/cart.ts
-//   src/app/core/services/auth/auth.service.ts
-//   src/app/core/models/cart/cart-response.ts
-//   src/app/core/models/cart/items/cart-item-response.ts
-//   src/app/core/models/cart/items/update-cart-item-request.ts
-// Adjust the import paths if your actual folder structure differs.
-//
-// The cart service's class is literally named `Cart` (see cart.ts), which
-// collides with a page component also named `Cart` in the same file, so
-// the import is aliased to `CartService` and this component is named
-// `CartPage` to keep the two unambiguous.
 import { CartService } from '../../core/services/cart/cart.service';
-import { AuthService } from '../../core/services/auth/auth.service';
 import { CartResponse } from '../../core/models/cart/cart-response';
 import { CartItemResponse } from '../../core/models/cart/items/cart-item-response';
 import { RegisterResponse } from '../../core/models/user/register/register.response';

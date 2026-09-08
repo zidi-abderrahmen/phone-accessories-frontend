@@ -113,11 +113,6 @@ export class AdminDashboard implements OnInit {
     }
   }
 
-  orderDate(order: OrderResponse): string | null {
-    const raw = (order as any)?.createdAt ?? (order as any)?.orderDate ?? (order as any)?.date ?? null;
-    return raw;
-  }
-
   trackByOrderId(_index: number, order: OrderResponse): number {
     return order.id;
   }

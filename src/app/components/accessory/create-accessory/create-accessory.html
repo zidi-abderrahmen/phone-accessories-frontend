@@ -209,7 +209,10 @@
                     [class.selected]="category.id === f.categoryId.value"
                     role="option"
                     [attr.aria-selected]="category.id === f.categoryId.value"
+                    tabindex="0"
                     (click)="selectCategory(category)"
+                    (keydown.enter)="selectCategory(category)"
+                    (keydown.space)="selectCategory(category)"
                     (mouseenter)="highlightedIndex = i"
                   >
                     {{ category.name }}
@@ -260,7 +263,7 @@
 
         <!-- Image Field -->
         <div class="form-group">
-          <label class="form-label" id="accessory-image-label">
+          <label for="accessory-image" class="form-label" id="accessory-image-label">
             Accessory Image
             <span class="form-label__required" aria-label="required">*</span>
           </label>

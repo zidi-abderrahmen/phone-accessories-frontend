@@ -7,6 +7,7 @@ import { ForgotPasswordRequest } from '../../core/models/password/forgot.passwor
 import { ThemeToggle } from '../../shared/components/theme-toggle/theme-toggle';
 import { Brand } from "../../shared/components/brand/brand";
 import { InputField } from "../../shared/components/input-field/input-field";
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-forgot.password',
@@ -76,7 +77,7 @@ export class ForgotPassword implements OnInit, OnDestroy {
       });
   }
 
-  private handleError(err: any): void {
+  private handleError(err: HttpErrorResponse): void {
     if (err.status === 0) {
       this.errorMessage.set('Unable to connect to the server. Please check your connection.');
     } else if (err.status === 429) {

@@ -131,14 +131,6 @@ export class Home implements OnInit {
     this.isDarkTheme.set(document.documentElement.classList.contains('dark-theme'));
   }
 
-  protected initials(user: RegisterResponse | null): string {
-    if (!user) {
-      return '';
-    }
-    const name = (user as any).fullName ?? (user as any).username ?? (user as any).email ?? '';
-    return String(name).trim().charAt(0).toUpperCase();
-  }
-
   protected isOutOfStock(accessory: AccessoryResponse): boolean {
     return accessory.stock <= 0;
   }

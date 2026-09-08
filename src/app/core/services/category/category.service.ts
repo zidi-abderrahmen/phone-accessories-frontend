@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { environment } from '../../../../environments/environment';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { CategoryResponse } from '../../models/category/category-response';
@@ -8,49 +8,53 @@ import { CategoryRequest } from '../../models/category/category-request';
 import { AccessoryResponse } from '../../models/accessory/accessory-response';
 
 @Injectable({
-    providedIn: 'root'
+  providedIn: 'root',
 })
 export class CategoryService {
+  private http = inject(HttpClient);
 
-    private apiUrl = `${environment.apiUrl}/categories`;
+  private apiUrl = `${environment.apiUrl}/categories`;
 
-    constructor(private http: HttpClient) {}
+  getAllCategories(
+    page = 0,
+    size = 10,
+    sort?: string,
+  ): Observable<Page<CategoryResponse>> {
+    let params = new HttpParams().set('page', page.toString()).set('size', size.toString());
 
-    getAllCategories(page: number = 0, size: number = 10, sort?: string): Observable<Page<CategoryResponse>> {
-        let params = new HttpParams()
-        .set('page', page.toString())
-        .set('size', size.toString());
-
-        if (sort) {
-            params = params.set('sort', sort);
-        }
-
-        return this.http.get<Page<CategoryResponse>>(this.apiUrl, { params });
+    if (sort) {
+      params = params.set('sort', sort);
     }
 
-    getAllRelatedAccessories(id: number, page: number = 0, size: number = 10, sort?: string): Observable<Page<AccessoryResponse>> {
-        let params = new HttpParams()
-        .set('page', page.toString())
-        .set('size', size.toString())
+    return this.http.get<Page<CategoryResponse>>(this.apiUrl, { params });
+  }
 
-        if (sort) params = params.set('sort', sort);
+  getAllRelatedAccessories(
+    id: number,
+    page = 0,
+    size = 10,
+    sort?: string,
+  ): Observable<Page<AccessoryResponse>> {
+    let params = new HttpParams().set('page', page.toString()).set('size', size.toString());
 
-        return this.http.get<Page<AccessoryResponse>>(`${this.apiUrl}/${id}/accessories`, { params });
-    }
+    if (sort) params = params.set('sort', sort);
 
-    getCategoryById(id: number): Observable<CategoryResponse> {
-        return this.http.get<CategoryResponse>(`${this.apiUrl}/${id}`);
-    }
+    return this.http.get<Page<AccessoryResponse>>(`${this.apiUrl}/${id}/accessories`, { params });
+  }
 
-    createCategory(data: CategoryRequest): Observable<CategoryResponse> {
-        return this.http.post<CategoryResponse>(this.apiUrl, data, { withCredentials: true });
-    }
+  getCategoryById(id: number): Observable<CategoryResponse> {
+    return this.http.get<CategoryResponse>(`${this.apiUrl}/${id}`);
+  }
 
-    updateCategory(id: number, data: CategoryRequest): Observable<CategoryResponse> {
-        return this.http.put<CategoryResponse>(`${this.apiUrl}/${id}`, data, { withCredentials: true });
-    }
+  createCategory(data: CategoryRequest): Observable<CategoryResponse> {
+    return this.http.post<CategoryResponse>(this.apiUrl, data, { withCredentials: true });
+  }
 
-    deleteCategory(id: number): Observable<void> {
-        return this.http.delete<void>(`${this.apiUrl}/${id}`, { withCredentials: true });
-    }
+  updateCategory(id: number, data: CategoryRequest): Observable<CategoryResponse> {
+    return this.http.put<CategoryResponse>(`${this.apiUrl}/${id}`, data, { withCredentials: true });
+  }
+
+  deleteCategory(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`, { withCredentials: true });
+  }
 }

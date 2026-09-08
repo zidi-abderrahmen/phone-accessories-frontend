@@ -5,6 +5,7 @@ import { Subject, takeUntil, timer } from 'rxjs';
 import { VerifyEmailRequest } from '../../core/models/verifemail/verify.email.request';
 import { ThemeToggle } from '../../shared/components/theme-toggle/theme-toggle';
 import { Brand } from "../../shared/components/brand/brand";
+import { HttpErrorResponse } from '@angular/common/http';
 
 type VerifyState = 'loading' | 'success' | 'invalid' | 'expired' | 'error';
 
@@ -84,7 +85,7 @@ export class VerifyEmail implements OnInit, OnDestroy {
       });
   }
 
-  private handleError(err: any): void {
+  private handleError(err: HttpErrorResponse): void {
     if (err.status === 400) {
       this.state.set('invalid');
       this.errorMessage.set('The verification link is invalid or malformed.');

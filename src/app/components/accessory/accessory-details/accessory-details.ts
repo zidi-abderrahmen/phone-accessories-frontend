@@ -18,6 +18,7 @@ import { ReviewRequest } from '../../../core/models/review/review-request';
 import { ReviewResponse } from '../../../core/models/review/review-response';
 import { Page } from '../../../core/models/page';
 import { RegisterResponse } from '../../../core/models/user/register/register.response';
+import { WishlistItemResponse } from '../../../core/models/wishlist/items/wishlist-item-response';
 
 /**
  * ASSUMPTIONS — please verify against your actual project structure:
@@ -198,13 +199,13 @@ export class AccessoriesDetails implements OnInit, OnDestroy {
           this.accessory = accessory;
           this.state.set('loaded');
         },
-        error: (err) => {
+        error: (err: HttpErrorResponse) => {
           this.handleLoadError(err);
         },
       });
   }
 
-  private handleLoadError(err: any): void {
+  private handleLoadError(err: HttpErrorResponse): void {
     if (err.status === 404) {
       this.state.set('not-found');
       this.errorMessage = 'The accessory you are looking for does not exist.';
@@ -269,7 +270,7 @@ export class AccessoriesDetails implements OnInit, OnDestroy {
           this.addingToCart.set(false);
           this.flashAdded();
         },
-        error: (err) => {
+        error: (err: HttpErrorResponse) => {
           this.addingToCart.set(false);
           console.error('Failed to add to cart:', err);
         },
@@ -341,11 +342,11 @@ export class AccessoriesDetails implements OnInit, OnDestroy {
       this.wishlistService.getMyWishlist().subscribe({
         next: (wishlist) => {
           const items = wishlist?.items ?? [];
-          const newIds = Array.from(items as any).map((item: any) => item.accessory.id);
+          const newIds = Array.from(items as WishlistItemResponse[]).map((item: WishlistItemResponse) => item.accessory.id);
           this.wishlistIds.set(newIds);
         },
-        error: (err) => {
-          console.log('Error loading wishlist ids.', err);
+        error: (err: HttpErrorResponse) => {
+          console.error('Error loading wishlist ids.', err);
         }
       });
   }

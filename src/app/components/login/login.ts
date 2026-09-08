@@ -8,6 +8,7 @@ import { ThemeToggle } from '../../shared/components/theme-toggle/theme-toggle';
 import { PasswordInput } from "../../shared/components/password-input/password-input";
 import { Brand } from "../../shared/components/brand/brand";
 import { InputField } from "../../shared/components/input-field/input-field";
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-login',
@@ -82,7 +83,7 @@ export class Login implements OnInit, OnDestroy {
       });
   }
 
-  private handleLoginError(err: any): void {
+  private handleLoginError(err: HttpErrorResponse): void {
     if (err.status === 401) {
       this.errorMessage.set('Invalid email or password. Please try again.');
     } else if (err.status === 403) {

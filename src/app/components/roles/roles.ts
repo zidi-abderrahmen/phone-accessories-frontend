@@ -1,8 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { RoleRequest } from '../../core/models/user/role/role-request';
 import { RoleResponse } from '../../core/models/user/role/role-response';
-import da from '@angular/common/locales/da';
 import { AuthService } from '../../core/services/auth/auth.service';
 import { FormsModule } from '@angular/forms';
 import { UserService } from '../../core/services/user/user.service';
@@ -18,10 +17,10 @@ interface FilterTab {
 @Component({
   selector: 'app-roles',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [FormsModule],
   templateUrl: './roles.html',
   styleUrl: './roles.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Roles {
   private readonly userManagementService = inject(UserManagementService);
@@ -31,7 +30,7 @@ export class Roles {
   protected readonly tabs: FilterTab[] = [
     { value: 'ALL', label: 'All' },
     { value: 'ACTIVE', label: 'Active' },
-    { value: 'DELETED', label: 'Deleted' }
+    { value: 'DELETED', label: 'Deleted' },
   ];
 
   // --- List state ---
@@ -60,8 +59,8 @@ export class Roles {
   // --- Hard delete confirmation state ---
   protected readonly deletingRoleId = signal<number | null>(null);
   protected readonly deletingInProgress = signal(false);
-  protected readonly deletingRole = computed(() =>
-    this.roles().find((role) => role.id === this.deletingRoleId()) ?? null
+  protected readonly deletingRole = computed(
+    () => this.roles().find((role) => role.id === this.deletingRoleId()) ?? null,
   );
 
   // --- Soft delete in-flight tracking (per row) ---
@@ -96,7 +95,7 @@ export class Roles {
         this.roles.set([]);
         this.error.set('Something went wrong while loading roles.');
         this.loading.set(false);
-      }
+      },
     });
   }
 
@@ -169,7 +168,7 @@ export class Roles {
       error: () => {
         this.submitting.set(false);
         this.formError.set('Could not save this role. Please try again.');
-      }
+      },
     });
   }
 
@@ -187,7 +186,7 @@ export class Roles {
       error: () => {
         this.softDeletingId.set(null);
         this.actionError.set(`Could not delete "${role.name}". Please try again.`);
-      }
+      },
     });
   }
 
@@ -198,7 +197,7 @@ export class Roles {
     this.restoringId.set(role.id);
 
     const data: RoleRequest = { name: role.name, deleted: false };
-    
+
     this.userManagementService.updateRole(role.id, data).subscribe({
       next: () => {
         this.restoringId.set(null);
@@ -207,7 +206,7 @@ export class Roles {
       error: () => {
         this.restoringId.set(null);
         this.actionError.set(`Could not restore "${role.name}". Please try again.`);
-      }
+      },
     });
   }
 
@@ -239,7 +238,7 @@ export class Roles {
         this.deletingInProgress.set(false);
         this.deletingRoleId.set(null);
         this.actionError.set(`Could not permanently delete "${role.name}". Please try again.`);
-      }
+      },
     });
   }
 
@@ -254,7 +253,7 @@ export class Roles {
     return date.toLocaleDateString('en-US', {
       day: '2-digit',
       month: 'short',
-      year: 'numeric'
+      year: 'numeric',
     });
   }
 }

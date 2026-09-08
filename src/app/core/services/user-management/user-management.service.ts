@@ -14,7 +14,7 @@ export class UserManagementService {
 
     private http = inject(HttpClient);
 
-    getAllUsers(blocked?: boolean, deleted?: boolean, page: number = 0, size: number = 10, sort?: string): Observable<RegisterResponse> {
+    getAllUsers(blocked?: boolean, deleted?: boolean, page = 0, size = 10, sort?: string): Observable<RegisterResponse> {
         let params = new HttpParams()
         .set('page', page.toString())
         .set('size', size.toString());

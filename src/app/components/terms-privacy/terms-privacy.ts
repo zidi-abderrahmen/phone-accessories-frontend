@@ -10,7 +10,6 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
 
 interface LegalSubsection {
   readonly id: string;
@@ -26,7 +25,7 @@ interface LegalSection {
 @Component({
   selector: 'app-terms-privacy',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './terms-privacy.html',
   styleUrl: './terms-privacy.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -34,7 +33,9 @@ interface LegalSection {
 export class TermsPrivacy implements AfterViewInit, OnDestroy {
   private readonly destroyRef = inject(DestroyRef);
 
-  @ViewChildren('trackedSection') private readonly trackedSections!: QueryList<ElementRef<HTMLElement>>;
+  @ViewChildren('trackedSection') private readonly trackedSections!: QueryList<
+    ElementRef<HTMLElement>
+  >;
 
   private observer?: IntersectionObserver;
 

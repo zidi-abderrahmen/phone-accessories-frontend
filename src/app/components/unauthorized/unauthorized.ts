@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { Location } from '@angular/common';
 
@@ -7,14 +7,11 @@ import { Location } from '@angular/common';
   templateUrl: './unauthorized.html',
   styleUrls: ['./unauthorized.scss'],
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Unauthorized {
-
-  constructor(
-    private readonly router: Router,
-    private readonly location: Location
-  ) {}
+  private readonly router = inject(Router);
+  private readonly location = inject(Location);
 
   goHome(): void {
     this.router.navigate(['/']);

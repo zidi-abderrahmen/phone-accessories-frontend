@@ -1,5 +1,5 @@
 import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import {
@@ -8,7 +8,7 @@ import {
   FormGroup,
   ReactiveFormsModule,
   ValidationErrors,
-  Validators
+  Validators,
 } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { UserService } from '../../core/services/user/user.service';
@@ -16,7 +16,7 @@ import { AuthService } from '../../core/services/auth/auth.service';
 import { ChangePasswordRequest } from '../../core/models/user/password/change-password-request';
 import { PasswordInput } from '../../shared/components/password-input/password-input';
 import { RegisterResponse } from '../../core/models/user/register/register.response';
-import { Navbar } from "../../shared/components/navbar/navbar";
+import { Navbar } from '../../shared/components/navbar/navbar';
 
 function passwordsMatchValidator(control: AbstractControl): ValidationErrors | null {
   const value = control.value;
@@ -35,9 +35,9 @@ type SubmitState = 'idle' | 'success' | 'error';
 @Component({
   selector: 'app-change-password',
   standalone: true,
-  imports: [CommonModule, RouterLink, ReactiveFormsModule, PasswordInput, Navbar],
+  imports: [RouterLink, ReactiveFormsModule, PasswordInput, Navbar],
   templateUrl: './change-password.html',
-  styleUrl: './change-password.scss'
+  styleUrl: './change-password.scss',
 })
 export class ChangePassword implements OnInit {
   private readonly userService = inject(UserService);
@@ -46,14 +46,14 @@ export class ChangePassword implements OnInit {
 
   protected readonly form = new FormGroup({
     oldPassword: new FormControl<string | null>('', {
-      validators: [Validators.required]
+      validators: [Validators.required],
     }),
     newPassword: new FormControl<string | null>('', {
-      validators: [Validators.required, Validators.minLength(8)]
+      validators: [Validators.required, Validators.minLength(8)],
     }),
     confirmationPassword: new FormControl<string | null>('', {
-      validators: [Validators.required, passwordsMatchValidator]
-    })
+      validators: [Validators.required, passwordsMatchValidator],
+    }),
   });
 
   protected readonly isSubmitting = signal(false);
@@ -99,7 +99,7 @@ export class ChangePassword implements OnInit {
     const { oldPassword, newPassword } = this.form.getRawValue();
     const payload: ChangePasswordRequest = {
       oldPassword: oldPassword ?? '',
-      newPassword: newPassword ?? ''
+      newPassword: newPassword ?? '',
     };
 
     this.isSubmitting.set(true);
@@ -124,7 +124,7 @@ export class ChangePassword implements OnInit {
             this.form.controls.oldPassword.setErrors({ incorrect: true });
             this.form.controls.oldPassword.markAsTouched();
           }
-        }
+        },
       });
   }
 
@@ -161,6 +161,6 @@ export class ChangePassword implements OnInit {
     if (err.status === 400 || err.status === 401) {
       return 'Your current password is incorrect. Please try again.';
     }
-    return "Something went wrong while updating your password. Please try again.";
+    return 'Something went wrong while updating your password. Please try again.';
   }
 }

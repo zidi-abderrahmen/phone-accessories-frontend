@@ -11,7 +11,7 @@
       <dl class="orders__meta">
         <div class="orders__stat">
           <dt>Total spent</dt>
-          <dd>{{ totalSpent() | currency:'EUR':'symbol':'1.2-2' }}</dd>
+          <dd>{{ totalSpent() | currency: 'EUR' : 'symbol' : '1.2-2' }}</dd>
         </div>
         <div class="orders__stat">
           <dt>In progress</dt>
@@ -40,12 +40,24 @@
   <!-- Error state -->
   @else if (loadError()) {
     <div class="orders__state" role="alert">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
-           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="orders__state-icon">
-        <path d="M12 9v4m0 4h.01M5.6 5h12.8a2 2 0 0 1 1.7 3l-6.4 11a2 2 0 0 1-3.4 0l-6.4-11a2 2 0 0 1 1.7-3Z"/>
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+        class="orders__state-icon"
+      >
+        <path
+          d="M12 9v4m0 4h.01M5.6 5h12.8a2 2 0 0 1 1.7 3l-6.4 11a2 2 0 0 1-3.4 0l-6.4-11a2 2 0 0 1 1.7-3Z"
+        />
       </svg>
       <p class="orders__state-title">Couldn't reach the server</p>
-      <p class="orders__state-copy">Your orders couldn't be loaded. Check your connection and try again.</p>
+      <p class="orders__state-copy">
+        Your orders couldn't be loaded. Check your connection and try again.
+      </p>
       <button type="button" class="pa-btn pa-btn--secondary" (click)="loadOrders()">Retry</button>
     </div>
   }
@@ -53,13 +65,27 @@
   <!-- Empty state -->
   @else if (orders().length === 0) {
     <div class="orders__state">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
-           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="orders__state-icon">
-        <path d="M3 7h13v10H3zM16 10h3l2 3v4h-5M7.5 20a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Zm9 0a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z"/>
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+        class="orders__state-icon"
+      >
+        <path
+          d="M3 7h13v10H3zM16 10h3l2 3v4h-5M7.5 20a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Zm9 0a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z"
+        />
       </svg>
       <p class="orders__state-title">No orders yet</p>
-      <p class="orders__state-copy">When you place an order it will appear here with its full history.</p>
-      <button type="button" routerLink="/my-cart" class="pa-btn pa-btn--primary">Browse catalogue</button>
+      <p class="orders__state-copy">
+        When you place an order it will appear here with its full history.
+      </p>
+      <button type="button" routerLink="/my-cart" class="pa-btn pa-btn--primary">
+        Browse catalogue
+      </button>
     </div>
   }
 
@@ -67,31 +93,45 @@
   @else {
     <ul class="orders__list pa-stagger-children">
       @for (order of orders(); track order.id) {
-        <li class="order-row"
-            [class.order-row--open]="expandedId() === order.id"
-            [class.order-row--cancelled]="order.status === 'CANCELLED'">
-
+        <li
+          class="order-row"
+          [class.order-row--open]="expandedId() === order.id"
+          [class.order-row--cancelled]="order.status === 'CANCELLED'"
+        >
           <!-- Summary row -->
-          <button type="button"
-                  class="order-row__summary"
-                  (click)="toggleExpand(order.id)"
-                  [attr.aria-expanded]="expandedId() === order.id"
-                  [attr.aria-controls]="'order-detail-' + order.id">
+          <button
+            type="button"
+            class="order-row__summary"
+            (click)="toggleExpand(order.id)"
+            [attr.aria-expanded]="expandedId() === order.id"
+            [attr.aria-controls]="'order-detail-' + order.id"
+          >
             <span class="order-row__id">#{{ order.id }}</span>
             <span class="order-row__customer">
               {{ order.customerFullName }}
               <small>{{ order.customerCity }}, {{ order.customerCountry }}</small>
             </span>
-            <span class="order-row__items">{{ order.items.length }} item{{ order.items.length > 1 ? 's' : '' }}</span>
+            <span class="order-row__items"
+              >{{ order.items.length }} item{{ order.items.length > 1 ? 's' : '' }}</span
+            >
             <span class="order-status" [attr.data-status]="order.status">
               <i class="order-status__dot" aria-hidden="true"></i>
               {{ statusLabel(order.status) }}
             </span>
-            <span class="order-row__total">{{ order.totalAmount | currency:'EUR':'symbol':'1.2-2' }}</span>
-            <svg class="order-row__chevron" viewBox="0 0 16 16" fill="none"
-                 stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
-                 stroke-linejoin="round" aria-hidden="true">
-              <path d="m4 6 4 4 4-4"/>
+            <span class="order-row__total">{{
+              order.totalAmount | currency: 'EUR' : 'symbol' : '1.2-2'
+            }}</span>
+            <svg
+              class="order-row__chevron"
+              viewBox="0 0 16 16"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="m4 6 4 4 4-4" />
             </svg>
           </button>
 
@@ -106,7 +146,9 @@
                       <li class="line-item">
                         <span class="line-item__qty">×{{ item.quantity }}</span>
                         <span class="line-item__name">{{ item.accessory.title }}</span>
-                        <span class="line-item__price">{{ item.quantity * item.unitPrice | currency:'EUR':'symbol':'1.2-2' }}</span>
+                        <span class="line-item__price">{{
+                          item.quantity * item.unitPrice | currency: 'EUR' : 'symbol' : '1.2-2'
+                        }}</span>
                       </li>
                     }
                   </ul>
@@ -115,13 +157,19 @@
                 <section>
                   <h2 class="detail-label">Delivery &amp; payment</h2>
                   <address class="detail-address">
-                    {{ order.customerStreet }}<br/>
-                    {{ order.customerPostalCode }} {{ order.customerCity }}<br/>
+                    {{ order.customerStreet }}<br />
+                    {{ order.customerPostalCode }} {{ order.customerCity }}<br />
                     {{ order.customerCountry }}
                   </address>
                   <dl class="detail-facts">
-                    <div><dt>Payment</dt><dd>{{ paymentLabel(order.paymentMethod) }}</dd></div>
-                    <div><dt>Phone</dt><dd>{{ order.customerPhoneNumber }}</dd></div>
+                    <div>
+                      <dt>Payment</dt>
+                      <dd>{{ paymentLabel(order.paymentMethod) }}</dd>
+                    </div>
+                    <div>
+                      <dt>Phone</dt>
+                      <dd>{{ order.customerPhoneNumber }}</dd>
+                    </div>
                   </dl>
                 </section>
               </div>
@@ -131,15 +179,19 @@
               }
 
               <footer class="order-row__actions">
-                <span class="inline-error pa-form-error" role="alert" *ngIf="rowState()[order.id] === 'error'">
-                  Cancellation failed. Please try again.
-                </span>
+                @if (rowState()[order.id] === 'error') {
+                  <span class="inline-error pa-form-error" role="alert">
+                    Cancellation failed. Please try again.
+                  </span>
+                }
                 @if (order.status !== 'CANCELLED') {
-                  <button type="button"
-                          class="pa-btn pa-btn--danger"
-                          [class.pa-btn--loading]="rowState()[order.id] === 'busy'"
-                          [disabled]="rowState()[order.id] === 'busy'"
-                          (click)="cancelOrder(order.id)">
+                  <button
+                    type="button"
+                    class="pa-btn pa-btn--danger"
+                    [class.pa-btn--loading]="rowState()[order.id] === 'busy'"
+                    [disabled]="rowState()[order.id] === 'busy'"
+                    (click)="cancelOrder(order.id)"
+                  >
                     Cancel order
                   </button>
                 }

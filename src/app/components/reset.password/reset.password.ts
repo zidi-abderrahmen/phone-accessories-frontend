@@ -1,12 +1,13 @@
 import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import { AuthService } from '../../core/services/auth/auth.service';
 import { Subject, finalize, takeUntil } from 'rxjs';
 import { ResetPasswordRequest } from '../../core/models/password/reset.password.request';
 import { ThemeToggle } from '../../shared/components/theme-toggle/theme-toggle';
 import { PasswordInput } from "../../shared/components/password-input/password-input";
 import { Brand } from "../../shared/components/brand/brand";
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-reset.password',
@@ -77,7 +78,7 @@ export class ResetPassword implements OnInit, OnDestroy {
       const hasUpper = /[A-Z]/.test(value);
       const hasLower = /[a-z]/.test(value);
       const hasNumber = /[0-9]/.test(value);
-      const hasSpecial = /[!@#$%^&*()_+\-=\[\]{};':"\|,.<>\/?]/.test(value);
+      const hasSpecial = /[!@#$%^&*()_+=\-\]{};':"|,.<>/?]/.test(value);
 
       const valid = hasUpper && hasLower && hasNumber && hasSpecial;
       return valid ? null : { passwordStrength: true };
@@ -123,7 +124,7 @@ export class ResetPassword implements OnInit, OnDestroy {
     if (/[a-z]/.test(value)) score++;
     if (/[A-Z]/.test(value)) score++;
     if (/[0-9]/.test(value)) score++;
-    if (/[!@#$%^&*()_+\-=\[\]{};':"\|,.<>\/?]/.test(value)) score++;
+    if (/[!@#$%^&*()_+\-=\x5B\x5D{};':"|,.<>/?]/.test(value)) score++;
 
     const labels = ['Too short', 'Weak', 'Fair', 'Good', 'Strong'];
     return { score, label: labels[Math.min(score, 4)] };
@@ -158,7 +159,7 @@ export class ResetPassword implements OnInit, OnDestroy {
       });
   }
 
-  private handleError(err: any): void {
+  private handleError(err: HttpErrorResponse): void {
     if (err.status === 400) {
       this.isInvalidToken.set(true);
       this.errorMessage.set('The reset link is invalid or malformed.');

@@ -218,7 +218,7 @@ export class CheckOut implements OnInit {
     this.userService.getCurrentUser().subscribe({
       next: (user) => {
         const anyUser = user as RegisterResponse;
-        const fullName: string = `${anyUser?.firstName}  ${anyUser?.lastName}`;
+        const fullName = `${anyUser?.firstName}  ${anyUser?.lastName}`;
         this.checkoutForm.patchValue({
           customerFullName: fullName ?? '',
           customerEmail: anyUser?.email ?? '',

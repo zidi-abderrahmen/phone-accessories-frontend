@@ -1,6 +1,6 @@
 import { inject, Service } from '@angular/core';
 import { environment } from '../../../../environments/environment';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { BehaviorSubject, catchError, filter, map, Observable, of, switchMap, take, tap } from 'rxjs';
 import { RegisterResponse } from '../../models/user/register/register.response';
 import { ChangePasswordRequest } from '../../models/user/password/change-password-request';
@@ -57,12 +57,12 @@ export class UserService {
             tap((user) => { 
                 console.log('ME SUCCESS');
                 this.currentUserSubject.next(user);
-                this.authState.next(true); 
+                this.authState.next(true);
             }),
             map(() => true)
         );
 
-        const handleAuthFailure = (err: any) => {
+        const handleAuthFailure = (err: HttpErrorResponse) => {
             console.log('AUTH FAILED', err.status, err);
             this.authState.next(false);
             this.currentUserSubject.next(null);
@@ -89,9 +89,9 @@ export class UserService {
         const user = this.currentUserSubject.value;
         if (!user) return false;
 
-        const userRoles: string[] = Array.isArray((user as any).roles) 
-            ? (user as any).roles 
-            : [(user as any).role];
+        const userRoles: string[] = Array.isArray((user as RegisterResponse).roles) 
+            ? (user as RegisterResponse).roles
+            : [(user as RegisterResponse).roles as unknown as string];
 
         return requiredRoles.some(required => 
             userRoles.includes(required) || userRoles.includes(`ROLE_${required}`)

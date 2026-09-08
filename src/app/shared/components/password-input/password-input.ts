@@ -1,8 +1,6 @@
 import { Component, computed, effect, input, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { startWith } from 'rxjs';
 
 @Component({
   selector: 'app-password-input',

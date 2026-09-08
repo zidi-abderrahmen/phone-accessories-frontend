@@ -12,7 +12,7 @@ export class ReviewService {
 
     private http = inject(HttpClient);
 
-    getAllReviewsByAccessoryId(id: number, page: number = 0, size: number = 10, sort?: string): Observable<ReviewResponse> {
+    getAllReviewsByAccessoryId(id: number, page = 0, size = 10, sort?: string): Observable<ReviewResponse> {
         let params = new HttpParams()
         .set('page', page.toString())
         .set('size', size.toString());

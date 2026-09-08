@@ -14,7 +14,7 @@ export class AccessoryService {
 
     private http = inject(HttpClient);
 
-    getAllAccessories(page: number = 0, size: number = 10, sort?: string): Observable<Page<AccessoryResponse>> {
+    getAllAccessories(page = 0, size = 10, sort?: string): Observable<Page<AccessoryResponse>> {
         let params = new HttpParams()
         .set('page', page.toString())
         .set('size', size.toString());
@@ -44,8 +44,8 @@ export class AccessoryService {
 
     searchAccessories(
         data: SearchRequest,
-        page: number = 0,
-        size: number = 10,
+        page = 0,
+        size = 10,
         sort?: string
         ): Observable<Page<AccessoryResponse>> {
         let params = new HttpParams()

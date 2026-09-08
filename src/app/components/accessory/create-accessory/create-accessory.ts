@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, inject, OnDestroy, OnInit, signal, HostListener } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterModule } from '@angular/router';
@@ -9,15 +8,16 @@ import { AccessoryService } from '../../../core/services/accessory/accessory.ser
 import { CategoryService } from '../../../core/services/category/category.service';
 import { InputField } from '../../../shared/components/input-field/input-field';
 import { ImageUploadService } from '../../../core/services/image-upload/image-upload.service';
+import { HttpErrorResponse } from '@angular/common/http';
 
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024; // 5MB
-const MAX_IMAGE_PIXELS = 25 * 1_000_000; // 25 MP 
+const MAX_IMAGE_PIXELS = 25 * 1_000_000; // 25 MP
 
 @Component({
   selector: 'app-accessory-create',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule, InputField],
+  imports: [ReactiveFormsModule, RouterModule, InputField],
   templateUrl: './create-accessory.html',
   styleUrl: './create-accessory.scss',
 })
@@ -179,9 +179,7 @@ export class CreateAccessory implements OnInit, OnDestroy {
       this.filteredCategories = [...this.categories];
       return;
     }
-    this.filteredCategories = this.categories.filter((c) =>
-      c.name.toLowerCase().includes(term)
-    );
+    this.filteredCategories = this.categories.filter((c) => c.name.toLowerCase().includes(term));
   }
 
   selectCategory(category: CategoryResponse): void {
@@ -220,10 +218,7 @@ export class CreateAccessory implements OnInit, OnDestroy {
 
       case 'Enter':
         event.preventDefault();
-        if (
-          this.highlightedIndex >= 0 &&
-          this.highlightedIndex < this.filteredCategories.length
-        ) {
+        if (this.highlightedIndex >= 0 && this.highlightedIndex < this.filteredCategories.length) {
           this.selectCategory(this.filteredCategories[this.highlightedIndex]);
         }
         break;
@@ -256,9 +251,7 @@ export class CreateAccessory implements OnInit, OnDestroy {
   }
 
   private scrollToHighlighted(): void {
-    const el = document.getElementById(
-      'category-option-' + this.highlightedIndex
-    );
+    const el = document.getElementById('category-option-' + this.highlightedIndex);
     if (el) {
       el.scrollIntoView({ block: 'nearest' });
     }
@@ -319,7 +312,7 @@ export class CreateAccessory implements OnInit, OnDestroy {
     };
 
     img.src = objectUrl;
-  };
+  }
 
   /** Discards a newly picked file and reverts the preview to the
    *  existing accessory image (edit mode) or clears it (create mode). */
@@ -348,7 +341,7 @@ export class CreateAccessory implements OnInit, OnDestroy {
     this.errorMessage = '';
     this.imageError = '';
 
-    const { imageUrl, ...otherControls } = this.f;
+    const { ...otherControls } = this.f;
     const restInvalid = Object.values(otherControls).some((control) => control.invalid);
     if (restInvalid) {
       return;
@@ -389,7 +382,7 @@ export class CreateAccessory implements OnInit, OnDestroy {
     const rawFormValue = this.accessoryForm.getRawValue();
     const request: AccessoryRequest = {
       ...rawFormValue,
-      categoryId: rawFormValue.categoryId!
+      categoryId: rawFormValue.categoryId!,
     };
 
     if (this.isEditMode && this.accessoryId !== null) {
@@ -425,7 +418,7 @@ export class CreateAccessory implements OnInit, OnDestroy {
   // Error Handlers
   // ------------------------------------------------------------------
 
-  private handleLoadError(err: any): void {
+  private handleLoadError(err: HttpErrorResponse): void {
     if (err.status === 404) {
       this.errorMessage = 'Accessory not found.';
     } else if (err.status === 403) {
@@ -437,7 +430,7 @@ export class CreateAccessory implements OnInit, OnDestroy {
     }
   }
 
-  private handleApiError(err: any): void {
+  private handleApiError(err: HttpErrorResponse): void {
     this.loading.set(false);
 
     if (err.status === 400) {
@@ -445,7 +438,7 @@ export class CreateAccessory implements OnInit, OnDestroy {
         this.errorMessage = err.error.message;
       } else if (Array.isArray(err.error?.errors)) {
         this.errorMessage = err.error.errors
-          .map((e: any) => e.defaultMessage || e.message)
+          .map((e: unknown) => (e as { defaultMessage?: string; message?: string }).defaultMessage || (e as { message?: string }).message)
           .join(' • ');
       } else {
         this.errorMessage = 'Invalid data submitted. Please check all fields.';

@@ -1,8 +1,15 @@
 <main id="main-content" class="pa-order-details">
   <div class="pa-order-details__container pa-container pa-container--wide">
-
     <a routerLink="/account/orders" class="pa-order-details__back">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
         <path d="m15 18-6-6 6-6" />
       </svg>
       <span>Back to my orders</span>
@@ -11,35 +18,49 @@
     <!-- ============================================================ -->
     <!-- LOADING STATE                                                  -->
     <!-- ============================================================ -->
-    <div class="pa-order-details__loading" *ngIf="isLoading()">
-      <div class="pa-skeleton" style="height: 2rem; width: 40%; margin-bottom: var(--pa-space-6);"></div>
-      <div class="pa-skeleton" style="height: 10rem; margin-bottom: var(--pa-space-5);"></div>
-      <div class="pa-skeleton" style="height: 8rem; margin-bottom: var(--pa-space-5);"></div>
-      <div class="pa-skeleton" style="height: 12rem;"></div>
-    </div>
+    @if (isLoading()) {
+      <div class="pa-order-details__loading">
+        <div
+          class="pa-skeleton"
+          style="height: 2rem; width: 40%; margin-bottom: var(--pa-space-6)"
+        ></div>
+        <div class="pa-skeleton" style="height: 10rem; margin-bottom: var(--pa-space-5)"></div>
+        <div class="pa-skeleton" style="height: 8rem; margin-bottom: var(--pa-space-5)"></div>
+        <div class="pa-skeleton" style="height: 12rem"></div>
+      </div>
+    }
 
     <!-- ============================================================ -->
     <!-- ERROR STATE                                                    -->
     <!-- ============================================================ -->
-    <div class="pa-order-details__error" *ngIf="!isLoading() && loadError()" role="alert">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <circle cx="12" cy="12" r="10" />
-        <line x1="12" y1="8" x2="12" y2="12" />
-        <line x1="12" y1="16" x2="12.01" y2="16" />
-      </svg>
-      <h1>Something went wrong</h1>
-      <p>{{ loadError() }}</p>
-      <div class="pa-order-details__error-actions">
-        <button type="button" class="pa-btn pa-btn--primary" (click)="retry()">Try again</button>
-        <a routerLink="/account/orders" class="pa-btn pa-btn--secondary">Back to orders</a>
+    @if (!isLoading() && loadError()) {
+      <div class="pa-order-details__error" role="alert">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <circle cx="12" cy="12" r="10" />
+          <line x1="12" y1="8" x2="12" y2="12" />
+          <line x1="12" y1="16" x2="12.01" y2="16" />
+        </svg>
+        <h1>Something went wrong</h1>
+        <p>{{ loadError() }}</p>
+        <div class="pa-order-details__error-actions">
+          <button type="button" class="pa-btn pa-btn--primary" (click)="retry()">Try again</button>
+          <a routerLink="/account/orders" class="pa-btn pa-btn--secondary">Back to orders</a>
+        </div>
       </div>
-    </div>
+    }
 
     <!-- ============================================================ -->
     <!-- ORDER DETAILS                                                  -->
     <!-- ============================================================ -->
-    <ng-container *ngIf="!isLoading() && !loadError() && order() as order">
-
+    @if (!isLoading() && !loadError() && order(); as order) {
       <header class="pa-order-details__header">
         <div class="pa-order-details__heading">
           <h1>Order #{{ order.id }}</h1>
@@ -54,15 +75,18 @@
             {{ statusLabel(order.status) }}
           </span>
         </div>
-
         <div class="pa-order-details__key-facts">
           <div class="pa-order-details__fact">
             <span class="pa-order-details__fact-label">Payment</span>
-            <span class="pa-order-details__fact-value">{{ paymentLabel(order.paymentMethod) }}</span>
+            <span class="pa-order-details__fact-value">{{
+              paymentLabel(order.paymentMethod)
+            }}</span>
           </div>
           <div class="pa-order-details__fact">
             <span class="pa-order-details__fact-label">Delivery</span>
-            <span class="pa-order-details__fact-value">{{ shippingLabel(order.shippingMethod) }}</span>
+            <span class="pa-order-details__fact-value">{{
+              shippingLabel(order.shippingMethod)
+            }}</span>
           </div>
           <div class="pa-order-details__fact">
             <span class="pa-order-details__fact-label">Total</span>
@@ -72,12 +96,9 @@
           </div>
         </div>
       </header>
-
       <div class="pa-order-details__layout">
-
         <!-- ========================= MAIN COLUMN ========================= -->
         <div class="pa-order-details__main">
-
           <!-- Customer & Shipping -->
           <div class="pa-detail-card">
             <h2 class="pa-detail-card__title">Customer &amp; shipping</h2>
@@ -99,7 +120,6 @@
                   </div>
                 </dl>
               </div>
-
               <div class="pa-detail-grid__group">
                 <h3 class="pa-detail-grid__group-title">Shipping address</h3>
                 <dl>
@@ -122,39 +142,45 @@
                 </dl>
               </div>
             </div>
-
-            <p class="pa-detail-card__notes" *ngIf="order.notes">
-              <span class="pa-text-muted">Notes:</span> {{ order.notes }}
-            </p>
+            @if (order.notes) {
+              <p class="pa-detail-card__notes">
+                <span class="pa-text-muted">Notes:</span> {{ order.notes }}
+              </p>
+            }
           </div>
-
           <!-- Items -->
           <div class="pa-detail-card">
             <h2 class="pa-detail-card__title">
               Items
-              <span class="pa-detail-card__title-count">{{ itemCount() }} item{{ itemCount() === 1 ? '' : 's' }}</span>
+              <span class="pa-detail-card__title-count"
+                >{{ itemCount() }} item{{ itemCount() === 1 ? '' : 's' }}</span
+              >
             </h2>
-
             <ul class="pa-order-items">
-              <li class="pa-order-items__row" *ngFor="let item of order.items; trackBy: trackByItemId">
-                <div class="pa-order-items__image">
-                  <img [src]="itemImage(item)" [alt]="itemTitle(item)" loading="lazy" />
-                </div>
-                <div class="pa-order-items__info">
-                  <span class="pa-order-items__title">{{ itemTitle(item) }}</span>
-                  <span class="pa-order-items__qty">Qty {{ item.quantity }} · {{ item.unitPrice | number: '1.2-2' }} TND each</span>
-                </div>
-                <span class="pa-order-items__total">{{ lineTotal(item.unitPrice, item.quantity) | number: '1.2-2' }} TND</span>
-              </li>
+              @for (item of order.items; track trackByItemId($index, item)) {
+                <li class="pa-order-items__row">
+                  <div class="pa-order-items__image">
+                    <img [src]="itemImage(item)" [alt]="itemTitle(item)" loading="lazy" />
+                  </div>
+                  <div class="pa-order-items__info">
+                    <span class="pa-order-items__title">{{ itemTitle(item) }}</span>
+                    <span class="pa-order-items__qty"
+                      >Qty {{ item.quantity }} · {{ item.unitPrice | number: '1.2-2' }} TND
+                      each</span
+                    >
+                  </div>
+                  <span class="pa-order-items__total"
+                    >{{ lineTotal(item.unitPrice, item.quantity) | number: '1.2-2' }} TND</span
+                  >
+                </li>
+              }
             </ul>
           </div>
         </div>
-
         <!-- ========================= SUMMARY SIDEBAR ========================= -->
         <aside class="pa-order-details__summary" aria-label="Order summary">
           <div class="pa-card pa-card--elevated pa-order-summary-card">
             <h2 class="pa-order-summary-card__title">Order summary</h2>
-
             <div class="pa-order-summary-card__row">
               <span>Items</span>
               <span>{{ itemCount() }}</span>
@@ -167,16 +193,21 @@
               <span>Delivery</span>
               <span>{{ shippingLabel(order.shippingMethod) }}</span>
             </div>
-
             <hr class="pa-divider" />
-
             <div class="pa-order-summary-card__row pa-order-summary-card__row--total">
               <span>Total</span>
               <span>{{ order.totalAmount | number: '1.2-2' }} TND</span>
             </div>
-
             <div class="pa-order-summary-card__trust">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.75"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
                 <path d="M12 2 4 5v6c0 5 3.4 8.7 8 11 4.6-2.3 8-6 8-11V5l-8-3Z" />
                 <path d="m9 12 2 2 4-4" />
               </svg>
@@ -185,6 +216,6 @@
           </div>
         </aside>
       </div>
-    </ng-container>
+    }
   </div>
 </main>

@@ -1,502 +1,691 @@
 <main id="main-content" class="pa-checkout">
-
   <!-- ============================================================ -->
   <!-- SUCCESS SCREEN                                                 -->
   <!-- ============================================================ -->
-  <section
-    class="pa-checkout-success pa-container pa-container--narrow"
-    *ngIf="orderPlaced() && placedOrder() as order"
-  >
-    <div class="pa-checkout-success__icon" aria-hidden="true">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M20 6 9 17l-5-5" />
-      </svg>
-    </div>
-
-    <h1 class="pa-checkout-success__title">Order placed successfully</h1>
-    <p class="pa-checkout-success__subtitle">
-      Thanks, {{ order.customerFullName }}. Your order
-      <span class="pa-font-mono pa-font-semibold">#{{ order.id }}</span>
-      has been received and is now
-      <strong class="pa-text-primary-accent">{{ order.status }}</strong>.
-      A confirmation has been sent to {{ order.customerEmail }}.
-    </p>
-
-    <div class="pa-checkout-success__summary pa-card pa-card--elevated">
-      <div class="pa-checkout-success__row">
-        <span>Payment method</span>
-        <strong>{{ paymentLabel(order.paymentMethod) }}</strong>
+  @if (orderPlaced() && placedOrder(); as order) {
+    <section class="pa-checkout-success pa-container pa-container--narrow">
+      <div class="pa-checkout-success__icon" aria-hidden="true">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M20 6 9 17l-5-5" />
+        </svg>
       </div>
-      <div class="pa-checkout-success__row">
-        <span>Delivery method</span>
-        <strong>{{ shippingLabel(order.shippingMethod) }}</strong>
+      <h1 class="pa-checkout-success__title">Order placed successfully</h1>
+      <p class="pa-checkout-success__subtitle">
+        Thanks, {{ order.customerFullName }}. Your order
+        <span class="pa-font-mono pa-font-semibold">#{{ order.id }}</span>
+        has been received and is now
+        <strong class="pa-text-primary-accent">{{ order.status }}</strong
+        >. A confirmation has been sent to {{ order.customerEmail }}.
+      </p>
+      <div class="pa-checkout-success__summary pa-card pa-card--elevated">
+        <div class="pa-checkout-success__row">
+          <span>Payment method</span>
+          <strong>{{ paymentLabel(order.paymentMethod) }}</strong>
+        </div>
+        <div class="pa-checkout-success__row">
+          <span>Delivery method</span>
+          <strong>{{ shippingLabel(order.shippingMethod) }}</strong>
+        </div>
+        <div class="pa-checkout-success__row">
+          <span>Shipping to</span>
+          <strong>{{ order.customerCity }}, {{ order.customerCountry }}</strong>
+        </div>
+        <hr class="pa-divider" />
+        <div class="pa-checkout-success__row pa-checkout-success__row--total">
+          <span>Total paid</span>
+          <strong>{{ order.totalAmount | number: '1.2-2' }} TND</strong>
+        </div>
       </div>
-      <div class="pa-checkout-success__row">
-        <span>Shipping to</span>
-        <strong>{{ order.customerCity }}, {{ order.customerCountry }}</strong>
+      <div class="pa-checkout-success__actions">
+        <button
+          type="button"
+          class="pa-btn pa-btn--primary pa-btn--lg"
+          (click)="continueShopping()"
+        >
+          Continue shopping
+        </button>
+        <button type="button" class="pa-btn pa-btn--secondary pa-btn--lg" (click)="viewOrders()">
+          View my orders
+        </button>
       </div>
-      <hr class="pa-divider" />
-      <div class="pa-checkout-success__row pa-checkout-success__row--total">
-        <span>Total paid</span>
-        <strong>{{ order.totalAmount | number: '1.2-2' }} TND</strong>
-      </div>
-    </div>
-
-    <div class="pa-checkout-success__actions">
-      <button type="button" class="pa-btn pa-btn--primary pa-btn--lg" (click)="continueShopping()">
-        Continue shopping
-      </button>
-      <button type="button" class="pa-btn pa-btn--secondary pa-btn--lg" (click)="viewOrders()">
-        View my orders
-      </button>
-    </div>
-  </section>
+    </section>
+  }
 
   <!-- ============================================================ -->
   <!-- CHECKOUT FLOW                                                  -->
   <!-- ============================================================ -->
-  <div class="pa-checkout__container pa-container pa-container--wide" *ngIf="!orderPlaced()">
-
-    <header class="pa-checkout__header">
-      <h1 class="pa-checkout__title">Checkout</h1>
-
-      <nav class="pa-stepper" aria-label="Checkout progress">
-        <ol class="pa-stepper__list">
-          <li
-            *ngFor="let step of steps; let i = index"
-            class="pa-stepper__item"
-            [class.pa-stepper__item--active]="currentStepIndex() === i"
-            [class.pa-stepper__item--done]="furthestStepReached() > i"
-            [class.pa-stepper__item--clickable]="furthestStepReached() >= i"
-          >
-            <button
-              type="button"
-              class="pa-stepper__button"
-              [disabled]="furthestStepReached() < i"
-              [attr.aria-current]="currentStepIndex() === i ? 'step' : null"
-              (click)="goToStep(i)"
+  @if (!orderPlaced()) {
+    <div class="pa-checkout__container pa-container pa-container--wide">
+      <header class="pa-checkout__header">
+        <h1 class="pa-checkout__title">Checkout</h1>
+        <nav class="pa-stepper" aria-label="Checkout progress">
+          <ol class="pa-stepper__list">
+            @for (step of steps; track step; let i = $index) {
+              <li
+                class="pa-stepper__item"
+                [class.pa-stepper__item--active]="currentStepIndex() === i"
+                [class.pa-stepper__item--done]="furthestStepReached() > i"
+                [class.pa-stepper__item--clickable]="furthestStepReached() >= i"
+              >
+                <button
+                  type="button"
+                  class="pa-stepper__button"
+                  [disabled]="furthestStepReached() < i"
+                  [attr.aria-current]="currentStepIndex() === i ? 'step' : null"
+                  (click)="goToStep(i)"
+                >
+                  <span class="pa-stepper__index" aria-hidden="true">
+                    @if (furthestStepReached() > i) {
+                      <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <path d="M20 6 9 17l-5-5" />
+                      </svg>
+                    }
+                    @if (furthestStepReached() <= i) {
+                      {{ i + 1 }}
+                    }
+                  </span>
+                  <span class="pa-stepper__label">{{ step.label }}</span>
+                </button>
+              </li>
+            }
+          </ol>
+        </nav>
+      </header>
+      <div class="pa-checkout__layout">
+        <!-- ========================= MAIN COLUMN ========================= -->
+        <div class="pa-checkout__main">
+          @if (isLoadingProfile()) {
+            <div class="pa-checkout__loading">
+              <div
+                class="pa-skeleton"
+                style="height: 2.5rem; margin-bottom: var(--pa-space-4)"
+              ></div>
+              <div
+                class="pa-skeleton"
+                style="height: 2.5rem; margin-bottom: var(--pa-space-4)"
+              ></div>
+              <div class="pa-skeleton" style="height: 2.5rem; width: 60%"></div>
+            </div>
+          }
+          @if (!isLoadingProfile()) {
+            <form
+              [formGroup]="checkoutForm"
+              (ngSubmit)="isLastStep() ? placeOrder() : goNext()"
+              novalidate
             >
-              <span class="pa-stepper__index" aria-hidden="true">
-                <svg *ngIf="furthestStepReached() > i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M20 6 9 17l-5-5" />
-                </svg>
-                <ng-container *ngIf="furthestStepReached() <= i">{{ i + 1 }}</ng-container>
-              </span>
-              <span class="pa-stepper__label">{{ step.label }}</span>
-            </button>
-          </li>
-        </ol>
-      </nav>
-    </header>
-
-    <div class="pa-checkout__layout">
-
-      <!-- ========================= MAIN COLUMN ========================= -->
-      <div class="pa-checkout__main">
-
-        <div class="pa-checkout__loading" *ngIf="isLoadingProfile()">
-          <div class="pa-skeleton" style="height: 2.5rem; margin-bottom: var(--pa-space-4);"></div>
-          <div class="pa-skeleton" style="height: 2.5rem; margin-bottom: var(--pa-space-4);"></div>
-          <div class="pa-skeleton" style="height: 2.5rem; width: 60%;"></div>
+              @if (submitError()) {
+                <div class="pa-checkout-error" role="alert">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="12" y1="8" x2="12" y2="12" />
+                    <line x1="12" y1="16" x2="12.01" y2="16" />
+                  </svg>
+                  <span>{{ submitError() }}</span>
+                </div>
+              }
+              <!-- ============ STEP 1 — CUSTOMER & ADDRESS INFORMATION ============ -->
+              @if (currentStep().id === 'information') {
+                <fieldset class="pa-checkout-step">
+                  <legend class="pa-checkout-step__title">
+                    Customer &amp; address information
+                  </legend>
+                  <p class="pa-checkout-step__hint">
+                    We prefilled what we know about you — feel free to edit anything.
+                  </p>
+                  <div class="pa-form-grid">
+                    <div class="pa-form-field pa-form-field--full">
+                      <label for="customerFullName">Full name</label>
+                      <input
+                        id="customerFullName"
+                        type="text"
+                        formControlName="customerFullName"
+                        autocomplete="name"
+                        [class.pa-input--error]="isFieldInvalid('customerFullName')"
+                        [attr.aria-invalid]="isFieldInvalid('customerFullName')"
+                        aria-describedby="customerFullName-error"
+                      />
+                      @if (isFieldInvalid('customerFullName')) {
+                        <p class="pa-form-error" id="customerFullName-error">
+                          {{ fieldError('customerFullName') }}
+                        </p>
+                      }
+                    </div>
+                    <div class="pa-form-field">
+                      <label for="customerEmail"
+                        >Email address <span class="pa-text-muted">(optional)</span></label
+                      >
+                      <input
+                        id="customerEmail"
+                        type="email"
+                        formControlName="customerEmail"
+                        autocomplete="email"
+                        [class.pa-input--error]="isFieldInvalid('customerEmail')"
+                        [attr.aria-invalid]="isFieldInvalid('customerEmail')"
+                        aria-describedby="customerEmail-error"
+                      />
+                      @if (isFieldInvalid('customerEmail')) {
+                        <p class="pa-form-error" id="customerEmail-error">
+                          {{ fieldError('customerEmail') }}
+                        </p>
+                      }
+                    </div>
+                    <div class="pa-form-field">
+                      <label for="customerPhoneNumber">Phone number</label>
+                      <input
+                        id="customerPhoneNumber"
+                        type="tel"
+                        formControlName="customerPhoneNumber"
+                        autocomplete="tel"
+                        placeholder="+216 20 123 456"
+                        [class.pa-input--error]="isFieldInvalid('customerPhoneNumber')"
+                        [attr.aria-invalid]="isFieldInvalid('customerPhoneNumber')"
+                        aria-describedby="customerPhoneNumber-error"
+                      />
+                      @if (isFieldInvalid('customerPhoneNumber')) {
+                        <p class="pa-form-error" id="customerPhoneNumber-error">
+                          {{ fieldError('customerPhoneNumber') }}
+                        </p>
+                      }
+                    </div>
+                    <div class="pa-form-field pa-form-field--full">
+                      <label for="customerStreet">Street address</label>
+                      <input
+                        id="customerStreet"
+                        type="text"
+                        formControlName="customerStreet"
+                        autocomplete="street-address"
+                        placeholder="Street name, building, apartment"
+                        [class.pa-input--error]="isFieldInvalid('customerStreet')"
+                        [attr.aria-invalid]="isFieldInvalid('customerStreet')"
+                        aria-describedby="customerStreet-error"
+                      />
+                      @if (isFieldInvalid('customerStreet')) {
+                        <p class="pa-form-error" id="customerStreet-error">
+                          {{ fieldError('customerStreet') }}
+                        </p>
+                      }
+                    </div>
+                    <div class="pa-form-field">
+                      <label for="customerCity">City</label>
+                      <input
+                        id="customerCity"
+                        type="text"
+                        formControlName="customerCity"
+                        autocomplete="address-level2"
+                        placeholder="e.g. Bizerte"
+                        [class.pa-input--error]="isFieldInvalid('customerCity')"
+                        [attr.aria-invalid]="isFieldInvalid('customerCity')"
+                        aria-describedby="customerCity-error"
+                      />
+                      @if (isFieldInvalid('customerCity')) {
+                        <p class="pa-form-error" id="customerCity-error">
+                          {{ fieldError('customerCity') }}
+                        </p>
+                      }
+                    </div>
+                    <div class="pa-form-field">
+                      <label for="customerPostalCode">Postal code</label>
+                      <input
+                        id="customerPostalCode"
+                        type="text"
+                        inputmode="numeric"
+                        formControlName="customerPostalCode"
+                        autocomplete="postal-code"
+                        placeholder="e.g. 7061"
+                        [class.pa-input--error]="isFieldInvalid('customerPostalCode')"
+                        [attr.aria-invalid]="isFieldInvalid('customerPostalCode')"
+                        aria-describedby="customerPostalCode-error"
+                      />
+                      @if (isFieldInvalid('customerPostalCode')) {
+                        <p class="pa-form-error" id="customerPostalCode-error">
+                          {{ fieldError('customerPostalCode') }}
+                        </p>
+                      }
+                    </div>
+                    <div class="pa-form-field">
+                      <label for="customerCountry">Country</label>
+                      <input
+                        id="customerCountry"
+                        type="text"
+                        formControlName="customerCountry"
+                        autocomplete="country-name"
+                        placeholder="e.g. Tunisia"
+                        [class.pa-input--error]="isFieldInvalid('customerCountry')"
+                        [attr.aria-invalid]="isFieldInvalid('customerCountry')"
+                        aria-describedby="customerCountry-error"
+                      />
+                      @if (isFieldInvalid('customerCountry')) {
+                        <p class="pa-form-error" id="customerCountry-error">
+                          {{ fieldError('customerCountry') }}
+                        </p>
+                      }
+                    </div>
+                    <div class="pa-form-field pa-form-field--full">
+                      <label for="notes"
+                        >Order notes <span class="pa-text-muted">(optional)</span></label
+                      >
+                      <textarea
+                        id="notes"
+                        rows="3"
+                        formControlName="notes"
+                        placeholder="Delivery instructions, gate code, preferred time…"
+                        [class.pa-input--error]="isFieldInvalid('notes')"
+                        aria-describedby="notes-error"
+                      ></textarea>
+                      @if (isFieldInvalid('notes')) {
+                        <p class="pa-form-error" id="notes-error">
+                          {{ fieldError('notes') }}
+                        </p>
+                      }
+                    </div>
+                  </div>
+                </fieldset>
+              }
+              <!-- ============ STEP 2 — DELIVERY METHOD ============ -->
+              @if (currentStep().id === 'delivery') {
+                <fieldset class="pa-checkout-step">
+                  <legend class="pa-checkout-step__title">Delivery method</legend>
+                  <p class="pa-checkout-step__hint">
+                    Choose how fast you'd like your order to arrive.
+                  </p>
+                  <div class="pa-option-list" role="radiogroup" aria-label="Delivery method">
+                    @for (option of shippingOptions; track option) {
+                      <label
+                        class="pa-option-card"
+                        [class.pa-option-card--selected]="
+                          checkoutForm.value.shippingMethod === option.value
+                        "
+                      >
+                        <input
+                          type="radio"
+                          name="shippingMethod"
+                          formControlName="shippingMethod"
+                          [value]="option.value"
+                        />
+                        <span class="pa-option-card__icon" aria-hidden="true">
+                          @if (option.value === ShippingMethod.STANDARD) {
+                            <svg
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              stroke-width="1.75"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                            >
+                              <rect x="1" y="7" width="15" height="10" rx="1.5" />
+                              <path d="M16 10h3.5l3.5 3.5V17h-7" />
+                              <circle cx="6" cy="19.5" r="1.75" />
+                              <circle cx="17.5" cy="19.5" r="1.75" />
+                            </svg>
+                          }
+                          @if (option.value === ShippingMethod.EXPRESS) {
+                            <svg
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              stroke-width="1.75"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                            >
+                              <path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z" />
+                            </svg>
+                          }
+                        </span>
+                        <span class="pa-option-card__body">
+                          <span class="pa-option-card__title">{{ option.label }}</span>
+                          <span class="pa-option-card__desc"
+                            >{{ option.description }} · {{ option.eta }}</span
+                          >
+                        </span>
+                        <span class="pa-option-card__price"
+                          >{{ shippingFeeOf(option.value) | number: '1.2-2' }} TND</span
+                        >
+                      </label>
+                    }
+                  </div>
+                </fieldset>
+              }
+              <!-- ============ STEP 3 — PAYMENT ============ -->
+              @if (currentStep().id === 'payment') {
+                <fieldset class="pa-checkout-step">
+                  <legend class="pa-checkout-step__title">Payment method</legend>
+                  <p class="pa-checkout-step__hint">
+                    This is a demo checkout — no real payment gateway is contacted.
+                  </p>
+                  <div class="pa-option-list" role="radiogroup" aria-label="Payment method">
+                    @for (option of paymentOptions; track option) {
+                      <label
+                        class="pa-option-card"
+                        [class.pa-option-card--selected]="
+                          checkoutForm.value.paymentMethod === option.value
+                        "
+                      >
+                        <input
+                          type="radio"
+                          name="paymentMethod"
+                          formControlName="paymentMethod"
+                          [value]="option.value"
+                        />
+                        <span class="pa-option-card__icon" aria-hidden="true">
+                          @if (option.icon === 'card') {
+                            <svg
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              stroke-width="1.75"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                            >
+                              <rect x="1.5" y="4.5" width="21" height="15" rx="2" />
+                              <line x1="1.5" y1="9.5" x2="22.5" y2="9.5" />
+                            </svg>
+                          }
+                          @if (option.icon === 'paypal') {
+                            <svg
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              stroke-width="1.75"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                            >
+                              <path
+                                d="M7 3h8a4.5 4.5 0 0 1 4.4 5.5A6 6 0 0 1 13.6 13H10l-1 6H5L7 3Z"
+                              />
+                            </svg>
+                          }
+                          @if (option.icon === 'cash') {
+                            <svg
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              stroke-width="1.75"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                            >
+                              <rect x="1.5" y="5.5" width="21" height="13" rx="2" />
+                              <circle cx="12" cy="12" r="3" />
+                            </svg>
+                          }
+                        </span>
+                        <span class="pa-option-card__body">
+                          <span class="pa-option-card__title">{{ option.label }}</span>
+                          <span class="pa-option-card__desc">{{ option.description }}</span>
+                        </span>
+                      </label>
+                    }
+                  </div>
+                  @if (checkoutForm.value.paymentMethod === PaymentMethod.CREDIT_CARD) {
+                    <div class="pa-payment-mock" aria-hidden="false">
+                      <p class="pa-payment-mock__label">Card details (demo only, not submitted)</p>
+                      <div class="pa-form-grid">
+                        <div class="pa-form-field pa-form-field--full">
+                          <label for="mockCardNumber">Card number</label>
+                          <input
+                            id="mockCardNumber"
+                            type="text"
+                            inputmode="numeric"
+                            placeholder="4242 4242 4242 4242"
+                            disabled
+                          />
+                        </div>
+                        <div class="pa-form-field">
+                          <label for="mockCardExpiry">Expiry</label>
+                          <input id="mockCardExpiry" type="text" placeholder="MM / YY" disabled />
+                        </div>
+                        <div class="pa-form-field">
+                          <label for="mockCardCvc">CVC</label>
+                          <input
+                            id="mockCardCvc"
+                            type="text"
+                            inputmode="numeric"
+                            placeholder="123"
+                            disabled
+                          />
+                        </div>
+                      </div>
+                      <p class="pa-form-hint">
+                        Card fields are illustrative — this checkout does not process real payments.
+                      </p>
+                    </div>
+                  }
+                </fieldset>
+              }
+              <!-- ============ STEP 4 — REVIEW ============ -->
+              @if (currentStep().id === 'review') {
+                <div class="pa-checkout-step">
+                  <h2 class="pa-checkout-step__title">Review your order</h2>
+                  <p class="pa-checkout-step__hint">
+                    Double-check everything before you place your order.
+                  </p>
+                  <div class="pa-review-block">
+                    <div class="pa-review-block__header">
+                      <h3>Contact &amp; shipping</h3>
+                      <button
+                        type="button"
+                        class="pa-btn pa-btn--text pa-btn--sm"
+                        (click)="goToStep(0)"
+                      >
+                        Edit
+                      </button>
+                    </div>
+                    <dl class="pa-review-block__grid">
+                      <div>
+                        <dt>Name</dt>
+                        <dd>{{ checkoutForm.value.customerFullName }}</dd>
+                      </div>
+                      <div>
+                        <dt>Email</dt>
+                        <dd>{{ checkoutForm.value.customerEmail }}</dd>
+                      </div>
+                      <div>
+                        <dt>Phone</dt>
+                        <dd>{{ checkoutForm.value.customerPhoneNumber }}</dd>
+                      </div>
+                      <div class="pa-review-block__grid-full">
+                        <dt>Address</dt>
+                        <dd>
+                          {{ checkoutForm.value.customerStreet }},
+                          {{ checkoutForm.value.customerCity }}
+                          {{ checkoutForm.value.customerPostalCode }},
+                          {{ checkoutForm.value.customerCountry }}
+                        </dd>
+                      </div>
+                      @if (checkoutForm.value.notes) {
+                        <div class="pa-review-block__grid-full">
+                          <dt>Notes</dt>
+                          <dd>{{ checkoutForm.value.notes }}</dd>
+                        </div>
+                      }
+                    </dl>
+                  </div>
+                  <div class="pa-review-block">
+                    <div class="pa-review-block__header">
+                      <h3>Delivery</h3>
+                      <button
+                        type="button"
+                        class="pa-btn pa-btn--text pa-btn--sm"
+                        (click)="goToStep(1)"
+                      >
+                        Edit
+                      </button>
+                    </div>
+                    <p class="pa-review-block__line">
+                      {{ shippingLabel(checkoutForm.value.shippingMethod!) }}
+                      <span class="pa-text-muted">· {{ shippingFee() | number: '1.2-2' }} TND</span>
+                    </p>
+                  </div>
+                  <div class="pa-review-block">
+                    <div class="pa-review-block__header">
+                      <h3>Payment</h3>
+                      <button
+                        type="button"
+                        class="pa-btn pa-btn--text pa-btn--sm"
+                        (click)="goToStep(2)"
+                      >
+                        Edit
+                      </button>
+                    </div>
+                    <p class="pa-review-block__line">
+                      {{ paymentLabel(checkoutForm.value.paymentMethod!) }}
+                    </p>
+                  </div>
+                  <label class="pa-checkout-terms">
+                    <input
+                      type="checkbox"
+                      [checked]="agreeToTerms()"
+                      (change)="toggleAgreeToTerms()"
+                    />
+                    <span
+                      >I confirm my order details are correct and I agree to the Terms of
+                      Service.</span
+                    >
+                  </label>
+                </div>
+              }
+              <!-- ============ STEP NAVIGATION ============ -->
+              <div class="pa-checkout-nav">
+                @if (!isFirstStep()) {
+                  <button
+                    type="button"
+                    class="pa-btn pa-btn--secondary pa-btn--lg"
+                    (click)="goBack()"
+                  >
+                    Back
+                  </button>
+                }
+                @if (!isLastStep()) {
+                  <button
+                    type="submit"
+                    class="pa-btn pa-btn--primary pa-btn--lg pa-checkout-nav__submit"
+                  >
+                    Continue
+                  </button>
+                }
+                @if (isLastStep()) {
+                  <button
+                    type="submit"
+                    class="pa-btn pa-btn--primary pa-btn--lg pa-checkout-nav__submit"
+                    [class.pa-btn--loading]="isSubmitting()"
+                    [disabled]="!canPlaceOrder"
+                  >
+                    Place order · {{ estimatedTotal() | number: '1.2-2' }} TND
+                  </button>
+                }
+              </div>
+            </form>
+          }
         </div>
-
-        <form [formGroup]="checkoutForm" (ngSubmit)="isLastStep() ? placeOrder() : goNext()" novalidate *ngIf="!isLoadingProfile()">
-
-          <div class="pa-checkout-error" *ngIf="submitError()" role="alert">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <circle cx="12" cy="12" r="10" />
-              <line x1="12" y1="8" x2="12" y2="12" />
-              <line x1="12" y1="16" x2="12.01" y2="16" />
-            </svg>
-            <span>{{ submitError() }}</span>
-          </div>
-
-          <!-- ============ STEP 1 — CUSTOMER & ADDRESS INFORMATION ============ -->
-          <fieldset class="pa-checkout-step" *ngIf="currentStep().id === 'information'">
-            <legend class="pa-checkout-step__title">Customer &amp; address information</legend>
-            <p class="pa-checkout-step__hint">We prefilled what we know about you — feel free to edit anything.</p>
-
-            <div class="pa-form-grid">
-              <div class="pa-form-field pa-form-field--full">
-                <label for="customerFullName">Full name</label>
-                <input
-                  id="customerFullName"
-                  type="text"
-                  formControlName="customerFullName"
-                  autocomplete="name"
-                  [class.pa-input--error]="isFieldInvalid('customerFullName')"
-                  [attr.aria-invalid]="isFieldInvalid('customerFullName')"
-                  aria-describedby="customerFullName-error"
-                />
-                <p class="pa-form-error" id="customerFullName-error" *ngIf="isFieldInvalid('customerFullName')">
-                  {{ fieldError('customerFullName') }}
-                </p>
+        <!-- ========================= ORDER SUMMARY ========================= -->
+        <aside class="pa-order-summary" aria-label="Order summary">
+          <div class="pa-card pa-card--elevated pa-order-summary__card">
+            <h2 class="pa-order-summary__title">
+              Order summary
+              <span class="pa-order-summary__count">{{ totalItemCount() }} item(s)</span>
+            </h2>
+            @if (isLoadingCart()) {
+              <div class="pa-order-summary__loading">
+                <div
+                  class="pa-skeleton"
+                  style="height: 3.5rem; margin-bottom: var(--pa-space-3)"
+                ></div>
+                <div class="pa-skeleton" style="height: 3.5rem"></div>
               </div>
-
-              <div class="pa-form-field">
-                <label for="customerEmail">Email address <span class="pa-text-muted">(optional)</span></label>
-                <input
-                  id="customerEmail"
-                  type="email"
-                  formControlName="customerEmail"
-                  autocomplete="email"
-                  [class.pa-input--error]="isFieldInvalid('customerEmail')"
-                  [attr.aria-invalid]="isFieldInvalid('customerEmail')"
-                  aria-describedby="customerEmail-error"
-                />
-                <p class="pa-form-error" id="customerEmail-error" *ngIf="isFieldInvalid('customerEmail')">
-                  {{ fieldError('customerEmail') }}
-                </p>
+            }
+            @if (!isLoadingCart() && cartItems().length === 0) {
+              <div class="pa-order-summary__empty">
+                <p>Your cart is empty.</p>
+                <a routerLink="/accessories" class="pa-btn pa-btn--text pa-btn--sm"
+                  >Browse accessories</a
+                >
               </div>
-
-              <div class="pa-form-field">
-                <label for="customerPhoneNumber">Phone number</label>
-                <input
-                  id="customerPhoneNumber"
-                  type="tel"
-                  formControlName="customerPhoneNumber"
-                  autocomplete="tel"
-                  placeholder="+216 20 123 456"
-                  [class.pa-input--error]="isFieldInvalid('customerPhoneNumber')"
-                  [attr.aria-invalid]="isFieldInvalid('customerPhoneNumber')"
-                  aria-describedby="customerPhoneNumber-error"
-                />
-                <p class="pa-form-error" id="customerPhoneNumber-error" *ngIf="isFieldInvalid('customerPhoneNumber')">
-                  {{ fieldError('customerPhoneNumber') }}
-                </p>
+            }
+            @if (!isLoadingCart() && cartItems().length > 0) {
+              <ul class="pa-order-summary__items">
+                @for (item of cartItems(); track item) {
+                  <li class="pa-order-summary__item">
+                    <div class="pa-order-summary__item-image">
+                      <img
+                        [src]="item.accessoryResponse.imageUrl"
+                        [alt]="item.accessoryResponse.title"
+                        loading="lazy"
+                      />
+                      <span class="pa-order-summary__item-qty">{{ item.quantity }}</span>
+                    </div>
+                    <div class="pa-order-summary__item-info">
+                      <span class="pa-order-summary__item-name">{{
+                        item.accessoryResponse.title
+                      }}</span>
+                      <span class="pa-order-summary__item-unit pa-text-muted"
+                        >{{ item.accessoryResponse.price | number: '1.2-2' }} TND each</span
+                      >
+                    </div>
+                    <span class="pa-order-summary__item-total"
+                      >{{ lineTotal(item) | number: '1.2-2' }} TND</span
+                    >
+                  </li>
+                }
+              </ul>
+            }
+            <hr class="pa-divider" />
+            <div class="pa-order-summary__totals">
+              <div class="pa-order-summary__row">
+                <span>Subtotal</span>
+                <span>{{ subtotal() | number: '1.2-2' }} TND</span>
               </div>
-
-              <div class="pa-form-field pa-form-field--full">
-                <label for="customerStreet">Street address</label>
-                <input
-                  id="customerStreet"
-                  type="text"
-                  formControlName="customerStreet"
-                  autocomplete="street-address"
-                  placeholder="Street name, building, apartment"
-                  [class.pa-input--error]="isFieldInvalid('customerStreet')"
-                  [attr.aria-invalid]="isFieldInvalid('customerStreet')"
-                  aria-describedby="customerStreet-error"
-                />
-                <p class="pa-form-error" id="customerStreet-error" *ngIf="isFieldInvalid('customerStreet')">
-                  {{ fieldError('customerStreet') }}
-                </p>
+              <div class="pa-order-summary__row">
+                <span
+                  >Delivery ({{
+                    shippingLabel(checkoutForm.value.shippingMethod ?? ShippingMethod.STANDARD)
+                  }})</span
+                >
+                <span>{{ shippingFee() | number: '1.2-2' }} TND</span>
               </div>
-
-              <div class="pa-form-field">
-                <label for="customerCity">City</label>
-                <input
-                  id="customerCity"
-                  type="text"
-                  formControlName="customerCity"
-                  autocomplete="address-level2"
-                  placeholder="e.g. Bizerte"
-                  [class.pa-input--error]="isFieldInvalid('customerCity')"
-                  [attr.aria-invalid]="isFieldInvalid('customerCity')"
-                  aria-describedby="customerCity-error"
-                />
-                <p class="pa-form-error" id="customerCity-error" *ngIf="isFieldInvalid('customerCity')">
-                  {{ fieldError('customerCity') }}
-                </p>
-              </div>
-
-              <div class="pa-form-field">
-                <label for="customerPostalCode">Postal code</label>
-                <input
-                  id="customerPostalCode"
-                  type="text"
-                  inputmode="numeric"
-                  formControlName="customerPostalCode"
-                  autocomplete="postal-code"
-                  placeholder="e.g. 7061"
-                  [class.pa-input--error]="isFieldInvalid('customerPostalCode')"
-                  [attr.aria-invalid]="isFieldInvalid('customerPostalCode')"
-                  aria-describedby="customerPostalCode-error"
-                />
-                <p class="pa-form-error" id="customerPostalCode-error" *ngIf="isFieldInvalid('customerPostalCode')">
-                  {{ fieldError('customerPostalCode') }}
-                </p>
-              </div>
-
-              <div class="pa-form-field">
-                <label for="customerCountry">Country</label>
-                <input
-                  id="customerCountry"
-                  type="text"
-                  formControlName="customerCountry"
-                  autocomplete="country-name"
-                  placeholder="e.g. Tunisia"
-                  [class.pa-input--error]="isFieldInvalid('customerCountry')"
-                  [attr.aria-invalid]="isFieldInvalid('customerCountry')"
-                  aria-describedby="customerCountry-error"
-                />
-                <p class="pa-form-error" id="customerCountry-error" *ngIf="isFieldInvalid('customerCountry')">
-                  {{ fieldError('customerCountry') }}
-                </p>
-              </div>
-
-              <div class="pa-form-field pa-form-field--full">
-                <label for="notes">Order notes <span class="pa-text-muted">(optional)</span></label>
-                <textarea
-                  id="notes"
-                  rows="3"
-                  formControlName="notes"
-                  placeholder="Delivery instructions, gate code, preferred time…"
-                  [class.pa-input--error]="isFieldInvalid('notes')"
-                  aria-describedby="notes-error"
-                ></textarea>
-                <p class="pa-form-error" id="notes-error" *ngIf="isFieldInvalid('notes')">
-                  {{ fieldError('notes') }}
-                </p>
+              <div class="pa-order-summary__row pa-order-summary__row--total">
+                <span>Total</span>
+                <span>{{ estimatedTotal() | number: '1.2-2' }} TND</span>
               </div>
             </div>
-          </fieldset>
-
-          <!-- ============ STEP 2 — DELIVERY METHOD ============ -->
-          <fieldset class="pa-checkout-step" *ngIf="currentStep().id === 'delivery'">
-            <legend class="pa-checkout-step__title">Delivery method</legend>
-            <p class="pa-checkout-step__hint">Choose how fast you'd like your order to arrive.</p>
-
-            <div class="pa-option-list" role="radiogroup" aria-label="Delivery method">
-              <label
-                class="pa-option-card"
-                *ngFor="let option of shippingOptions"
-                [class.pa-option-card--selected]="checkoutForm.value.shippingMethod === option.value"
+            <div class="pa-order-summary__trust">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.75"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
               >
-                <input
-                  type="radio"
-                  name="shippingMethod"
-                  formControlName="shippingMethod"
-                  [value]="option.value"
-                />
-                <span class="pa-option-card__icon" aria-hidden="true">
-                  <svg *ngIf="option.value === ShippingMethod.STANDARD" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="1" y="7" width="15" height="10" rx="1.5" />
-                    <path d="M16 10h3.5l3.5 3.5V17h-7" />
-                    <circle cx="6" cy="19.5" r="1.75" />
-                    <circle cx="17.5" cy="19.5" r="1.75" />
-                  </svg>
-                  <svg *ngIf="option.value === ShippingMethod.EXPRESS" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z" />
-                  </svg>
-                </span>
-                <span class="pa-option-card__body">
-                  <span class="pa-option-card__title">{{ option.label }}</span>
-                  <span class="pa-option-card__desc">{{ option.description }} · {{ option.eta }}</span>
-                </span>
-                <span class="pa-option-card__price">{{ shippingFeeOf(option.value) | number: '1.2-2' }} TND</span>
-              </label>
+                <path d="M12 2 4 5v6c0 5 3.4 8.7 8 11 4.6-2.3 8-6 8-11V5l-8-3Z" />
+                <path d="m9 12 2 2 4-4" />
+              </svg>
+              <span>Secure checkout · Your information is protected.</span>
             </div>
-          </fieldset>
-
-          <!-- ============ STEP 3 — PAYMENT ============ -->
-          <fieldset class="pa-checkout-step" *ngIf="currentStep().id === 'payment'">
-            <legend class="pa-checkout-step__title">Payment method</legend>
-            <p class="pa-checkout-step__hint">This is a demo checkout — no real payment gateway is contacted.</p>
-
-            <div class="pa-option-list" role="radiogroup" aria-label="Payment method">
-              <label
-                class="pa-option-card"
-                *ngFor="let option of paymentOptions"
-                [class.pa-option-card--selected]="checkoutForm.value.paymentMethod === option.value"
-              >
-                <input
-                  type="radio"
-                  name="paymentMethod"
-                  formControlName="paymentMethod"
-                  [value]="option.value"
-                />
-                <span class="pa-option-card__icon" aria-hidden="true">
-                  <svg *ngIf="option.icon === 'card'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="1.5" y="4.5" width="21" height="15" rx="2" />
-                    <line x1="1.5" y1="9.5" x2="22.5" y2="9.5" />
-                  </svg>
-                  <svg *ngIf="option.icon === 'paypal'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M7 3h8a4.5 4.5 0 0 1 4.4 5.5A6 6 0 0 1 13.6 13H10l-1 6H5L7 3Z" />
-                  </svg>
-                  <svg *ngIf="option.icon === 'cash'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="1.5" y="5.5" width="21" height="13" rx="2" />
-                    <circle cx="12" cy="12" r="3" />
-                  </svg>
-                </span>
-                <span class="pa-option-card__body">
-                  <span class="pa-option-card__title">{{ option.label }}</span>
-                  <span class="pa-option-card__desc">{{ option.description }}</span>
-                </span>
-              </label>
-            </div>
-
-            <div
-              class="pa-payment-mock"
-              *ngIf="checkoutForm.value.paymentMethod === PaymentMethod.CREDIT_CARD"
-              aria-hidden="false"
-            >
-              <p class="pa-payment-mock__label">Card details (demo only, not submitted)</p>
-              <div class="pa-form-grid">
-                <div class="pa-form-field pa-form-field--full">
-                  <label for="mockCardNumber">Card number</label>
-                  <input id="mockCardNumber" type="text" inputmode="numeric" placeholder="4242 4242 4242 4242" disabled />
-                </div>
-                <div class="pa-form-field">
-                  <label for="mockCardExpiry">Expiry</label>
-                  <input id="mockCardExpiry" type="text" placeholder="MM / YY" disabled />
-                </div>
-                <div class="pa-form-field">
-                  <label for="mockCardCvc">CVC</label>
-                  <input id="mockCardCvc" type="text" inputmode="numeric" placeholder="123" disabled />
-                </div>
-              </div>
-              <p class="pa-form-hint">Card fields are illustrative — this checkout does not process real payments.</p>
-            </div>
-          </fieldset>
-
-          <!-- ============ STEP 4 — REVIEW ============ -->
-          <div class="pa-checkout-step" *ngIf="currentStep().id === 'review'">
-            <h2 class="pa-checkout-step__title">Review your order</h2>
-            <p class="pa-checkout-step__hint">Double-check everything before you place your order.</p>
-
-            <div class="pa-review-block">
-              <div class="pa-review-block__header">
-                <h3>Contact &amp; shipping</h3>
-                <button type="button" class="pa-btn pa-btn--text pa-btn--sm" (click)="goToStep(0)">Edit</button>
-              </div>
-              <dl class="pa-review-block__grid">
-                <div><dt>Name</dt><dd>{{ checkoutForm.value.customerFullName }}</dd></div>
-                <div><dt>Email</dt><dd>{{ checkoutForm.value.customerEmail }}</dd></div>
-                <div><dt>Phone</dt><dd>{{ checkoutForm.value.customerPhoneNumber }}</dd></div>
-                <div class="pa-review-block__grid-full">
-                  <dt>Address</dt>
-                  <dd>
-                    {{ checkoutForm.value.customerStreet }}, {{ checkoutForm.value.customerCity }}
-                    {{ checkoutForm.value.customerPostalCode }}, {{ checkoutForm.value.customerCountry }}
-                  </dd>
-                </div>
-                <div class="pa-review-block__grid-full" *ngIf="checkoutForm.value.notes">
-                  <dt>Notes</dt>
-                  <dd>{{ checkoutForm.value.notes }}</dd>
-                </div>
-              </dl>
-            </div>
-
-            <div class="pa-review-block">
-              <div class="pa-review-block__header">
-                <h3>Delivery</h3>
-                <button type="button" class="pa-btn pa-btn--text pa-btn--sm" (click)="goToStep(1)">Edit</button>
-              </div>
-              <p class="pa-review-block__line">
-                {{ shippingLabel(checkoutForm.value.shippingMethod!) }}
-                <span class="pa-text-muted">· {{ shippingFee() | number: '1.2-2' }} TND</span>
-              </p>
-            </div>
-
-            <div class="pa-review-block">
-              <div class="pa-review-block__header">
-                <h3>Payment</h3>
-                <button type="button" class="pa-btn pa-btn--text pa-btn--sm" (click)="goToStep(2)">Edit</button>
-              </div>
-              <p class="pa-review-block__line">{{ paymentLabel(checkoutForm.value.paymentMethod!) }}</p>
-            </div>
-
-            <label class="pa-checkout-terms">
-              <input
-                type="checkbox"
-                [checked]="agreeToTerms()"
-                (change)="toggleAgreeToTerms()"
-              />
-              <span>I confirm my order details are correct and I agree to the Terms of Service.</span>
-            </label>
           </div>
-
-          <!-- ============ STEP NAVIGATION ============ -->
-          <div class="pa-checkout-nav">
-            <button
-              type="button"
-              class="pa-btn pa-btn--secondary pa-btn--lg"
-              (click)="goBack()"
-              *ngIf="!isFirstStep()"
-            >
-              Back
-            </button>
-
-            <button
-              type="submit"
-              class="pa-btn pa-btn--primary pa-btn--lg pa-checkout-nav__submit"
-              *ngIf="!isLastStep()"
-            >
-              Continue
-            </button>
-
-            <button
-              type="submit"
-              class="pa-btn pa-btn--primary pa-btn--lg pa-checkout-nav__submit"
-              [class.pa-btn--loading]="isSubmitting()"
-              [disabled]="!canPlaceOrder"
-              *ngIf="isLastStep()"
-            >
-              Place order · {{ estimatedTotal() | number: '1.2-2' }} TND
-            </button>
-          </div>
-        </form>
+        </aside>
       </div>
-
-      <!-- ========================= ORDER SUMMARY ========================= -->
-      <aside class="pa-order-summary" aria-label="Order summary">
-        <div class="pa-card pa-card--elevated pa-order-summary__card">
-          <h2 class="pa-order-summary__title">
-            Order summary
-            <span class="pa-order-summary__count">{{ totalItemCount() }} item(s)</span>
-          </h2>
-
-          <div class="pa-order-summary__loading" *ngIf="isLoadingCart()">
-            <div class="pa-skeleton" style="height: 3.5rem; margin-bottom: var(--pa-space-3);"></div>
-            <div class="pa-skeleton" style="height: 3.5rem;"></div>
-          </div>
-
-          <div class="pa-order-summary__empty" *ngIf="!isLoadingCart() && cartItems().length === 0">
-            <p>Your cart is empty.</p>
-            <a routerLink="/accessories" class="pa-btn pa-btn--text pa-btn--sm">Browse accessories</a>
-          </div>
-
-          <ul class="pa-order-summary__items" *ngIf="!isLoadingCart() && cartItems().length > 0">
-            <li class="pa-order-summary__item" *ngFor="let item of cartItems()">
-              <div class="pa-order-summary__item-image">
-                <img [src]="item.accessoryResponse.imageUrl" [alt]="item.accessoryResponse.title" loading="lazy" />
-                <span class="pa-order-summary__item-qty">{{ item.quantity }}</span>
-              </div>
-              <div class="pa-order-summary__item-info">
-                <span class="pa-order-summary__item-name">{{ item.accessoryResponse.title }}</span>
-                <span class="pa-order-summary__item-unit pa-text-muted">{{ item.accessoryResponse.price| number: '1.2-2' }} TND each</span>
-              </div>
-              <span class="pa-order-summary__item-total">{{ lineTotal(item) | number: '1.2-2' }} TND</span>
-            </li>
-          </ul>
-
-          <hr class="pa-divider" />
-
-          <div class="pa-order-summary__totals">
-            <div class="pa-order-summary__row">
-              <span>Subtotal</span>
-              <span>{{ subtotal() | number: '1.2-2' }} TND</span>
-            </div>
-            <div class="pa-order-summary__row">
-              <span>Delivery ({{ shippingLabel(checkoutForm.value.shippingMethod ?? ShippingMethod.STANDARD) }})</span>
-              <span>{{ shippingFee() | number: '1.2-2' }} TND</span>
-            </div>
-            <div class="pa-order-summary__row pa-order-summary__row--total">
-              <span>Total</span>
-              <span>{{ estimatedTotal() | number: '1.2-2' }} TND</span>
-            </div>
-          </div>
-
-          <div class="pa-order-summary__trust">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M12 2 4 5v6c0 5 3.4 8.7 8 11 4.6-2.3 8-6 8-11V5l-8-3Z" />
-              <path d="m9 12 2 2 4-4" />
-            </svg>
-            <span>Secure checkout · Your information is protected.</span>
-          </div>
-        </div>
-      </aside>
     </div>
-  </div>
+  }
 </main>

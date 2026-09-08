@@ -8,6 +8,7 @@ import { ThemeToggle } from "../../shared/components/theme-toggle/theme-toggle";
 import { PasswordInput } from "../../shared/components/password-input/password-input";
 import { Brand } from "../../shared/components/brand/brand";
 import { InputField } from "../../shared/components/input-field/input-field";
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-register',
@@ -66,7 +67,7 @@ export class Register implements OnInit, OnDestroy {
       const hasUpper = /[A-Z]/.test(value);
       const hasLower = /[a-z]/.test(value);
       const hasNumber = /[0-9]/.test(value);
-      const hasSpecial = /[!@#$%^&*()_+\-=\[\]{};':"\|,.<>\/?]/.test(value);
+      const hasSpecial = /[!@#$%^&*()_+=\-\]{};':"|,.<>/?]/.test(value);
 
       const valid = hasUpper && hasLower && hasNumber && hasSpecial;
       return valid ? null : { passwordStrength: true };
@@ -112,7 +113,7 @@ export class Register implements OnInit, OnDestroy {
     if (/[a-z]/.test(value)) score++;
     if (/[A-Z]/.test(value)) score++;
     if (/[0-9]/.test(value)) score++;
-    if (/[!@#$%^&*()_+\-=\[\]{};':"\|,.<>\/?]/.test(value)) score++;
+    if (/[!@#$%^&*()_+=\-\]{};':"|,.<>/?]/.test(value)) score++;
 
     const labels = ['Too short', 'Weak', 'Fair', 'Good', 'Strong'];
     return { score, label: labels[Math.min(score, 4)] };
@@ -149,7 +150,7 @@ export class Register implements OnInit, OnDestroy {
       });
   }
 
-  private handleError(err: any): void {
+  private handleError(err: HttpErrorResponse): void {
     if (err.status === 409) {
       this.errorMessage.set(err.error?.message || 'An account with this email already exists. Please sign in instead.');
     } else if (err.status === 422) {
