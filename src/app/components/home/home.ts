@@ -12,7 +12,6 @@ import { AccessoryResponse } from '../../core/models/accessory/accessory-respons
 import { CartItemRequest } from '../../core/models/cart/items/cart-item-request';
 import { RegisterResponse } from '../../core/models/user/register/register.response';
 import { UserService } from '../../core/services/user/user.service';
-import { HttpErrorResponse } from '@angular/common/http';
 import { Navbar } from "../../shared/components/navbar/navbar";
 import { Footer } from "../../shared/components/footer/footer";
 
@@ -56,11 +55,7 @@ export class Home implements OnInit {
   protected readonly addedCartId = signal<number | null>(null);
   private addedCartTimeout: ReturnType<typeof setTimeout> | null = null;
 
-  // Add-to-wishlist state, keyed by accessory id.
-  // NOTE: WishlistService only exposes addToWishlist(accessoryId) /
-  // removeFromWishlist(wishlistItemId) — since we don't have the
-  // wishlist item's own id here, this button is a one-shot "add" action
-  // with transient confirmation, not a persistent toggle.
+  // Add-to-wishlist state, keyed by accessory id
   protected readonly pendingWishlistIds = signal<ReadonlySet<number>>(new Set());
   protected readonly addedWishlistId = signal<number | null>(null);
   private addedWishlistTimeout: ReturnType<typeof setTimeout> | null = null;
@@ -109,22 +104,6 @@ export class Home implements OnInit {
         },
         error: () => this.accessoriesState.set('error')
       });
-  }
-
-  protected toggleTheme(): void {
-    const html = document.documentElement;
-    const next = !this.isDarkTheme();
-
-    html.classList.toggle('dark-theme', next);
-    html.style.colorScheme = next ? 'dark' : 'light';
-
-    try {
-      localStorage.setItem('pa-theme', next ? 'dark' : 'light');
-    } catch {
-      // localStorage unavailable (private mode, SSR, etc.) — theme just won't persist
-    }
-
-    this.isDarkTheme.set(next);
   }
 
   private syncThemeState(): void {
@@ -191,12 +170,9 @@ export class Home implements OnInit {
         next: () => {
           this.setWishlistPending(accessory.id, false);
           this.removeByValue(accessory.id);
-          console.log(this.wishlistIds().length);
-          console.log(this.wishlistSet().size);
         },
-        error: (err: HttpErrorResponse) => {
+        error: () => {
           this.setWishlistPending(accessory.id, false);
-          console.error('Failed to remove from wishlist:', err);
         }
       });
     } else {
@@ -208,12 +184,9 @@ export class Home implements OnInit {
           this.setWishlistPending(accessory.id, false);
           this.flashWishlistAdded(accessory.id);
           this.wishlistIds.update(wishlistIds => [...wishlistIds, accessory.id]);
-          console.log(this.wishlistIds().length);
-          console.log(this.wishlistSet().size);
         },
-        error: (err: HttpErrorResponse) => {
+        error: () => {
           this.setWishlistPending(accessory.id, false);
-          console.error('Failed to add to wishlist:', err);
         }
       });
     }
@@ -243,11 +216,6 @@ export class Home implements OnInit {
           const items = wishlist?.items ?? [];
           const newIds = items.map(item => item.accessory.id);
           this.wishlistIds.set(newIds);
-          console.log(this.wishlistIds().length);
-          console.log(this.wishlistSet().size);
-        },
-        error: (err) => {
-          console.log('Error loading wishlist ids.', err);
         }
       });
   }

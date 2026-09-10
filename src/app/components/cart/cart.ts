@@ -200,22 +200,6 @@ export class Cart implements OnInit {
     this.actionError.set(null);
   }
 
-  protected toggleTheme(): void {
-    const html = document.documentElement;
-    const next = !this.isDarkTheme();
-
-    html.classList.toggle('dark-theme', next);
-    html.style.colorScheme = next ? 'dark' : 'light';
-
-    try {
-      localStorage.setItem('pa-theme', next ? 'dark' : 'light');
-    } catch {
-      // localStorage unavailable (private mode, SSR, etc.) — theme just won't persist
-    }
-
-    this.isDarkTheme.set(next);
-  }
-
   private replaceItem(updated: CartItemResponse): void {
     const current = this.cart();
     if (!current) return;
