@@ -5,8 +5,8 @@ import { RouterLink } from '@angular/router';
 import { AdminDashboardService } from '../../core/services/admin-dashboard/admin-dashboard.service';
 import { AdminDashboardResponse } from '../../core/models/admin-dashboard/admin-dashboard-response';
 import { OrderResponse } from '../../core/models/checkout/order-response';
-import { OrderStatus } from '../../core/models/checkout/enums/OrderStatus';
-import { PaymentMethod } from '../../core/models/checkout/enums/PaymentMethod';
+import { OrderStatus } from '../../core/models/checkout/enums/order-status';
+import { PaymentMethod } from '../../core/models/checkout/enums/payment-method';
 
 type DashboardState = 'loading' | 'loaded' | 'error';
 
