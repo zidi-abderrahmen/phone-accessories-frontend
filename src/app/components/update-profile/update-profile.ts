@@ -80,7 +80,6 @@ export class UpdateProfile implements OnInit {
   };
 
   ngOnInit(): void {
-    this.syncThemeState();
     this.loadProfile();
 
     this.userService.currentUser$
@@ -178,10 +177,6 @@ export class UpdateProfile implements OnInit {
     }
 
     this.isDarkTheme.set(next);
-  }
-
-  private syncThemeState(): void {
-    this.isDarkTheme.set(document.documentElement.classList.contains('dark-theme'));
   }
 
   private extractErrorMessage(err: HttpErrorResponse): string {

@@ -72,7 +72,6 @@ export class Me implements OnInit {
   });
 
   ngOnInit(): void {
-    this.syncThemeState();
     this.loadProfile();
 
     this.userService.currentUser$
@@ -133,10 +132,6 @@ export class Me implements OnInit {
   protected togglePromotionalOffers(): void {
     this.promotionalOffers.update((v) => !v);
     // TODO: persist to backend once a preferences endpoint exists
-  }
-
-  private syncThemeState(): void {
-    this.isDarkTheme.set(document.documentElement.classList.contains('dark-theme'));
   }
 
   private formatRole(role: string): string {
