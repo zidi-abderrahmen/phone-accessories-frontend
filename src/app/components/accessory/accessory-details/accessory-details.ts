@@ -4,13 +4,10 @@ import { Location, CommonModule } from '@angular/common';
 import { Subject, takeUntil } from 'rxjs';
 import { AccessoryResponse } from '../../../core/models/accessory/accessory-response';
 import { AccessoryService } from '../../../core/services/accessory/accessory.service';
-import { AuthService } from '../../../core/services/auth/auth.service';
 import { CartService } from '../../../core/services/cart/cart.service';
 import { CartItemRequest } from '../../../core/models/cart/items/cart-item-request';
 import { UserService } from '../../../core/services/user/user.service';
-import { WishlistService } from '../../../core/services/wishlist/wishlist.service';
 import { HttpErrorResponse } from '@angular/common/http';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 
 import { ReviewService } from '../../../core/services/review/review.service';
@@ -18,39 +15,7 @@ import { ReviewRequest } from '../../../core/models/review/review-request';
 import { ReviewResponse } from '../../../core/models/review/review-response';
 import { Page } from '../../../core/models/page';
 import { RegisterResponse } from '../../../core/models/user/register/register.response';
-import { WishlistItemResponse } from '../../../core/models/wishlist/items/wishlist-item-response';
-
-/**
- * ASSUMPTIONS — please verify against your actual project structure:
- *
- * 1. Import paths for ReviewService / ReviewRequest / ReviewResponse mirror
- *    the depth used by the other core services/models. Adjust if these
- *    files live somewhere else.
- *
- * 2. `review.service.ts`'s `getAllReviewsByAccessoryId()` is typed to
- *    return `Observable<ReviewResponse>` (a single review), but it's
- *    called with page/size/sort params and `ReviewResponse` has no
- *    `content`/pagination fields. That's almost certainly a typo in the
- *    DTO — a paginated endpoint should return a `Page<ReviewResponse>`
- *    (the same `Page<T>` wrapper already used for accessories). The code
- *    below calls the service and treats the result as `Page<ReviewResponse>`
- *    via a cast, with a defensive fallback if it's actually a bare array.
- *    Fix the return type in review.service.ts to
- *    `Observable<Page<ReviewResponse>>` once confirmed, and this cast can
- *    be removed.
- *
- * 3. `RegisterResponse` (the `user` field on each review) shape wasn't
- *    provided, so the reviewer's name is read defensively via
- *    `reviewerName()` — trying `fullName`, then `username`, then `email`.
- *
- * 4. One review per user per accessory is assumed (the `mine` flag on a
- *    review implies this). If the accessory's review list already
- *    contains a review with `mine === true`, the "Write a review" button
- *    is hidden in favor of editing that existing review directly —
- *    otherwise users could end up trying to create a second review the
- *    backend may reject. Remove `hasOwnReview` gating if multiple
- *    reviews per user are actually allowed.
- */
+import { WishlistFacadeService } from '../../../core/services/wishlist-facade/wishlist-facade.service';
 
 type PageState = 'loading' | 'loaded' | 'not-found' | 'error';
 type ReviewsState = 'idle' | 'loading' | 'loading-more' | 'loaded' | 'error';
@@ -68,13 +33,12 @@ const REVIEWS_SORT = 'createdAt,desc';
 })
 export class AccessoriesDetails implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
-  private readonly router = inject(Router);
+  protected readonly router = inject(Router);
   private readonly location = inject(Location);
   private readonly accessoryService = inject(AccessoryService);
-  private readonly authService = inject(AuthService);
   private readonly userService = inject(UserService);
   private readonly cartService = inject(CartService);
-  private readonly wishlistService = inject(WishlistService);
+  protected readonly wishlist = inject(WishlistFacadeService);
   private readonly reviewService = inject(ReviewService);
   private readonly destroy$ = new Subject<void>();
   private readonly destroyRef = inject(DestroyRef);
@@ -90,17 +54,6 @@ export class AccessoriesDetails implements OnInit, OnDestroy {
   addingToCart = signal(false);
   addedToCart = signal(false);
   private addedToCartTimeout: ReturnType<typeof setTimeout> | null = null;
-
-  // Add-to-wishlist feedback state.
-  // NOTE: WishlistService only exposes addToWishlist(accessoryId) /
-  // removeFromWishlist(wishlistItemId) — since we don't have the
-  // wishlist item's own id here, this button is a one-shot "add" action
-  // with transient confirmation, not a persistent toggle.
-  protected readonly addingToWishlist = signal(false);
-  protected readonly addedToWishlist = signal(false);
-  private addedToWishlistTimeout: ReturnType<typeof setTimeout> | null = null;
-  protected wishlistIds = signal<number[]>([]);
-  protected readonly wishlistSet = computed(() => new Set(this.wishlistIds()));
 
   // ---------------------------------------------------------------------
   // Reviews
@@ -150,7 +103,7 @@ export class AccessoriesDetails implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.extractAccessoryId();
-    this.loadWishlistIds();
+    this.wishlist.load();
 
     this.userService.currentUser$
       .pipe(takeUntil(this.destroy$))
@@ -162,9 +115,6 @@ export class AccessoriesDetails implements OnInit, OnDestroy {
     this.destroy$.complete();
     if (this.addedToCartTimeout) {
       clearTimeout(this.addedToCartTimeout);
-    }
-    if (this.addedToWishlistTimeout) {
-      clearTimeout(this.addedToWishlistTimeout);
     }
   }
 
@@ -236,9 +186,6 @@ export class AccessoriesDetails implements OnInit, OnDestroy {
     this.cartService.addItemToCart(cartItem).subscribe({
       next: () => {
         this.router.navigate(['/checkout']);
-      },
-      error: (err: HttpErrorResponse) => {
-        console.log('Error buy this accessory', err);
       }
     });
   }
@@ -285,77 +232,6 @@ export class AccessoriesDetails implements OnInit, OnDestroy {
     this.addedToCartTimeout = setTimeout(() => this.addedToCart.set(false), 2000);
   }
 
-  addToWishlist(): void {
-    if (!this.accessory || this.addingToWishlist()) {
-      return;
-    }
-
-    if (!this.isAuthenticated()) {
-      this.router.navigate(['/login'], {
-        queryParams: { returnUrl: this.router.url },
-      });
-      return;
-    }
-
-    this.addingToWishlist.set(true);
-
-    if (this.wishlistSet().has(this.accessory.id)) {
-      this.wishlistService.removeFromWishlist(this.accessory.id).subscribe({
-        next: () => {
-          this.addedToWishlist.set(false);
-          this.removeByValue(this.accessoryId);
-          this.addingToWishlist.set(false);
-        },
-        error: (err: HttpErrorResponse) => {
-          this.addingToWishlist.set(false);
-          console.error('Failed to remove from wishlist:', err);
-        }
-      });
-    } else {
-      this.wishlistService
-      .addToWishlist(this.accessory.id)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: () => {
-          this.addedToWishlist.set(true);
-          this.flashWishlistAdded();
-          this.addingToWishlist.set(false);
-          this.wishlistIds.update(wishlistIds => [...wishlistIds, this.accessoryId || -1]);
-        },
-        error: (err: HttpErrorResponse) => {
-          this.addingToWishlist.set(false);
-          console.error('Failed to add to wishlist:', err);
-        }
-      });
-    }
-  }
-
-  private flashWishlistAdded(): void {
-    this.addedToWishlist.set(true);
-    if (this.addedToWishlistTimeout) {
-      clearTimeout(this.addedToWishlistTimeout);
-    }
-    this.addedToWishlistTimeout = setTimeout(() => this.addedToWishlist.set(false), 2000);
-  }
-
-  private loadWishlistIds(): void {
-      this.wishlistService.getMyWishlist().subscribe({
-        next: (wishlist) => {
-          const items = wishlist?.items ?? [];
-          const newIds = Array.from(items as WishlistItemResponse[]).map((item: WishlistItemResponse) => item.accessory.id);
-          this.wishlistIds.set(newIds);
-        },
-        error: (err: HttpErrorResponse) => {
-          console.error('Error loading wishlist ids.', err);
-        }
-      });
-  }
-
-  private removeByValue(value: number | null): void {
-    if (value == null) return;
-    this.wishlistIds.update(numbers => numbers.filter(num => num !== value));
-  }
-
   // ------------------------------------------------------------------
   // Reviews — loading
   // ------------------------------------------------------------------
@@ -370,7 +246,7 @@ export class AccessoriesDetails implements OnInit, OnDestroy {
         next: (response) => {
           // See the class-level ASSUMPTIONS note: the DTO says this is a
           // single ReviewResponse, but it's actually paginated.
-          const pageResponse = response as unknown as Page<ReviewResponse> | ReviewResponse[];
+          const pageResponse = response as Page<ReviewResponse> | ReviewResponse[];
           const content: ReviewResponse[] = Array.isArray(pageResponse)
             ? pageResponse
             : (pageResponse as Page<ReviewResponse>).content ?? [];

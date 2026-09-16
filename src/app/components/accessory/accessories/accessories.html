@@ -96,7 +96,7 @@
           </button>
         }
 
-        @if (userService.hasAnyRole(['SUPER_ADMIN', 'ADMIN'])) {
+        @if (isAdmin()) {
           <a routerLink="/admin/accessories/create" class="pa-btn pa-btn--primary">
             Create Accessory
           </a>
@@ -152,7 +152,7 @@
             Get started by adding your first accessory.
           }
         </p>
-        @if (userService.hasAnyRole(['SUPER_ADMIN', 'ADMIN']) && !searchQuery()) {
+        @if (isAdmin() && !searchQuery()) {
           <a routerLink="/admin/accessories/create" class="pa-btn pa-btn--primary">
             Create Accessory
           </a>
@@ -175,26 +175,26 @@
           >
             <div class="card-image">
               <img
-                [src]="accessory.imageUrl || 'https://placehold.net/800x600.png'"
+                [src]="accessory.imageUrl || '/assets/placeholder-product.svg'"
                 [alt]="accessory.title"
                 loading="lazy"
-                (error)="$any($event.target).src = 'https://placehold.net/800x600.png'"
+                (error)="$any($event.target).src = '/assets/placeholder-product.svg'"
               />
               <div class="card-actions-overlay">
                 <button
                   class="pa-btn pa-btn--sm pa-btn--icon action-wishlist"
-                  [class.action-wishlist--added]="wishlistSet().has(accessory.id)"
-                  [disabled]="isWishlistPending(accessory)"
-                  (click)="addToWishlist($event, accessory)"
-                  [attr.aria-label]="wishlistSet().has(accessory.id) ? 'Added to wishlist' : 'Add ' + accessory.title + ' to wishlist'"
+                  [class.action-wishlist--added]="wishlist.wishlistSet().has(accessory.id)"
+                  [disabled]="wishlist.isPending(accessory.id)"
+                  (click)="wishlist.toggle($event, accessory, router.url)"
+                  [attr.aria-label]="wishlist.wishlistSet().has(accessory.id) ? 'Added to wishlist' : 'Add ' + accessory.title + ' to wishlist'"
                   title="Add to wishlist"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" [attr.fill]="addedWishlistId() === accessory.id ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" [attr.fill]="wishlist.addedWishlistId() === accessory.id ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z" />
                   </svg>
                 </button>
 
-                @if (userService.hasAnyRole(['SUPER_ADMIN', 'ADMIN'])) {
+                @if (isAdmin()) {
                   <button
                     class="pa-btn pa-btn--sm pa-btn--icon action-edit"
                     (click)="editAccessory($event, accessory)"
@@ -282,7 +282,7 @@
 </div>
 
 <!-- Delete Confirmation Modal -->
-@if (showDeleteModal) {
+@if (showDeleteModal()) {
   <div
     class="modal-overlay"
     (click)="cancelDelete()"

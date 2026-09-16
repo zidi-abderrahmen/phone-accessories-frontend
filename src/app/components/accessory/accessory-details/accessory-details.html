@@ -142,11 +142,11 @@
         <div class="product-image-section">
           <div class="product-image-main">
             <img
-              [src]="accessory.imageUrl || 'https://placehold.net/800x600.png'"
+              [src]="accessory.imageUrl || '/assets/placeholder-product.svg'"
               [alt]="accessory.title"
               class="product-image"
-              loading="eager"
-              (error)="$any($event.target).src = 'https://placehold.net/800x600.png'"
+              loading="lazy"
+              (error)="$any($event.target).src = '/assets/placeholder-product.svg'"
             />
           </div>
         </div>
@@ -281,15 +281,15 @@
             <button
               type="button"
               class="pa-btn pa-btn--secondary pa-btn--icon action-wishlist"
-              [class.action-wishlist--added]="wishlistSet().has(accessoryId || -1)"
-              [disabled]="addingToWishlist()"
-              (click)="addToWishlist()"
+              [class.action-wishlist--added]="wishlist.wishlistSet().has(accessoryId || -1)"
+              [disabled]="wishlist.isPending(accessoryId || -1)"
+              (click)="wishlist.toggle($event, accessory, router.url)"
               [attr.aria-label]="
-                wishlistSet().has(accessoryId || -1) ? 'Added to wishlist' : 'Add to wishlist'
+                wishlist.wishlistSet().has(accessoryId || -1) ? 'Added to wishlist' : 'Add to wishlist'
               "
               title="Add to wishlist"
             >
-              @if (addingToWishlist()) {
+              @if (wishlist.isPending(accessoryId || -1)) {
                 <span class="pa-spinner" aria-hidden="true"></span>
               } @else {
                 <svg
@@ -297,7 +297,7 @@
                   width="18"
                   height="18"
                   viewBox="0 0 24 24"
-                  [attr.fill]="wishlistSet().has(accessoryId || -1) ? 'currentColor' : 'none'"
+                  [attr.fill]="wishlist.wishlistSet().has(accessoryId || -1) ? 'currentColor' : 'none'"
                   stroke="currentColor"
                   stroke-width="1.75"
                   stroke-linecap="round"
