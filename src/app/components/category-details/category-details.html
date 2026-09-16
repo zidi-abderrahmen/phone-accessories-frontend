@@ -53,6 +53,7 @@
             [src]="category.imageUrl"
             [alt]="category.name + ' category banner'"
             class="header-image"
+            loading="lazy"
             (error)="$any($event.target).style.display = 'none'"
           />
           <div class="header-image-overlay"></div>
@@ -264,22 +265,22 @@
           >
             <div class="card-image-wrapper">
               <img
-                [src]="accessory.imageUrl || 'https://placehold.net/800x600.png'"
+                [src]="accessory.imageUrl || '/assets/placeholder-product.svg'"
                 [alt]="accessory.title"
                 class="card-image"
                 loading="lazy"
-                (error)="$any($event.target).src = 'https://placehold.net/800x600.png'"
+                (error)="$any($event.target).src = '/assets/placeholder-product.svg'"
               />
             </div>
             <div class="card-content">
               <div class="card-actions-overlay">
                 <button
                   class="pa-btn pa-btn--sm pa-btn--icon action-wishlist"
-                  [class.action-wishlist--added]="wishlistSet().has(accessory.id)"
-                  [disabled]="isWishlistPending(accessory)"
-                  (click)="addToWishlist($event, accessory)"
+                  [class.action-wishlist--added]="wishlist.wishlistSet().has(accessory.id)"
+                  [disabled]="wishlist.isPending(accessory.id)"
+                  (click)="wishlist.toggle($event, accessory, router.url)"
                   [attr.aria-label]="
-                    wishlistSet().has(accessory.id)
+                    wishlist.wishlistSet().has(accessory.id)
                       ? 'Added to wishlist'
                       : 'Add ' + accessory.title + ' to wishlist'
                   "
@@ -290,7 +291,7 @@
                     width="16"
                     height="16"
                     viewBox="0 0 24 24"
-                    [attr.fill]="wishlistSet().has(accessory.id) ? 'currentColor' : 'none'"
+                    [attr.fill]="wishlist.wishlistSet().has(accessory.id) ? 'currentColor' : 'none'"
                     stroke="currentColor"
                     stroke-width="2"
                     stroke-linecap="round"

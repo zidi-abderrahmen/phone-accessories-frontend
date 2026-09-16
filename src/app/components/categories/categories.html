@@ -10,7 +10,7 @@
         <h1 class="page-header__title">Categories</h1>
         <p class="page-header__subtitle">Browse our collection of phone accessory categories</p>
       </div>
-      @if (userService.hasAnyRole(['SUPER_ADMIN', 'ADMIN'])) {
+      @if (isAdmin()) {
         <a routerLink="/admin/categories/create" class="pa-btn pa-btn--primary">
           Create Category
         </a>
@@ -68,7 +68,7 @@
         </div>
         <h3 class="empty-state__title">No categories found</h3>
         <p class="empty-state__description">Get started by creating your first category.</p>
-        @if (userService.hasAnyRole(['SUPER_ADMIN', 'ADMIN'])) {
+        @if (isAdmin()) {
           <a routerLink="/admin/categories/create" class="pa-btn pa-btn--primary">
             Create Category
           </a>
@@ -91,7 +91,7 @@
           >
             <div class="card-image">
               <img [src]="category.imageUrl" [alt]="category.name" loading="lazy" />
-              @if (userService.hasAnyRole(['SUPER_ADMIN', 'ADMIN'])) {
+              @if (isAdmin()) {
                 <div class="card-actions-overlay">
                   <button
                     class="pa-btn pa-btn--sm pa-btn--icon action-edit"
@@ -210,7 +210,7 @@
 </div>
 
 <!-- Delete Confirmation Modal -->
-@if (showDeleteModal) {
+@if (showDeleteModal()) {
   <div
     class="modal-overlay"
     (click)="cancelDelete()"

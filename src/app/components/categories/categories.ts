@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { CategoryResponse } from '../../core/models/category/category-response';
 import { Page } from '../../core/models/page';
@@ -22,6 +22,8 @@ export class Categories implements OnInit {
   authService = inject(AuthService);
   userService = inject(UserService);
 
+  protected readonly isAdmin = computed(() => this.userService.hasAnyRole(['SUPER_ADMIN', 'ADMIN']));
+
   // Data state
   categories = signal<CategoryResponse[]>([]);
   filteredCategories: CategoryResponse[] = [];
@@ -39,7 +41,7 @@ export class Categories implements OnInit {
   errorMessage = signal('');
 
   // Delete modal state
-  showDeleteModal = false;
+  showDeleteModal = signal(false);
   categoryToDelete: CategoryResponse | null = null;
   deleting = signal(false);
 
@@ -76,20 +78,22 @@ export class Categories implements OnInit {
 
   editCategory(event: Event, category: CategoryResponse): void {
     event.stopPropagation();
+    if (!this.isAdmin()) return;
     this.router.navigate(['/admin/categories/edit', category.id]);
   }
 
   // Open delete confirmation modal
   confirmDelete(event: Event, category: CategoryResponse): void {
     event.stopPropagation(); // Prevent card navigation
+    if (!this.isAdmin()) return;
     this.categoryToDelete = category;
-    this.showDeleteModal = true;
+    this.showDeleteModal.set(true);
     this.clearMessages();
   }
 
   // Close modal without deleting
   cancelDelete(): void {
-    this.showDeleteModal = false;
+    this.showDeleteModal.set(false);
     this.categoryToDelete = null;
   }
 
@@ -154,7 +158,7 @@ export class Categories implements OnInit {
   }
 
   private closeDeleteModal(): void {
-    this.showDeleteModal = false;
+    this.showDeleteModal.set(false);
     this.categoryToDelete = null;
     this.deleting.set(false);
   }
