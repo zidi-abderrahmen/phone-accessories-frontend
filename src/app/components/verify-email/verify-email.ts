@@ -2,7 +2,7 @@ import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../core/services/auth/auth.service';
 import { Subject, takeUntil, timer } from 'rxjs';
-import { VerifyEmailRequest } from '../../core/models/verifemail/verify.email.request';
+import { VerifyEmailRequest } from '../../core/models/verif-email/verify.email.request';
 import { ThemeToggle } from '../../shared/components/theme-toggle/theme-toggle';
 import { Brand } from "../../shared/components/brand/brand";
 import { HttpErrorResponse } from '@angular/common/http';
@@ -13,8 +13,8 @@ type VerifyState = 'loading' | 'success' | 'invalid' | 'expired' | 'error';
   selector: 'app-verify.email',
   standalone: true,
   imports: [RouterModule, ThemeToggle, Brand],
-  templateUrl: './verify.email.html',
-  styleUrl: './verify.email.scss',
+  templateUrl: './verify-email.html',
+  styleUrl: './verify-email.scss',
 })
 export class VerifyEmail implements OnInit, OnDestroy {
   private readonly authService = inject(AuthService);
