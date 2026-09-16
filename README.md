@@ -5,7 +5,7 @@
 An end-to-end e-commerce storefront for phone accessories (cases, chargers, cables, screen protectors, power banks and audio gear). It ships with a full shopping experience — catalog browsing, search & filtering, product reviews, cart, wishlist, multi-step checkout, order history — plus a complete authenticated admin suite for managing catalog content, users and roles.
 
 > **Note:** This repository contains the frontend project only.
-> The baclend is available at [phone-accessories-backend](https://github.com/zidi-abderrahmen/phone-accessories-backend).
+> The backend is available at [phone-accessories-backend](https://github.com/zidi-abderrahmen/phone-accessories-backend).
 
 ![Angular](https://img.shields.io/badge/Angular-v22-0F121C?logo=angular&logoColor=white&color=%23c3002f)
 ![TypeScript](https://img.shields.io/badge/TypeScript-v6.0-007ACC?logo=typescript&logoColor=white)
@@ -528,7 +528,6 @@ Commit messages in this repo follow a simple conventional style, e.g. `feat: add
 ## License
 
 Distributed under the **MIT License**. See the [`LICENSE`](./LICENSE) file for the full license text.
-
 Copyright (c) 2026 **Zidi Abderrahmen**
 
 ## Author
