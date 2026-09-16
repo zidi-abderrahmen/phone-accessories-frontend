@@ -1,7 +1,7 @@
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { OrderStatus } from '../../../core/models/checkout/enums/OrderStatus';
-import { PaymentMethod } from '../../../core/models/checkout/enums/PaymentMethod';
+import { OrderStatus } from '../../../core/models/checkout/enums/order-status';
+import { PaymentMethod } from '../../../core/models/checkout/enums/payment-method';
 import { OrderResponse } from '../../../core/models/checkout/order-response';
 import { OrderService } from '../../../core/services/checkout/order.service';
 import { RouterLink } from '@angular/router';

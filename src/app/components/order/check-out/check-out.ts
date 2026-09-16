@@ -15,8 +15,8 @@ import {
 import { Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 import { CartItemResponse } from '../../../core/models/cart/items/cart-item-response';
-import { PaymentMethod } from '../../../core/models/checkout/enums/PaymentMethod';
-import { ShippingMethod } from '../../../core/models/checkout/enums/ShippingMethod';
+import { PaymentMethod } from '../../../core/models/checkout/enums/payment-method';
+import { ShippingMethod } from '../../../core/models/checkout/enums/shipping-method';
 import { OrderRequest } from '../../../core/models/checkout/order-request';
 import { OrderResponse } from '../../../core/models/checkout/order-response';
 import { RegisterResponse } from '../../../core/models/user/register/register.response';
@@ -239,18 +239,14 @@ export class CheckOut implements OnInit {
 
     this.cartService.getMyCart().subscribe({
       next: (cart) => {
-        this.cartItems.set(cart.cartItems)
+        this.cartItems.set(cart.cartItems);
+        this.isLoadingCart.set(false);
+      },
+      error: () => {
+        this.cartLoadError.set('Could not load your cart.');
+        this.isLoadingCart.set(false);
       }
     });
-
-    // ── Replace this block with your real CartService call. ──
-    // Example:
-    // this.cartService.getCart().subscribe({
-    //   next: (cart) => { this.cartItems.set(cart.items); this.isLoadingCart.set(false); },
-    //   error: () => { this.cartLoadError.set('Could not load your cart.'); this.isLoadingCart.set(false); },
-    // });
-    this.cartItems.set([]);
-    this.isLoadingCart.set(false);
   }
 
   // ---------------------------------------------------------------------

@@ -8,9 +8,9 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { OrderStatus } from '../../../core/models/checkout/enums/OrderStatus';
-import { PaymentMethod } from '../../../core/models/checkout/enums/PaymentMethod';
-import { ShippingMethod } from '../../../core/models/checkout/enums/ShippingMethod';
+import { OrderStatus } from '../../../core/models/checkout/enums/order-status';
+import { PaymentMethod } from '../../../core/models/checkout/enums/payment-method';
+import { ShippingMethod } from '../../../core/models/checkout/enums/shipping-method';
 import { OrderResponse } from '../../../core/models/checkout/order-response';
 import { OrderService } from '../../../core/services/checkout/order.service';
 import { AccessoryResponse } from '../../../core/models/accessory/accessory-response';
