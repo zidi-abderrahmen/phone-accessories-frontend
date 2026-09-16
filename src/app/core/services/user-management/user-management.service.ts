@@ -1,4 +1,4 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpContext, HttpParams } from '@angular/common/http';
 import { inject, Service } from '@angular/core';
 import { environment } from '../../../../environments/environment';
 import { Observable } from 'rxjs';
@@ -6,6 +6,8 @@ import { RegisterResponse } from '../../models/user/register/register.response';
 import { RegisterRequest } from '../../models/user/register/register.request';
 import { RoleRequest } from '../../models/user/role/role-request';
 import { RoleResponse } from '../../models/user/role/role-response';
+import { SKIP_GLOBAL_ERROR_HANDLING } from '../../interceptors/error/error-context';
+import { Page } from '../../models/page';
 
 @Service()
 export class UserManagementService {
@@ -14,7 +16,9 @@ export class UserManagementService {
 
     private http = inject(HttpClient);
 
-    getAllUsers(blocked?: boolean, deleted?: boolean, page = 0, size = 10, sort?: string): Observable<RegisterResponse> {
+    private readonly context = new HttpContext().set(SKIP_GLOBAL_ERROR_HANDLING, true);
+
+    getAllUsers(blocked?: boolean, deleted?: boolean, page = 0, size = 10, sort?: string): Observable<Page<RegisterResponse>> {
         let params = new HttpParams()
         .set('page', page.toString())
         .set('size', size.toString());
@@ -31,19 +35,19 @@ export class UserManagementService {
             params = params.set('sort', sort);
         }
 
-        return this.http.get<RegisterResponse>(this.apiUrl, { withCredentials: true, params });
+        return this.http.get<Page<RegisterResponse>>(this.apiUrl, { withCredentials: true, params });
     }
 
     createAdmin(data: RegisterRequest): Observable<RegisterResponse> {
-        return this.http.post<RegisterResponse>(`${this.apiUrl}/admins`, data, { withCredentials: true });
+        return this.http.post<RegisterResponse>(`${this.apiUrl}/admins`, data, { withCredentials: true, context: this.context });
     }
 
     updateUserBlockedStatus(id: string, blocked: boolean): Observable<RegisterResponse> {
-        return this.http.put<RegisterResponse>(`${this.apiUrl}/${id}/blocked/${blocked}`, null, { withCredentials: true });
+        return this.http.put<RegisterResponse>(`${this.apiUrl}/${id}/blocked/${blocked}`, null, { withCredentials: true, context: this.context });
     }
 
     updateUserDeletedStatus(id: string, deleted: boolean): Observable<RegisterResponse> {
-        return this.http.patch<RegisterResponse>(`${this.apiUrl}/${id}/deleted/${deleted}`, null, { withCredentials: true });
+        return this.http.patch<RegisterResponse>(`${this.apiUrl}/${id}/deleted/${deleted}`, null, { withCredentials: true, context: this.context });
     }
 
     getAllRoles(): Observable<RoleResponse[]> {

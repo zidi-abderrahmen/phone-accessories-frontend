@@ -1,19 +1,21 @@
-import { Injectable, inject } from '@angular/core';
+import { Service, inject } from '@angular/core';
 import { environment } from '../../../../environments/environment';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpContext, HttpParams } from '@angular/common/http';
 import { CategoryResponse } from '../../models/category/category-response';
-import { Observable } from 'rxjs';
+import { Observable, tap } from 'rxjs';
 import { Page } from '../../models/page';
 import { CategoryRequest } from '../../models/category/category-request';
 import { AccessoryResponse } from '../../models/accessory/accessory-response';
+import { SKIP_GLOBAL_ERROR_HANDLING } from '../../interceptors/error/error-context';
+import { invalidateCache } from '../../interceptors/cache/cache-interceptor';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class CategoryService {
   private http = inject(HttpClient);
 
   private apiUrl = `${environment.apiUrl}/categories`;
+
+  private readonly context = new HttpContext().set(SKIP_GLOBAL_ERROR_HANDLING, true);
 
   getAllCategories(
     page = 0,
@@ -47,14 +49,20 @@ export class CategoryService {
   }
 
   createCategory(data: CategoryRequest): Observable<CategoryResponse> {
-    return this.http.post<CategoryResponse>(this.apiUrl, data, { withCredentials: true });
+    return this.http.post<CategoryResponse>(this.apiUrl, data, { withCredentials: true, context: this.context }).pipe(
+      tap(() => invalidateCache('/categories'))
+    );
   }
 
   updateCategory(id: number, data: CategoryRequest): Observable<CategoryResponse> {
-    return this.http.put<CategoryResponse>(`${this.apiUrl}/${id}`, data, { withCredentials: true });
+    return this.http.put<CategoryResponse>(`${this.apiUrl}/${id}`, data, { withCredentials: true, context: this.context }).pipe(
+      tap(() => invalidateCache('/categories'))
+    );
   }
 
   deleteCategory(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`, { withCredentials: true });
+    return this.http.delete<void>(`${this.apiUrl}/${id}`, { withCredentials: true, context: this.context }).pipe(
+      tap(() => invalidateCache('/categories'))
+    );
   }
 }

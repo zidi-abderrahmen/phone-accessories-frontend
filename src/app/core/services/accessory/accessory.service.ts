@@ -1,11 +1,13 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpContext, HttpParams } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
 import { Service, inject } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, tap } from 'rxjs';
 import { AccessoryResponse } from '../../models/accessory/accessory-response';
 import { Page } from '../../models/page';
 import { AccessoryRequest } from '../../models/accessory/accessory-request';
 import { SearchRequest } from '../../models/accessory/search/search-request';
+import { SKIP_GLOBAL_ERROR_HANDLING } from '../../interceptors/error/error-context';
+import { invalidateCache } from '../../interceptors/cache/cache-interceptor';
 
 @Service()
 export class AccessoryService {
@@ -13,6 +15,8 @@ export class AccessoryService {
     private apiUrl = `${environment.apiUrl}/accessories`;
 
     private http = inject(HttpClient);
+
+    private readonly context = new HttpContext().set(SKIP_GLOBAL_ERROR_HANDLING, true);
 
     getAllAccessories(page = 0, size = 10, sort?: string): Observable<Page<AccessoryResponse>> {
         let params = new HttpParams()
@@ -27,19 +31,25 @@ export class AccessoryService {
     }
 
     getAccessoryById(id: number): Observable<AccessoryResponse> {
-        return this.http.get<AccessoryResponse>(`${this.apiUrl}/${id}`);
+        return this.http.get<AccessoryResponse>(`${this.apiUrl}/${id}`, { context: this.context });
     }
 
     createAccessory(data: AccessoryRequest): Observable<AccessoryResponse> {
-        return this.http.post<AccessoryResponse>(this.apiUrl, data, { withCredentials: true });
+        return this.http.post<AccessoryResponse>(this.apiUrl, data, { withCredentials: true, context: this.context }).pipe(
+            tap(() => invalidateCache('/accessories'))
+        );
     }
 
     updateAccessory(id: number, data: AccessoryRequest): Observable<AccessoryResponse> {
-        return this.http.put<AccessoryResponse>(`${this.apiUrl}/${id}`, data, { withCredentials: true });
+        return this.http.put<AccessoryResponse>(`${this.apiUrl}/${id}`, data, { withCredentials: true, context: this.context }).pipe(
+            tap(() => invalidateCache('/accessories'))
+        );
     }
 
     deleteAccessory(id: number): Observable<void> {
-        return this.http.delete<void>(`${this.apiUrl}/${id}`, { withCredentials: true });
+        return this.http.delete<void>(`${this.apiUrl}/${id}`, { withCredentials: true, context: this.context }).pipe(
+            tap(() => invalidateCache('/accessories'))
+        );
     }
 
     searchAccessories(

@@ -1,12 +1,12 @@
-import { inject, Service } from '@angular/core';
+import { inject, Injector, Service } from '@angular/core';
 import { environment } from '../../../../environments/environment';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { BehaviorSubject, catchError, filter, map, Observable, of, switchMap, take, tap } from 'rxjs';
+import { HttpClient, HttpContext, HttpErrorResponse } from '@angular/common/http';
+import { BehaviorSubject, catchError, filter, from, map, Observable, of, switchMap, take, tap } from 'rxjs';
 import { RegisterResponse } from '../../models/user/register/register.response';
 import { ChangePasswordRequest } from '../../models/user/password/change-password-request';
 import { ChangePasswordResponse } from '../../models/user/password/change-password-response';
 import { UpdateProfileRequest } from '../../models/user/profile/update-profile-request';
-import { AuthService } from '../auth/auth.service';
+import { SKIP_GLOBAL_ERROR_HANDLING } from '../../interceptors/error/error-context';
 
 @Service()
 export class UserService {
@@ -14,6 +14,9 @@ export class UserService {
     private apiUrl = `${environment.apiUrl}/profile`;
 
     private http = inject(HttpClient);
+    private injector = inject(Injector);
+
+    private readonly context = new HttpContext().set(SKIP_GLOBAL_ERROR_HANDLING, true);
 
     authState = new BehaviorSubject<boolean | null>(null);
 
@@ -30,11 +33,11 @@ export class UserService {
     currentUser$ = this.currentUserSubject.asObservable();
 
     changePassword(data: ChangePasswordRequest): Observable<ChangePasswordResponse> {
-        return this.http.put<ChangePasswordResponse>(`${this.apiUrl}/change-password`, data, { withCredentials: true });
+        return this.http.put<ChangePasswordResponse>(`${this.apiUrl}/change-password`, data, { withCredentials: true, context: this.context });
     }
 
     updateProfile(data: UpdateProfileRequest): Observable<RegisterResponse> {
-        return this.http.put<RegisterResponse>(`${this.apiUrl}/update`, data, { withCredentials: true });
+        return this.http.put<RegisterResponse>(`${this.apiUrl}/update`, data, { withCredentials: true, context: this.context });
     }
 
     getCurrentUser(): Observable<RegisterResponse> {
@@ -45,42 +48,39 @@ export class UserService {
     }
 
     checkAuth(): Observable<boolean> {
-        console.log('checkAuth called, current value:', this.authState.value);
         
         if (this.authState.value !== null) {
             return this.authState$.pipe(take(1));
         }
 
-        const authService = inject(AuthService);
-
         const meRequest$ = this.http.get<RegisterResponse>(`${this.apiUrl}/me`, { withCredentials: true }).pipe(
-            tap((user) => { 
-                console.log('ME SUCCESS');
+            tap((user) => {
                 this.currentUserSubject.next(user);
                 this.authState.next(true);
             }),
             map(() => true)
         );
 
-        const handleAuthFailure = (err: HttpErrorResponse) => {
-            console.log('AUTH FAILED', err.status, err);
+        const handleAuthFailure = () => {
             this.authState.next(false);
             this.currentUserSubject.next(null);
             return of(false);
         };
 
         return meRequest$.pipe(
-            catchError((err) => {
+            catchError((err: HttpErrorResponse) => {
                 if (err.status === 401) {
-                    console.log('401 from /me, attempting refresh...');
-                    
-                    return authService.refreshToken().pipe(
+                    return from(import('../auth/auth.service')).pipe(
+                        switchMap(({ AuthService }) => {
+                            const authService = this.injector.get(AuthService);
+                            return authService.refreshToken();
+                        }),
                         switchMap(() => meRequest$),
-                        catchError((retryErr) => handleAuthFailure(retryErr))
+                        catchError(() => handleAuthFailure())
                     );
                 }
                 
-                return handleAuthFailure(err);
+                return handleAuthFailure();
             })
         );
     }

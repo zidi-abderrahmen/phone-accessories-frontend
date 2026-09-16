@@ -1,9 +1,11 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpContext, HttpParams } from '@angular/common/http';
 import { inject, Service } from '@angular/core';
 import { environment } from '../../../../environments/environment';
 import { Observable } from 'rxjs';
 import { ReviewResponse } from '../../models/review/review-response';
 import { ReviewRequest } from '../../models/review/review-request';
+import { SKIP_GLOBAL_ERROR_HANDLING } from '../../interceptors/error/error-context';
+import { Page } from '../../models/page';
 
 @Service()
 export class ReviewService {
@@ -12,7 +14,9 @@ export class ReviewService {
 
     private http = inject(HttpClient);
 
-    getAllReviewsByAccessoryId(id: number, page = 0, size = 10, sort?: string): Observable<ReviewResponse> {
+    private readonly context = new HttpContext().set(SKIP_GLOBAL_ERROR_HANDLING, true);
+
+    getAllReviewsByAccessoryId(id: number, page = 0, size = 10, sort?: string): Observable<Page<ReviewResponse>> {
         let params = new HttpParams()
         .set('page', page.toString())
         .set('size', size.toString());
@@ -21,18 +25,18 @@ export class ReviewService {
             params = params.set('sort', sort);
         }
 
-        return this.http.get<ReviewResponse>(`${this.apiUrl}/accessory/${id}`, { params });
+        return this.http.get<Page<ReviewResponse>>(`${this.apiUrl}/accessory/${id}`, { params });
     }
 
     createReview(id: number, data: ReviewRequest): Observable<ReviewResponse> {
-        return this.http.post<ReviewResponse>(`${this.apiUrl}/accessory/${id}`, data, { withCredentials: true });
+        return this.http.post<ReviewResponse>(`${this.apiUrl}/accessory/${id}`, data, { withCredentials: true, context: this.context });
     }
 
     updateReview(id: number, data: ReviewRequest): Observable<ReviewResponse> {
-        return this.http.put<ReviewResponse>(`${this.apiUrl}/${id}`, data, { withCredentials: true });
+        return this.http.put<ReviewResponse>(`${this.apiUrl}/${id}`, data, { withCredentials: true, context: this.context });
     }
 
     deleteReview(id: number): Observable<void> {
-        return this.http.delete<void>(`${this.apiUrl}/${id}`, { withCredentials: true });
+        return this.http.delete<void>(`${this.apiUrl}/${id}`, { withCredentials: true, context: this.context });
     }
 }
