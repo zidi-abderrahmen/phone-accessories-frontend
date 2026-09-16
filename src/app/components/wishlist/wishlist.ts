@@ -13,7 +13,6 @@ import { WishlistService } from '../../core/services/wishlist/wishlist.service';
 import { WishlistItemResponse } from '../../core/models/wishlist/items/wishlist-item-response';
 import { CartService } from '../../core/services/cart/cart.service';
 import { CartItemRequest } from '../../core/models/cart/items/cart-item-request';
-import { HttpErrorResponse } from '@angular/common/http';
 import { Navbar } from "../../shared/components/navbar/navbar";
 import { AccessoryResponse } from '../../core/models/accessory/accessory-response';
 
@@ -55,8 +54,6 @@ export class Wishlist implements OnInit {
       next: (wishlist) => {
         this.items.set(wishlist?.items ?? []);
         this.isLoading.set(false);
-        console.log(this.items.length);
-        
       },
       error: () => {
         this.loadError.set('We couldn’t load your wishlist. Please try again.');
@@ -127,9 +124,6 @@ export class Wishlist implements OnInit {
     this.cartService.addItemToCart(cartItem).subscribe({
       next: () => {
         this.router.navigate(['/checkout']);
-      },
-      error: (err: HttpErrorResponse) => {
-        console.log('Error buy this accessory', err);
       }
     });
   }
