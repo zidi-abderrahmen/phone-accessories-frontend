@@ -13,8 +13,8 @@ import { HttpErrorResponse } from '@angular/common/http';
   selector: 'app-reset.password',
   standalone: true,
   imports: [ReactiveFormsModule, RouterModule, ThemeToggle, PasswordInput, Brand],
-  templateUrl: './reset.password.html',
-  styleUrl: './reset.password.scss',
+  templateUrl: './reset-password.html',
+  styleUrl: './reset-password.scss',
 })
 export class ResetPassword implements OnInit, OnDestroy {
   private readonly fb = inject(FormBuilder);

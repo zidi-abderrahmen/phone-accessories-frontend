@@ -12,7 +12,6 @@ import {
 } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { UserService } from '../../core/services/user/user.service';
-import { AuthService } from '../../core/services/auth/auth.service';
 import { ChangePasswordRequest } from '../../core/models/user/password/change-password-request';
 import { PasswordInput } from '../../shared/components/password-input/password-input';
 import { RegisterResponse } from '../../core/models/user/register/register.response';
@@ -41,7 +40,6 @@ type SubmitState = 'idle' | 'success' | 'error';
 })
 export class ChangePassword implements OnInit {
   private readonly userService = inject(UserService);
-  private readonly authService = inject(AuthService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly form = new FormGroup({
@@ -71,8 +69,6 @@ export class ChangePassword implements OnInit {
   };
 
   ngOnInit(): void {
-    this.syncThemeState();
-
     this.userService.currentUser$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((user) => this.currentUser.set(user));
@@ -147,10 +143,6 @@ export class ChangePassword implements OnInit {
     }
 
     this.isDarkTheme.set(next);
-  }
-
-  private syncThemeState(): void {
-    this.isDarkTheme.set(document.documentElement.classList.contains('dark-theme'));
   }
 
   private extractErrorMessage(err: HttpErrorResponse): string {

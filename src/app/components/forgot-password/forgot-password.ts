@@ -13,8 +13,8 @@ import { HttpErrorResponse } from '@angular/common/http';
   selector: 'app-forgot.password',
   standalone: true,
   imports: [ReactiveFormsModule, RouterModule, ThemeToggle, Brand, InputField],
-  templateUrl: './forgot.password.html',
-  styleUrl: './forgot.password.scss',
+  templateUrl: './forgot-password.html',
+  styleUrl: './forgot-password.scss',
 })
 export class ForgotPassword implements OnInit, OnDestroy {
   private readonly fb = inject(FormBuilder);
