@@ -4,6 +4,7 @@ import { BehaviorSubject, catchError, filter, switchMap, take, throwError } from
 import { AuthService } from '../../services/auth/auth.service';
 import { Router } from '@angular/router';
 import { UserService } from '../../services/user/user.service';
+import { SKIP_GLOBAL_ERROR_HANDLING } from './error-context'
 
 let isRefreshing = false;
 const refreshTokenSubject = new BehaviorSubject<boolean | null>(null);
@@ -15,13 +16,12 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
-      const isAuthRoute = req.url.includes('/login') || 
+      const isAuthRoute = req.url.includes('/login') ||
         req.url.includes('/register') ||
         req.url.includes('/verify-email') ||
-        req.url.includes('/refresh-token') || 
+        req.url.includes('/refresh-token') ||
         req.url.includes('/logout');
 
-      // Use AuthService's current auth state instead of localStorage (may be stale)
       const wasAuthenticated = userService.isAuthenticatedValue() === true;
 
       if (error.status === 401 && !isAuthRoute && wasAuthenticated) {
@@ -57,14 +57,18 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
         }
       }
 
-      if (error.status === 403) {
+      const skipGlobalHandling = req.context.get(SKIP_GLOBAL_ERROR_HANDLING);
+
+      if (!skipGlobalHandling) {
+        if (error.status === 403) {
           router.navigate(['/403']);
-      } else if (error.status === 404) {
-          router.navigate(['404'])
-      } else if (error.status === 500) {
+        } else if (error.status === 404) {
+          router.navigate(['/404']);
+        } else if (error.status === 500) {
           console.error('Server connection failed');
-      } else if (error.status === 0) {
+        } else if (error.status === 0) {
           console.error('No connection');
+        }
       }
 
       return throwError(() => error);
