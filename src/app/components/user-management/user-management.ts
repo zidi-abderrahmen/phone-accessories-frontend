@@ -106,7 +106,7 @@ export class UserManagement implements OnInit, OnDestroy {
         next: (response) => {
           // See the class-level NOTES: the DTO says this is a single
           // RegisterResponse, but it's actually paginated.
-          const pageResponse = response as unknown as Page<RegisterResponse> | RegisterResponse[];
+          const pageResponse = response as Page<RegisterResponse> | RegisterResponse[];
           const content: RegisterResponse[] = Array.isArray(pageResponse)
             ? pageResponse
             : pageResponse.content ?? [];
