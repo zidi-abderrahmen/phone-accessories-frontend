@@ -1,52 +1,111 @@
 import { Routes } from '@angular/router';
-import { Register } from './components/register/register';
-import { VerifyEmail } from './components/verifyEmail/verify.email';
-import { Home } from './components/home/home';
-import { ForgotPassword } from './components/forgot.password/forgot.password';
-import { ResetPassword } from './components/reset.password/reset.password';
-import { Me } from './components/me/me';
 import { authGuard } from './guards/auth/auth-guard';
 import { guestGuard } from './guards/guest/guest-guard';
-import { Login } from './components/login/login';
-import { Categories } from './components/categories/categories';
-import { CategoryDetails } from './components/category-details/category-details';
 import { roleGuard } from './guards/role/role-guard';
-import { Accessories } from './components/accessory/accessories/accessories';
-import { AccessoriesDetails } from './components/accessory/accessory-details/accessory-details';
-import { NotFound } from './components/not-found/not-found';
-import { Unauthorized } from './components/unauthorized/unauthorized';
-import { AboutContact } from './components/about-contact/about-contact';
-import { TermsPrivacy } from './components/terms-privacy/terms-privacy';
-import { ChangePassword } from './components/change-password/change-password';
-import { UpdateProfile } from './components/update-profile/update-profile';
-import { Cart } from './components/cart/cart';
-import { AdminLayout } from './components/admin-layout/admin-layout';
 
 export const routes: Routes = [
-    { path: 'login', component: Login, canActivate: [guestGuard], title: 'Login' },
+    { 
+        path: 'login',
+        loadComponent: () => import('./components/login/login')
+        .then(m => m.Login),
+        canActivate: [guestGuard],
+        title: 'Login'
+    },
+    {
+        path: 'register',
+        loadComponent: () => import('./components/register/register')
+        .then(m => m.Register),
+        canActivate: [guestGuard],
+        title: 'Register'
+    },
+    { 
+        path: 'verify-email',
+        loadComponent: () => import('./components/verify-email/verify-email')
+        .then(m => m.VerifyEmail), 
+        canActivate: [guestGuard], 
+        title: 'Verify Email'
+    },
 
-    { path: 'register', component: Register, canActivate: [guestGuard], title: 'Register' },
-    { path: 'verify-email', component: VerifyEmail, canActivate: [guestGuard], title: 'Verify Email' },
+    { 
+        path: 'forgot-password', 
+        loadComponent: () => import('./components/forgot-password/forgot-password')
+        .then(m => m.ForgotPassword), 
+        canActivate: [guestGuard], 
+        title: 'Forgot Password' 
+    },
+    { 
+        path: 'reset-password', 
+        loadComponent: () => import('./components/reset-password/reset-password')
+        .then(m => m.ResetPassword), 
+        canActivate: [guestGuard], 
+        title: 'Reset Password' 
+    },
 
-    { path: 'forgot-password', component: ForgotPassword, canActivate: [guestGuard], title: 'Forgot Password' },
-    { path: 'reset-password', component: ResetPassword, canActivate: [guestGuard], title: 'Reset Password' },
+    { 
+        path: 'home', 
+        loadComponent: () => import('./components/home/home')
+        .then(m => m.Home), 
+        title: 'Home' 
+    },
 
-    { path: 'home', component: Home, title: 'Home' },
+    { 
+        path: 'categories', 
+        loadComponent: () => import('./components/categories/categories')
+        .then(m => m.Categories), 
+        title: 'Categories' },
+    { 
+        path: 'categories/:id', 
+        loadComponent: () => import('./components/category-details/category-details')
+        .then(m => m.CategoryDetails), 
+        title: 'Category Details' },
 
-    { path: 'categories', component: Categories, title: 'Categories' },
-    { path: 'categories/:id', component: CategoryDetails, title: 'Category Details' },
+    { 
+        path: 'accessories', 
+        loadComponent: () => import('./components/accessory/accessories/accessories')
+        .then(m => m.Accessories), 
+        title: 'Accessories' },
+    { 
+        path: 'accessories/:id', 
+        loadComponent: () => import('./components/accessory/accessory-details/accessory-details')
+        .then(m => m.AccessoriesDetails),
+        title: 'Accessory Details' },
 
-    { path: 'accessories', component: Accessories, title: 'Accessories' },
-    { path: 'accessories/:id', component: AccessoriesDetails, title: 'Accessory Details' },
+    { 
+        path: 'about', 
+        loadComponent: () => import('./components/about-contact/about-contact')
+        .then(m => m.AboutContact), 
+        title: 'About Us' },
+    { 
+        path: 'terms-privacy', 
+        loadComponent: () => import('./components/terms-privacy/terms-privacy')
+        .then(m => m.TermsPrivacy), 
+        title: 'Terms & Privacy' },
 
-    { path: 'about', component: AboutContact, title: 'About Us' },
-    { path: 'terms-privacy', component: TermsPrivacy, title: 'Terms & Privacy' },
+    { 
+        path: 'me', 
+        loadComponent: () => import('./components/me/me')
+        .then(m => m.Me), 
+        canActivate: [authGuard], 
+        title: 'My Profile' },
+    { 
+        path: 'me/change-password', 
+        loadComponent: () => import('./components/change-password/change-password')
+        .then(m => m.ChangePassword), 
+        canActivate: [authGuard], 
+        title: 'Change Password' },
+    { 
+        path: 'me/update-profile', 
+        loadComponent: () => import('./components/update-profile/update-profile')
+        .then(m => m.UpdateProfile), 
+        canActivate: [authGuard], 
+        title: 'Update Profile' },
 
-    { path: 'me', component: Me, canActivate: [authGuard], title: 'My Profile' },
-    { path: 'me/change-password', component: ChangePassword, canActivate: [authGuard], title: 'Change Password' },
-    { path: 'me/update-profile', component: UpdateProfile, canActivate: [authGuard], title: 'Update Profile' },
-
-    { path: 'my-cart', component: Cart, canActivate: [authGuard], title: 'My Cart' },
+    { 
+        path: 'my-cart', 
+        loadComponent: () => import('./components/cart/cart')
+        .then(m => m.Cart), 
+        canActivate: [authGuard], 
+        title: 'My Cart' },
 
     {
         path: 'checkout',
@@ -86,7 +145,8 @@ export const routes: Routes = [
 
     {
         path: 'admin',
-        component: AdminLayout,
+        loadComponent: () => import('./components/admin-layout/admin-layout')
+        .then(m => m.AdminLayout),
         canActivate: [authGuard],
         canActivateChild: [roleGuard(['SUPER_ADMIN', 'ADMIN'])],
         children: [
@@ -144,9 +204,19 @@ export const routes: Routes = [
     
     { path: '', redirectTo: '/home', pathMatch: 'full' },
 
-    { path: '403', component: Unauthorized, title: 'Unauthorized' },
+    { 
+        path: '403', 
+        loadComponent: () => import('./components/unauthorized/unauthorized')
+        .then(m => m.Unauthorized), 
+        title: 'Unauthorized' 
+    },
 
-    { path: '404', component: NotFound, title: 'Not Found' },
+    { 
+        path: '404', 
+        loadComponent: () => import('./components/not-found/not-found')
+        .then(m => m.NotFound), 
+        title: 'Not Found' 
+    },
 
     { path: '**', redirectTo: '/404' }
 ];
