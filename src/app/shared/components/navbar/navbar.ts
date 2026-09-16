@@ -2,12 +2,12 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { ADMIN_ROLES, MAIN_NAV_LINKS } from '../../../../config/nav.config';
-import { ThemeService } from '../../../../services/theme/theme.service';
 import { RegisterResponse } from '../../../core/models/user/register/register.response';
 import { UserService } from '../../../core/services/user/user.service';
 import { AccountMenu } from '../account-menu/account-menu';
 import { MobileDrawer } from '../mobile-drawer/mobile-drawer';
 import { AuthService } from '../../../core/services/auth/auth.service';
+import { ThemeService } from '../../../core/services/theme/theme.service';
 
 @Component({
   selector: 'app-navbar',
