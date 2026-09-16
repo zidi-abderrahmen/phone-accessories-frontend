@@ -1,5 +1,5 @@
-import { PaymentMethod } from "./enums/PaymentMethod";
-import { ShippingMethod } from "./enums/ShippingMethod";
+import { PaymentMethod } from "./enums/payment-method";
+import { ShippingMethod } from "./enums/shipping-method";
 
 export interface OrderRequest {
     customerFullName: string;

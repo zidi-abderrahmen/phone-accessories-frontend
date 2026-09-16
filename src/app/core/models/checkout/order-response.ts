@@ -1,6 +1,6 @@
-import { OrderStatus } from "./enums/OrderStatus";
-import { PaymentMethod } from "./enums/PaymentMethod";
-import { ShippingMethod } from "./enums/ShippingMethod";
+import { OrderStatus } from "./enums/order-status";
+import { PaymentMethod } from "./enums/payment-method";
+import { ShippingMethod } from "./enums/shipping-method";
 import { OrderItemResponse } from "./item/order-item-response";
 
 export interface OrderResponse {
