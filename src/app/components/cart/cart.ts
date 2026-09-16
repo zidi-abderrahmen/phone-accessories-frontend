@@ -63,7 +63,6 @@ export class Cart implements OnInit {
   };
 
   ngOnInit(): void {
-    this.syncThemeState();
     this.loadCart();
 
     this.userService.currentUser$
@@ -227,10 +226,6 @@ export class Cart implements OnInit {
     this.stockWarningTimeout = setTimeout(() => {
       this.stockWarningItemId.set(null);
     }, 2500);
-  }
-
-  private syncThemeState(): void {
-    this.isDarkTheme.set(document.documentElement.classList.contains('dark-theme'));
   }
 
   private extractErrorMessage(err: HttpErrorResponse): string {
