@@ -38,7 +38,6 @@ An end-to-end e-commerce storefront for phone accessories (cases, chargers, cabl
 - [Environment Setup](#environment-setup)
 - [Running Locally](#running-locally)
 - [Build & Production Deployment](#build--production-deployment)
-- [Docker](#docker)
 - [Testing](#testing)
 - [Performance & Security Considerations](#performance--security-considerations)
 - [Roadmap](#roadmap)
@@ -132,7 +131,7 @@ The storefront is designed to convert: skeleton loading states, stock badges (lo
 | **Styling** | SCSS + CSS custom-property design tokens, mobile-first responsive layout |
 | **Forms** | Template & reactive forms (Angular Forms) |
 | **Unit tests** | [Vitest](https://vitest.dev/) + `jsdom` (via `@angular/build:unit-test`) |
-| **Linting** | ESLint + `typescript-eslint` + `angular-eslint` + `eslint-plugin-boundaries` |
+| **Linting** | ESLint + `typescript-eslint` + `angular-eslint` + `eslint-plugin-import-next` (import order/rules) + `eslint-plugin-boundaries` (layer boundaries) |
 | **Formatting** | Prettier (print width 100, single quotes) |
 | **Edge deployment** | [Cloudflare Workers](https://workers.cloudflare.com/) via Wrangler — static assets + `/api/*` proxy |
 | **Backend API** | REST (JSON) against a Spring-style paginated API (`Page<T>` shape) |
@@ -462,6 +461,27 @@ npx wrangler deploy
 
 `wrangler.jsonc` wires the built bundle as static assets (with SPA fallback), runs the fast `GET/HEAD` asset path by default, and routes `/api/*` through the proxy worker to the backend first (`run_worker_first: ["/api/*"]`).
 
+### Continuous Integration
+
+A GitHub Actions workflow (`.github/workflows/ci.yml`) runs on every push/PR to `main` and executes the quality gates in order: `npm ci` → `npm run lint` → `npm test -- --watch=false` → `npm run build`. Because `src/environments/environment.development.ts` is git-ignored, the pipeline creates it from `environment.development.ts.example` before running the unit tests.
+
+---
+
+## Testing
+
+Unit tests run on **Vitest + jsdom** through the `@angular/build:unit-test` builder (`ng test`). Every component ships with a smoke spec (`should create`), and guards, interceptors and services have dedicated spec files.
+
+```bash
+npm test                     # watch mode
+npm test -- --watch=false    # single run (used by CI)
+npx ng test --coverage       # with coverage report
+```
+
+A few notes:
+
+- Isolated component tests render with a lightweight `ActivatedRoute` mock (`src/app/testing/activated-route-mock.ts`) plus `provideHttpClientTesting()`, so specs never hit the network or depend on the live router.
+- The `development` configuration applies `fileReplacements` to `environment.development.ts`, which is git-ignored — copy the example file before running the suite in a fresh checkout (the CI pipeline does this automatically).
+
 ---
 
 ## Performance & Security Considerations
@@ -500,7 +520,8 @@ Based on current functionality and natural next steps:
 - [ ] **Analytics & observability** — error reporting (Sentry) and anonymized shopping analytics.
 - [ ] **PWA** — complete the manifest with a service worker for offline + installability.
 - [ ] **Docker build pipeline** — containerized static hosting as an alternative to Worker deployment.
-- [ ] **CI/CD** — add GitHub Actions for lint → test → build → deploy on push.
+- [x] **CI/CD** — GitHub Actions pipeline for lint → test → build on push/PR.
+- [ ] **CI/CD deploy step** — extend the existing pipeline to deploy the build automatically.
 
 ---
 
