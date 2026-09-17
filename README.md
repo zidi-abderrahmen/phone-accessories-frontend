@@ -178,6 +178,8 @@ frontend/
 ├── tsconfig.json
 ├── tsconfig.spec.json
 ├── wrangler.jsonc                     # Cloudflare Workers configuration (assets + API proxy)
+├── playwright.config.ts               # Playwright E2E configuration (webServer, reporters)
+├── e2e/                               # Playwright happy-path spec + support/global-setup
 ├── public/                            # Static assets (favicon, manifest, og-image)
 │   ├── assets/
 │   ├── favicon.ico
@@ -406,8 +408,12 @@ Then set the URL to match your local backend, e.g.:
 export const environment = {
   production: false,
   apiUrl: 'http://localhost:8080/api',
+  demoPayment: true,
+  demoContactForm: true,
 };
 ```
+
+The `demoPayment` and `demoContactForm` flags drive the reusable `<app-demo-banner>`: the first labels the mock checkout, the second labels the contact form that has no backend endpoint yet. Flip each to `false` once a real integration replaces it — the banner then disappears automatically.
 
 If you also deploy the Cloudflare Worker, update `API_URL` in `wrangler.jsonc` to point at your hosted backend.
 
@@ -465,7 +471,7 @@ npx wrangler deploy
 
 ### Continuous Integration
 
-A GitHub Actions workflow (`.github/workflows/ci.yml`) runs on every push/PR to `main` and executes the quality gates in order: `npm ci` → `npm run lint` → `npm test -- --watch=false` → `npm run build`. Because `src/environments/environment.development.ts` is git-ignored, the pipeline creates it from `environment.development.ts.example` before running the unit tests.
+A GitHub Actions workflow (`.github/workflows/ci.yml`) runs on every push/PR to `main` and executes the quality gates in order: `npm ci` → `npm run lint` → `npm test -- --watch=false` → `npm run build`. Because `src/environments/environment.development.ts` is git-ignored, the pipeline creates it from `environment.development.ts.example` before running the unit tests. The Playwright suite is intentionally left out of CI — it requires a live backend, a database, and a seeded super-admin.
 
 ---
 
@@ -483,6 +489,18 @@ A few notes:
 
 - Isolated component tests render with a lightweight `ActivatedRoute` mock (`src/app/testing/activated-route-mock.ts`) plus `provideHttpClientTesting()`, so specs never hit the network or depend on the live router.
 - The `development` configuration applies `fileReplacements` to `environment.development.ts`, which is git-ignored — copy the example file before running the suite in a fresh checkout (the CI pipeline does this automatically).
+
+### E2E (Playwright)
+
+A real-browser happy path (`e2e/happy-path.spec.ts`) drives login → catalog → add to cart → checkout → order success → admin dashboard against a running backend and frontend. `e2e/support/global-setup.ts` fails fast if either server is unreachable or the super-admin credentials are missing.
+
+```bash
+npm run e2e            # headless run (boots ng serve if it isn't already running)
+npm run e2e:headed     # watch the browser
+npm run e2e:report     # open the HTML report
+```
+
+Requirements: the backend on `:8080` with a seeded super-admin, and credentials supplied via `backend/src/main/resources/application-dev.yaml` (`application.super_admin.*`) or the `E2E_ADMIN_EMAIL` / `E2E_ADMIN_PASSWORD` env vars. Playwright artifacts (`playwright-report/`, `test-results/`) are git-ignored.
 
 ---
 
@@ -514,9 +532,9 @@ A few notes:
 
 Based on current functionality and natural next steps:
 
-- [ ] **E2E test suite** — add Playwright/Cypress coverage for the critical storefront journeys (browse → cart → checkout → orders).
+- [x] **E2E test suite** — Playwright happy path covering browse → cart → checkout → order success → admin dashboard. Further journeys (returns, wishlist, admin CRUD) can be added to `e2e/`.
 - [ ] **State management hardening** — introduce signal stores (e.g. `@ngrx/signals` or `ngxtension`) for cart/wishlist if cross-component state grows.
-- [ ] **Payment gateway integration** — the checkout UI already models Card/PayPal; wire a real provider behind the payment step.
+- [ ] **Real payment gateway** — the checkout already runs Card/PayPal through a mock gateway with a demo banner; swap in a live provider behind the same step.
 - [ ] **i18n / RTL** — the checkout already formats `TND`; localize strings and add Arabic locale support for the Tunisian market.
 - [ ] **Order confirmation emails** — surface email status and resend actions.
 - [ ] **Analytics & observability** — error reporting (Sentry) and anonymized shopping analytics.
