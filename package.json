@@ -7,7 +7,10 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "lint": "ng lint"
+    "lint": "ng lint",
+    "e2e": "playwright test",
+    "e2e:headed": "playwright test --headed",
+    "e2e:report": "playwright show-report"
   },
   "private": true,
   "packageManager": "npm@11.17.0",
@@ -27,6 +30,7 @@
     "@angular/compiler-cli": "^22.1.0",
     "@cloudflare/workers-types": "^5.20260907.1",
     "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.63.0",
     "angular-eslint": "22.5.0",
     "eslint": "^10.9.1",
     "eslint-import-resolver-typescript": "^4.4.5",
