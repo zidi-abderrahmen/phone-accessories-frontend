@@ -16,6 +16,7 @@ import { Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 import { CartItemResponse } from '../../../core/models/cart/items/cart-item-response';
 import { PaymentMethod } from '../../../core/models/checkout/enums/payment-method';
+import { PaymentStatus } from '../../../core/models/checkout/enums/payment-status';
 import { ShippingMethod } from '../../../core/models/checkout/enums/shipping-method';
 import { OrderRequest } from '../../../core/models/checkout/order-request';
 import { OrderResponse } from '../../../core/models/checkout/order-response';
@@ -23,6 +24,7 @@ import { RegisterResponse } from '../../../core/models/user/register/register.re
 import { CartService } from '../../../core/services/cart/cart.service';
 import { OrderService } from '../../../core/services/checkout/order.service';
 import { UserService } from '../../../core/services/user/user.service';
+import { DemoBanner } from '../../../shared/components/demo-banner/demo-banner';
 
 type StepId = 'information' | 'delivery' | 'payment' | 'review';
 
@@ -40,7 +42,7 @@ const SHIPPING_FEES: Record<ShippingMethod, number> = {
 @Component({
   selector: 'app-checkout',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, DemoBanner],
   templateUrl: './check-out.html',
   styleUrl: './check-out.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -56,6 +58,7 @@ export class CheckOut implements OnInit {
   // Enums exposed to the template
   // ---------------------------------------------------------------------
   readonly PaymentMethod = PaymentMethod;
+  readonly PaymentStatus = PaymentStatus;
   readonly ShippingMethod = ShippingMethod;
 
   // ---------------------------------------------------------------------
@@ -382,6 +385,25 @@ export class CheckOut implements OnInit {
   // ---------------------------------------------------------------------
   paymentLabel(method: PaymentMethod): string {
     return this.paymentOptions.find((o) => o.value === method)?.label ?? '—';
+  }
+
+  paymentStatusLabel(status: PaymentStatus): string {
+    switch (status) {
+      case PaymentStatus.PAID:
+        return 'Paid';
+      case PaymentStatus.PENDING:
+        return 'Payment pending';
+      case PaymentStatus.FAILED:
+        return 'Payment failed';
+      case PaymentStatus.REFUNDED:
+        return 'Refunded';
+      default:
+        return status;
+    }
+  }
+
+  totalLabel(status: PaymentStatus): string {
+    return status === PaymentStatus.PAID ? 'Total paid' : 'Amount due';
   }
 
   shippingLabel(method: ShippingMethod): string {

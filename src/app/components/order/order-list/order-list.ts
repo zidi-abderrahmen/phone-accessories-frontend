@@ -2,6 +2,7 @@ import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { OrderStatus } from '../../../core/models/checkout/enums/order-status';
 import { PaymentMethod } from '../../../core/models/checkout/enums/payment-method';
+import { PaymentStatus } from '../../../core/models/checkout/enums/payment-status';
 import { OrderResponse } from '../../../core/models/checkout/order-response';
 import { OrderService } from '../../../core/services/checkout/order.service';
 import { RouterLink } from '@angular/router';
@@ -110,5 +111,15 @@ export class OrderList implements OnInit {
       [PaymentMethod.CASH_ON_DELIVERY]: 'Cash on delivery',
     };
     return map[method] ?? String(method);
+  }
+
+  paymentStatusLabel(status: PaymentStatus): string {
+    const map: Record<PaymentStatus, string> = {
+      [PaymentStatus.PENDING]: 'Payment pending',
+      [PaymentStatus.PAID]: 'Paid',
+      [PaymentStatus.FAILED]: 'Payment failed',
+      [PaymentStatus.REFUNDED]: 'Refunded',
+    };
+    return map[status] ?? String(status);
   }
 }

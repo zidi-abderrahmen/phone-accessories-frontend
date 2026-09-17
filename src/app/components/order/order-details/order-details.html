@@ -83,6 +83,12 @@
             }}</span>
           </div>
           <div class="pa-order-details__fact">
+            <span class="pa-order-details__fact-label">Payment status</span>
+            <span class="pa-order-details__fact-value">{{
+              paymentStatusLabel(order.paymentStatus)
+            }}</span>
+          </div>
+          <div class="pa-order-details__fact">
             <span class="pa-order-details__fact-label">Delivery</span>
             <span class="pa-order-details__fact-value">{{
               shippingLabel(order.shippingMethod)
@@ -96,6 +102,9 @@
           </div>
         </div>
       </header>
+      <app-demo-banner
+        [message]="'this order uses the demo payment gateway — no real charge was made.'"
+      />
       <div class="pa-order-details__layout">
         <!-- ========================= MAIN COLUMN ========================= -->
         <div class="pa-order-details__main">
@@ -198,6 +207,12 @@
               <span>Total</span>
               <span>{{ order.totalAmount | number: '1.2-2' }} TND</span>
             </div>
+            @if (order.paymentReference) {
+              <div class="pa-order-summary-card__row">
+                <span>Payment reference</span>
+                <span class="pa-font-mono">{{ order.paymentReference }}</span>
+              </div>
+            }
             <div class="pa-order-summary-card__trust">
               <svg
                 viewBox="0 0 24 24"

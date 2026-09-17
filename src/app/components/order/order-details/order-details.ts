@@ -10,10 +10,12 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { OrderStatus } from '../../../core/models/checkout/enums/order-status';
 import { PaymentMethod } from '../../../core/models/checkout/enums/payment-method';
+import { PaymentStatus } from '../../../core/models/checkout/enums/payment-status';
 import { ShippingMethod } from '../../../core/models/checkout/enums/shipping-method';
 import { OrderResponse } from '../../../core/models/checkout/order-response';
 import { OrderService } from '../../../core/services/checkout/order.service';
 import { AccessoryResponse } from '../../../core/models/accessory/accessory-response';
+import { DemoBanner } from '../../../shared/components/demo-banner/demo-banner';
 
 /**
  * ASSUMPTIONS — please verify against your actual project structure:
@@ -31,7 +33,7 @@ import { AccessoryResponse } from '../../../core/models/accessory/accessory-resp
 @Component({
   selector: 'app-order-details',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, DemoBanner],
   templateUrl: './order-details.html',
   styleUrl: './order-details.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -41,6 +43,7 @@ export class OrderDetails implements OnInit {
   private readonly orderService = inject(OrderService);
 
   readonly OrderStatus = OrderStatus;
+  readonly PaymentStatus = PaymentStatus;
 
   readonly isLoading = signal(true);
   readonly loadError = signal<string | null>(null);
@@ -138,6 +141,21 @@ export class OrderDetails implements OnInit {
         return 'Cash on Delivery';
       default:
         return method;
+    }
+  }
+
+  paymentStatusLabel(status: PaymentStatus): string {
+    switch (status) {
+      case PaymentStatus.PAID:
+        return 'Paid';
+      case PaymentStatus.PENDING:
+        return 'Payment pending';
+      case PaymentStatus.FAILED:
+        return 'Payment failed';
+      case PaymentStatus.REFUNDED:
+        return 'Refunded';
+      default:
+        return status;
     }
   }
 

@@ -1,0 +1,40 @@
+// ============================================
+// DEMO BANNER COMPONENT
+// Phone Accessories | Angular E-Commerce
+// Tells shoppers the payment step is a mock.
+// ============================================
+
+.pa-demo-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--pa-space-3);
+  margin: 0 0 var(--pa-space-6);
+  padding: var(--pa-space-3) var(--pa-space-4);
+  border: 1px dashed var(--pa-warning);
+  border-radius: var(--pa-radius-lg);
+  background-color: var(--pa-warning-subtle, var(--pa-warning-muted));
+  color: var(--pa-text-primary);
+
+  &__icon {
+    display: inline-flex;
+    flex-shrink: 0;
+    color: var(--pa-warning);
+
+    svg {
+      display: block;
+      width: 20px;
+      height: 20px;
+    }
+  }
+
+  &__text {
+    margin: 0;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: var(--pa-text-secondary);
+
+    strong {
+      color: var(--pa-text-primary);
+    }
+  }
+}

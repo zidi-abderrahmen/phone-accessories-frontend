@@ -4,6 +4,9 @@
   <!-- ============================================================ -->
   @if (orderPlaced() && placedOrder(); as order) {
     <section class="pa-checkout-success pa-container pa-container--narrow">
+      <app-demo-banner
+        [message]="'your order was recorded, but no payment was actually taken.'"
+      />
       <div class="pa-checkout-success__icon" aria-hidden="true">
         <svg
           viewBox="0 0 24 24"
@@ -30,6 +33,10 @@
           <strong>{{ paymentLabel(order.paymentMethod) }}</strong>
         </div>
         <div class="pa-checkout-success__row">
+          <span>Payment status</span>
+          <strong>{{ paymentStatusLabel(order.paymentStatus) }}</strong>
+        </div>
+        <div class="pa-checkout-success__row">
           <span>Delivery method</span>
           <strong>{{ shippingLabel(order.shippingMethod) }}</strong>
         </div>
@@ -39,7 +46,7 @@
         </div>
         <hr class="pa-divider" />
         <div class="pa-checkout-success__row pa-checkout-success__row--total">
-          <span>Total paid</span>
+          <span>{{ totalLabel(order.paymentStatus) }}</span>
           <strong>{{ order.totalAmount | number: '1.2-2' }} TND</strong>
         </div>
       </div>
@@ -105,6 +112,9 @@
           </ol>
         </nav>
       </header>
+      <app-demo-banner
+        [message]="'payment details are collected for demonstration only — no card is ever charged.'"
+      />
       <div class="pa-checkout__layout">
         <!-- ========================= MAIN COLUMN ========================= -->
         <div class="pa-checkout__main">
