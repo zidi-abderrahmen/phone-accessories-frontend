@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators, type FormGroup } from '@angular/forms';
 import { Navbar } from "../../shared/components/navbar/navbar";
+import { DemoBanner } from '../../shared/components/demo-banner/demo-banner';
+import { environment } from '../../../environments/environment';
 
 type SubmitStatus = 'idle' | 'submitting' | 'success' | 'error';
 
@@ -43,7 +45,7 @@ interface FaqPreviewItem {
 @Component({
   selector: 'app-about-contact',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, Navbar],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, Navbar, DemoBanner],
   templateUrl: './about-contact.html',
   styleUrl: './about-contact.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -53,6 +55,12 @@ export class AboutContact {
 
   readonly submitStatus = signal<SubmitStatus>('idle');
   readonly errorMessage = signal<string>('');
+
+  readonly demoContactForm = environment.demoContactForm;
+  readonly contactEmail = 'zd.abderrahmen@gmail.com';
+  readonly contactEmailHref = 'mailto:zd.abderrahmen@gmail.com';
+  readonly contactPhone = '+216 12 345 678';
+  readonly contactPhoneHref = 'tel:+21612345678';
 
   readonly contactForm: FormGroup = this.formBuilder.group({
     name: ['', [Validators.required, Validators.minLength(2)]],
@@ -73,7 +81,7 @@ export class AboutContact {
       icon: 'compass',
       title: 'Who we are',
       description:
-        'Phone Accessories started as a small Tunisian storefront for people tired of guessing whether a case or charger would actually fit. We now curate accessories for every phone we can get our hands on, and test each one before it goes on the shelf.',
+        'Phone Accessories is a small Tunisian storefront run by Zidi Abderrahmen, for people tired of guessing whether a case or charger would actually fit. We now curate accessories for every phone we can get our hands on, and test each one before it goes on the shelf.',
     },
     {
       icon: 'layers',
@@ -124,14 +132,14 @@ export class AboutContact {
     {
       icon: 'mail',
       label: 'Email',
-      value: 'support@phoneaccessories.tn',
-      href: 'mailto:support@phoneaccessories.tn',
+      value: this.contactEmail,
+      href: this.contactEmailHref,
     },
     {
       icon: 'phone',
       label: 'Phone',
-      value: '+216 71 234 567',
-      href: 'tel:+21671234567',
+      value: this.contactPhone,
+      href: this.contactPhoneHref,
     },
     {
       icon: 'clock',
@@ -177,27 +185,13 @@ export class AboutContact {
   }
 
   onSubmit(): void {
-    if (this.submitStatus() === 'submitting') {
-      return;
-    }
-
     if (this.contactForm.invalid) {
       this.contactForm.markAllAsTouched();
       return;
     }
 
-    this.submitStatus.set('submitting');
     this.errorMessage.set('');
-
-    // TODO: replace this simulated request with the real endpoint, e.g.
-    // this.contactService.sendMessage(this.contactForm.getRawValue()).subscribe({
-    //   next: () => this.submitStatus.set('success'),
-    //   error: () => this.submitStatus.set('error'),
-    // });
-    setTimeout(() => {
-      this.submitStatus.set('success');
-      this.contactForm.reset();
-    }, 1100);
+    this.submitStatus.set('success');
   }
 
   dismissStatus(): void {

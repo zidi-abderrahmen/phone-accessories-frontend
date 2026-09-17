@@ -2,9 +2,11 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { environment } from '../../../../environments/environment';
 
 /**
- * Warns shoppers that checkout is running against a mock payment gateway.
- * Rendered only while `environment.demoPayment` is true so it disappears
- * automatically once a real provider is wired in.
+ * Inline warning that a feature is running in demo mode.
+ *
+ * Defaults to the mock-payment notice (driven by `environment.demoPayment`), but
+ * callers can override both `visible` and `message` for any other feature that is
+ * not wired up to a real backend yet.
  */
 @Component({
   selector: 'app-demo-banner',

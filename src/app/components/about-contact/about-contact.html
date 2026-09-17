@@ -229,17 +229,29 @@
           Include your order number if this is about a purchase — it helps us answer faster.
         </p>
 
+        <app-demo-banner
+          [visible]="demoContactForm"
+          [message]="
+            'this contact form is a preview and does not send anything yet. Email ' +
+            contactEmail +
+            ' to reach us directly.'
+          "
+        />
+
         @if (submitStatus() === 'success') {
-          <div class="ac-form-status ac-form-status--success" role="status" aria-live="polite">
+          <div class="ac-form-status ac-form-status--demo" role="status" aria-live="polite">
             <div class="ac-form-status__icon">
-              <ng-container [ngTemplateOutlet]="icon" [ngTemplateOutletContext]="{ name: 'check-circle' }" />
+              <ng-container [ngTemplateOutlet]="icon" [ngTemplateOutletContext]="{ name: 'alert-circle' }" />
             </div>
             <div class="ac-form-status__text">
-              <strong>Message sent.</strong>
-              <span>We usually reply within one business day.</span>
+              <strong>Nothing was sent.</strong>
+              <span>
+                This contact form is a demo and isn't connected to an inbox yet. To reach us for
+                real, email <a [href]="contactEmailHref">{{ contactEmail }}</a>.
+              </span>
             </div>
             <button type="button" class="pa-btn pa-btn--text pa-btn--sm" (click)="dismissStatus()">
-              Send another
+              Back to form
             </button>
           </div>
         } @else {

@@ -26,4 +26,35 @@ describe('AboutContact', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('shows the real contact details', () => {
+    const text = fixture.nativeElement.textContent as string;
+
+    expect(text).toContain('zd.abderrahmen@gmail.com');
+    expect(text).toContain('+216 12 345 678');
+    expect(text).toContain('Bizerte, Tunisia');
+  });
+
+  it('labels the form as a demo instead of pretending to send', () => {
+    const text = fixture.nativeElement.textContent as string;
+
+    expect(text).toContain('does not send anything yet');
+  });
+
+  it('tells the user nothing was sent after submitting', () => {
+    component.contactForm.setValue({
+      name: 'Test User',
+      email: 'test@example.com',
+      subject: 'other',
+      message: 'This is a long enough demo message.',
+    });
+
+    component.onSubmit();
+    fixture.detectChanges();
+
+    const text = fixture.nativeElement.textContent as string;
+    expect(component.submitStatus()).toBe('success');
+    expect(text).toContain('Nothing was sent.');
+    expect(text).toContain("isn't connected to an inbox yet");
+  });
 });

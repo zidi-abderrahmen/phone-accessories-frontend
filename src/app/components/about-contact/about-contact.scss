@@ -363,6 +363,24 @@ $breakpoints: (
       color: var(--pa-danger);
     }
   }
+
+  &--demo {
+    background-color: var(--pa-warning-muted);
+    border-color: var(--pa-warning-subtle);
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--pa-space-3);
+
+    .ac-form-status__icon {
+      color: var(--pa-warning);
+    }
+
+    a {
+      color: var(--pa-primary);
+      font-weight: 600;
+    }
+  }
 }
 
 // ================================================================
