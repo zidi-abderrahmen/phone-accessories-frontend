@@ -361,6 +361,8 @@ Responses follow a Spring-style **`Page<T>`** envelope (`content`, `totalElement
 
 In development the app talks directly to `http://localhost:8080/api`. In production the `apiUrl` is the relative `/api`, which is proxied by a **Cloudflare Worker** (`src/worker.ts` + `wrangler.jsonc`): the worker forwards all `/api/*` traffic to the configured `API_URL` (currently `https://phone-accessories-backend.onrender.com`), sanitizing hop-by-hop headers and preserving the method and body, while serving the built SPA from the `ASSETS` binding with SPA fallback (`not_found_handling: single-page-application`).
 
+> **Topology note.** This proxy is also the trust boundary for the backend's rate limiter, which keys on `X-Forwarded-For`: keep the Render origin reachable **only through Cloudflare** (never expose the `onrender.com` URL directly), otherwise clients can spoof the header and bypass the per-IP limit. The production database is a **Neon** PostgreSQL instance (not Render Postgres); schema migrations run automatically via Flyway on backend startup.
+
 ---
 
 ## Installation
