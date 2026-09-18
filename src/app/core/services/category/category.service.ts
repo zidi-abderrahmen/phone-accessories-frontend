@@ -2,8 +2,9 @@ import { Service, inject } from '@angular/core';
 import { environment } from '../../../../environments/environment';
 import { HttpClient, HttpContext, HttpParams } from '@angular/common/http';
 import { CategoryResponse } from '../../models/category/category-response';
-import { Observable, tap } from 'rxjs';
-import { Page } from '../../models/page';
+import { Observable, map, tap } from 'rxjs';
+import { Page } from '../../models/page/page';
+import { mapToPage } from '../../models/page/map-to-page';
 import { CategoryRequest } from '../../models/category/category-request';
 import { AccessoryResponse } from '../../models/accessory/accessory-response';
 import { SKIP_GLOBAL_ERROR_HANDLING } from '../../interceptors/error/error-context';
@@ -28,7 +29,9 @@ export class CategoryService {
       params = params.set('sort', sort);
     }
 
-    return this.http.get<Page<CategoryResponse>>(this.apiUrl, { params });
+    return this.http.get<Page<CategoryResponse>>(this.apiUrl, { params }).pipe(
+      map((response) => mapToPage(response)),
+    );
   }
 
   getAllRelatedAccessories(
@@ -41,7 +44,9 @@ export class CategoryService {
 
     if (sort) params = params.set('sort', sort);
 
-    return this.http.get<Page<AccessoryResponse>>(`${this.apiUrl}/${id}/accessories`, { params });
+    return this.http.get<Page<AccessoryResponse>>(`${this.apiUrl}/${id}/accessories`, { params }).pipe(
+      map((response) => mapToPage(response)),
+    );
   }
 
   getCategoryById(id: number): Observable<CategoryResponse> {

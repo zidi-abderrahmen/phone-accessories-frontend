@@ -3,7 +3,7 @@ export interface Page<T> {
     totalElements: number;
     totalPages: number;
     size: number;
-    pageNumber: number;
+    number: number;
     first: boolean;
     last: boolean;
     empty: boolean;

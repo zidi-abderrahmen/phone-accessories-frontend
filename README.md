@@ -357,7 +357,7 @@ provideHttpClient(withInterceptors([credentialsInterceptor, cacheInterceptor, er
 | Users | `/users` | list (blocked/deleted filters), create admin, block/unblock, delete/restore, roles CRUD (soft/hard delete) |
 | Admin | `/admin` | dashboard metrics + recent orders |
 
-Responses follow a Spring-style **`Page<T>`** envelope (`content`, `totalElements`, `totalPages`, `size`, `pageNumber`, `first`, `last`, `empty`), modeled in `core/models/page.ts` and consumed via `HttpParams`-based pagination in all list endpoints.
+Responses follow a Spring-style **`Page<T>`** envelope (`content`, `totalElements`, `totalPages`, `size`, `number`, `first`, `last`, `empty`), modeled in `core/models/page.ts` and consumed via `HttpParams`-based pagination in all list endpoints.
 
 ### Backend proxy
 

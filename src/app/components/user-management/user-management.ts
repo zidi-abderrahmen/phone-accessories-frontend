@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Page } from '../../core/models/page';
+import { Page } from '../../core/models/page/page';
 import { RegisterRequest } from '../../core/models/user/register/register.request';
 import { RegisterResponse } from '../../core/models/user/register/register.response';
 import { UserManagementService } from '../../core/services/user-management/user-management.service';
@@ -114,7 +114,7 @@ export class UserManagement implements OnInit, OnDestroy {
           this.users.set(content);
 
           if (!Array.isArray(pageResponse)) {
-            this.currentPage = pageResponse.pageNumber ?? page;
+            this.currentPage = pageResponse.number ?? page;
             this.pageSize = pageResponse.size ?? this.pageSize;
             this.totalElements = pageResponse.totalElements ?? content.length;
             this.totalPages = pageResponse.totalPages ?? 1;

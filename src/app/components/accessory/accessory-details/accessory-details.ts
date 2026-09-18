@@ -13,7 +13,7 @@ import { FormsModule } from '@angular/forms';
 import { ReviewService } from '../../../core/services/review/review.service';
 import { ReviewRequest } from '../../../core/models/review/review-request';
 import { ReviewResponse } from '../../../core/models/review/review-response';
-import { Page } from '../../../core/models/page';
+import { Page } from '../../../core/models/page/page';
 import { RegisterResponse } from '../../../core/models/user/register/register.response';
 import { WishlistFacadeService } from '../../../core/services/wishlist-facade/wishlist-facade.service';
 

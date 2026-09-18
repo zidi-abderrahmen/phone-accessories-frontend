@@ -1,7 +1,7 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { CategoryResponse } from '../../core/models/category/category-response';
-import { Page } from '../../core/models/page';
+import { Page } from '../../core/models/page/page';
 import { CategoryService } from '../../core/services/category/category.service';
 import { CommonModule, DatePipe } from '@angular/common';
 import { AuthService } from '../../core/services/auth/auth.service';
@@ -58,7 +58,7 @@ export class Categories implements OnInit {
         this.page = response;
         this.categories.set(response.content);
         this.filteredCategories = [...response.content];
-        this.currentPage = response.pageNumber ?? 0;
+        this.currentPage = response.number ?? 0;
         this.pageSize = response.size;
         this.totalElements = response.totalElements;
         this.totalPages = response.totalPages;

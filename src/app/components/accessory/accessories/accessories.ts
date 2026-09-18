@@ -3,7 +3,7 @@ import { Component, inject, OnInit, signal, computed, DestroyRef } from '@angula
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { AccessoryResponse } from '../../../core/models/accessory/accessory-response';
 import { CategoryResponse } from '../../../core/models/category/category-response';
-import { Page } from '../../../core/models/page';
+import { Page } from '../../../core/models/page/page';
 import { AccessoryService } from '../../../core/services/accessory/accessory.service';
 import { CategoryService } from '../../../core/services/category/category.service';
 import { AuthService } from '../../../core/services/auth/auth.service';
@@ -108,7 +108,7 @@ export class Accessories implements OnInit {
       next: (response) => {
         this.page = response;
         this.accessories.set(response.content);
-        this.currentPage = response.pageNumber ?? 0;
+        this.currentPage = response.number ?? 0;
         this.pageSize = response.size;
         this.totalElements = response.totalElements;
         this.totalPages = response.totalPages;

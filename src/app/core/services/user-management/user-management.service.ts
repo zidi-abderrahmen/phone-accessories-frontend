@@ -1,13 +1,14 @@
 import { HttpClient, HttpContext, HttpParams } from '@angular/common/http';
 import { inject, Service } from '@angular/core';
 import { environment } from '../../../../environments/environment';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { RegisterResponse } from '../../models/user/register/register.response';
 import { RegisterRequest } from '../../models/user/register/register.request';
 import { RoleRequest } from '../../models/user/role/role-request';
 import { RoleResponse } from '../../models/user/role/role-response';
 import { SKIP_GLOBAL_ERROR_HANDLING } from '../../interceptors/error/error-context';
-import { Page } from '../../models/page';
+import { Page } from '../../models/page/page';
+import { mapToPage } from '../../models/page/map-to-page';
 
 @Service()
 export class UserManagementService {
@@ -35,7 +36,9 @@ export class UserManagementService {
             params = params.set('sort', sort);
         }
 
-        return this.http.get<Page<RegisterResponse>>(this.apiUrl, { withCredentials: true, params });
+        return this.http.get<Page<RegisterResponse>>(this.apiUrl, { withCredentials: true, params }).pipe(
+            map((response) => mapToPage(response)),
+        );
     }
 
     createAdmin(data: RegisterRequest): Observable<RegisterResponse> {

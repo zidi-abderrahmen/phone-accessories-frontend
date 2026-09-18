@@ -1,11 +1,12 @@
 import { HttpClient, HttpContext, HttpParams } from '@angular/common/http';
 import { inject, Service } from '@angular/core';
 import { environment } from '../../../../environments/environment';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { ReviewResponse } from '../../models/review/review-response';
 import { ReviewRequest } from '../../models/review/review-request';
 import { SKIP_GLOBAL_ERROR_HANDLING } from '../../interceptors/error/error-context';
-import { Page } from '../../models/page';
+import { Page } from '../../models/page/page';
+import { mapToPage } from '../../models/page/map-to-page';
 
 @Service()
 export class ReviewService {
@@ -25,7 +26,9 @@ export class ReviewService {
             params = params.set('sort', sort);
         }
 
-        return this.http.get<Page<ReviewResponse>>(`${this.apiUrl}/accessory/${id}`, { params });
+        return this.http.get<Page<ReviewResponse>>(`${this.apiUrl}/accessory/${id}`, { params }).pipe(
+            map((response) => mapToPage(response)),
+        );
     }
 
     createReview(id: number, data: ReviewRequest): Observable<ReviewResponse> {

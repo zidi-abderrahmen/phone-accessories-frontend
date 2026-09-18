@@ -1,9 +1,10 @@
 import { HttpClient, HttpContext, HttpParams } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
 import { Service, inject } from '@angular/core';
-import { Observable, tap } from 'rxjs';
+import { Observable, map, tap } from 'rxjs';
 import { AccessoryResponse } from '../../models/accessory/accessory-response';
-import { Page } from '../../models/page';
+import { Page } from '../../models/page/page';
+import { mapToPage } from '../../models/page/map-to-page';
 import { AccessoryRequest } from '../../models/accessory/accessory-request';
 import { SearchRequest } from '../../models/accessory/search/search-request';
 import { SKIP_GLOBAL_ERROR_HANDLING } from '../../interceptors/error/error-context';
@@ -27,7 +28,9 @@ export class AccessoryService {
             params = params.set('sort', sort);
         }
 
-        return this.http.get<Page<AccessoryResponse>>(this.apiUrl, { params });
+        return this.http.get<Page<AccessoryResponse>>(this.apiUrl, { params }).pipe(
+            map((response) => mapToPage(response)),
+        );
     }
 
     getAccessoryById(id: number): Observable<AccessoryResponse> {
@@ -82,6 +85,8 @@ export class AccessoryService {
             params = params.set('inStock', data.inStock.toString());
         }
 
-        return this.http.get<Page<AccessoryResponse>>(`${this.apiUrl}/search`, { params });
+        return this.http.get<Page<AccessoryResponse>>(`${this.apiUrl}/search`, { params }).pipe(
+            map((response) => mapToPage(response)),
+        );
     }
 }
