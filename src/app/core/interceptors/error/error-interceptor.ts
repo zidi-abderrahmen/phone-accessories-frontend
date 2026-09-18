@@ -1,10 +1,11 @@
 import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
+import { Router } from '@angular/router';
 import { BehaviorSubject, catchError, filter, switchMap, take, throwError } from 'rxjs';
 import { AuthService } from '../../services/auth/auth.service';
-import { Router } from '@angular/router';
+import { ToastService } from '../../services/feedback/toast.service';
 import { UserService } from '../../services/user/user.service';
-import { SKIP_GLOBAL_ERROR_HANDLING } from './error-context'
+import { SKIP_GLOBAL_ERROR_HANDLING } from './error-context';
 
 let isRefreshing = false;
 const refreshTokenSubject = new BehaviorSubject<boolean | null>(null);
@@ -13,6 +14,7 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
   const userService = inject(UserService);
   const router = inject(Router);
+  const toastService = inject(ToastService);
 
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
@@ -61,13 +63,17 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
 
       if (!skipGlobalHandling) {
         if (error.status === 403) {
+          toastService.error("You don't have permission to perform this action.");
           router.navigate(['/403']);
         } else if (error.status === 404) {
+          toastService.error('The requested page could not be found.');
           router.navigate(['/404']);
         } else if (error.status === 500) {
           console.error('Server connection failed');
+          toastService.error('Something went wrong on our side. Please try again later.');
         } else if (error.status === 0) {
           console.error('No connection');
+          toastService.error('Unable to connect to the server. Check your internet connection.');
         }
       }
 

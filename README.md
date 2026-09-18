@@ -468,11 +468,11 @@ npx wrangler dev
 npx wrangler deploy
 ```
 
-`wrangler.jsonc` wires the built bundle as static assets (with SPA fallback), runs the fast `GET/HEAD` asset path by default, and routes `/api/*` through the proxy worker to the backend first (`run_worker_first: ["/api/*"]`).
+`wrangler.jsonc` wires the built bundle as static assets (with SPA fallback), runs the fast `GET/HEAD` asset path by default, and routes `/api/*` through the proxy worker to the backend first (`run_worker_first: ["/api/*"]`). On every `main` push the CI pipeline runs these same steps automatically.
 
 ### Continuous Integration
 
-A GitHub Actions workflow (`.github/workflows/ci.yml`) runs on every push/PR to `main` and executes the quality gates in order: `npm ci` → `npm run lint` → `npm test -- --watch=false` → `npm run build`. Because `src/environments/environment.development.ts` is git-ignored, the pipeline creates it from `environment.development.ts.example` before running the unit tests. The Playwright suite is intentionally left out of CI — it requires a live backend, a database, and a seeded super-admin.
+A GitHub Actions workflow (`.github/workflows/ci.yml`) runs on every push/PR to `main`. The `build-and-test` job executes the quality gates in order: `npm ci` → `npm run lint` → `npm test -- --watch=false` → `npm run build`. On a `main` push, once the gates pass, the `deploy-worker` job stages the production build and runs `npx wrangler deploy`, shipping the app to Cloudflare Workers (`CLOUDFLARE_API_TOKEN` / `CLOUDFLARE_ACCOUNT_ID` from repo secrets). Because `src/environments/environment.development.ts` is git-ignored, the pipeline creates it from `environment.development.ts.example` before running the unit tests. The Playwright suite is intentionally left out of CI — it requires a live backend, a database, and a seeded super-admin.
 
 ---
 
@@ -541,8 +541,7 @@ Based on current functionality and natural next steps:
 - [ ] **Analytics & observability** — error reporting (Sentry) and anonymized shopping analytics.
 - [ ] **PWA** — complete the manifest with a service worker for offline + installability.
 - [ ] **Docker build pipeline** — containerized static hosting as an alternative to Worker deployment.
-- [x] **CI/CD** — GitHub Actions pipeline for lint → test → build on push/PR.
-- [ ] **CI/CD deploy step** — extend the existing pipeline to deploy the build automatically.
+- [x] **CI/CD** — GitHub Actions pipeline for lint → test → build, which auto-deploys to Cloudflare Workers on push to `main`.
 
 ---
 
