@@ -184,6 +184,9 @@
           <h2>Recent Orders</h2>
           <a routerLink="/admin/orders" class="pa-btn pa-btn--text pa-btn--sm">View all</a>
         </div>
+        @if (advanceError()) {
+          <p class="orders-table-advance-error" role="alert">{{ advanceError() }}</p>
+        }
         <!-- Empty state -->
         @if (data.lastOrders.length === 0) {
           <div class="recent-orders-empty">
@@ -201,7 +204,7 @@
                   <th scope="col">Status</th>
                   <th scope="col">Total</th>
                   <th scope="col">Payment</th>
-                  <th scope="col">Created</th>
+                  <th scope="col">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -225,6 +228,24 @@
                     </td>
                     <td class="pa-font-mono">${{ order.totalAmount | number: '1.2-2' }}</td>
                     <td>{{ paymentLabel(order.paymentMethod) }}</td>
+                    <td>
+                      @if (nextStatus(order.status); as next) {
+                        <button
+                          type="button"
+                          class="pa-btn pa-btn--primary pa-btn--sm"
+                          [disabled]="advancingOrderId() !== null"
+                          (click)="advanceStatus(order)"
+                        >
+                          @if (advancingOrderId() === order.id) {
+                            Advancing...
+                          } @else {
+                            Advance to {{ statusLabel(next) }}
+                          }
+                        </button>
+                      } @else {
+                        <span class="orders-table__terminal" aria-hidden="true">&mdash;</span>
+                      }
+                    </td>
                   </tr>
                 }
               </tbody>

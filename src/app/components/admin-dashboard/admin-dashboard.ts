@@ -3,6 +3,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 import { AdminDashboardService } from '../../core/services/admin-dashboard/admin-dashboard.service';
+import { OrderService } from '../../core/services/checkout/order.service';
 import { AdminDashboardResponse } from '../../core/models/admin-dashboard/admin-dashboard-response';
 import { OrderResponse } from '../../core/models/checkout/order-response';
 import { OrderStatus } from '../../core/models/checkout/enums/order-status';
@@ -26,12 +27,15 @@ interface QuickLink {
 })
 export class AdminDashboard implements OnInit {
   private readonly dashboardService = inject(AdminDashboardService);
+  private readonly orderService = inject(OrderService);
 
   readonly OrderStatus = OrderStatus;
 
   state = signal<DashboardState>('loading');
   dashboard = signal<AdminDashboardResponse | null>(null);
   errorMessage = signal('');
+  advancingOrderId = signal<number | null>(null);
+  advanceError = signal('');
 
   readonly quickLinks: QuickLink[] = [
     {
@@ -111,6 +115,42 @@ export class AdminDashboard implements OnInit {
       default:
         return method;
     }
+  }
+
+  nextStatus(status: OrderStatus): OrderStatus | null {
+    switch (status) {
+      case OrderStatus.PENDING:
+        return OrderStatus.PROCESSING;
+      case OrderStatus.PROCESSING:
+        return OrderStatus.SHIPPED;
+      case OrderStatus.SHIPPED:
+        return OrderStatus.DELIVERED;
+      case OrderStatus.DELIVERED:
+      case OrderStatus.CANCELLED:
+        return null;
+      default:
+        return null;
+    }
+  }
+
+  advanceStatus(order: OrderResponse): void {
+    if (this.advancingOrderId() !== null || this.nextStatus(order.status) === null) {
+      return;
+    }
+
+    this.advancingOrderId.set(order.id);
+    this.advanceError.set('');
+
+    this.orderService.advanceOrderStatus(order.id).subscribe({
+      next: () => {
+        this.advancingOrderId.set(null);
+        this.loadDashboard();
+      },
+      error: () => {
+        this.advancingOrderId.set(null);
+        this.advanceError.set(`Could not advance order #${order.id}. Please try again.`);
+      },
+    });
   }
 
   trackByOrderId(_index: number, order: OrderResponse): number {

@@ -248,6 +248,21 @@
   }
 }
 
+.orders-table-advance-error {
+  margin: 0 0 var(--pa-space-3);
+  padding: var(--pa-space-3) var(--pa-space-4);
+  border: 1px solid var(--pa-danger);
+  background-color: var(--pa-danger-muted);
+  color: var(--pa-danger);
+  border-radius: var(--pa-radius-md);
+  font-size: 0.875rem;
+}
+
+.orders-table__terminal {
+  color: var(--pa-text-tertiary);
+  font-size: 0.8125rem;
+}
+
 // Status badge — same visual language as Order History / Order Details
 .pa-status-badge {
   display: inline-flex;

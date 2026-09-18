@@ -90,6 +90,7 @@ The storefront is designed to convert: skeleton loading states, stock badges (lo
 ### Admin Suite (roles `ADMIN` / `SUPER_ADMIN`)
 
 - **Dashboard** — total orders, pending orders, revenue, users and accessories, plus recent orders.
+- **Order management** — advance recent orders through `PENDING → PROCESSING → SHIPPED → DELIVERED` from the dashboard.
 - **Category management** — create, edit and delete categories with image upload.
 - **Accessory management** — create, edit and delete accessories; catalog search and currency formatting.
 - **User management** — list users (with blocked/deleted filters), block/unblock, soft-delete/restore.

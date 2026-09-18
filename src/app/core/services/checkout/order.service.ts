@@ -34,6 +34,10 @@ export class OrderService {
         return this.http.put<void>(`${this.apiUrl}/${id}/cancel`, null, { withCredentials: true, context: this.context });
     }
 
+    advanceOrderStatus(id: number): Observable<OrderResponse> {
+        return this.http.patch<OrderResponse>(`${this.apiUrl}/${id}/status`, null, { withCredentials: true, context: this.context });
+    }
+
     deleteOrder(id: number): Observable<void> {
         return this.http.delete<void>(`${this.apiUrl}/${id}`, { withCredentials: true, context: this.context });
     }

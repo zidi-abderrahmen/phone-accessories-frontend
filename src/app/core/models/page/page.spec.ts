@@ -18,6 +18,6 @@ describe('mapToPage', () => {
     const result = mapToPage(apiResponse);
 
     expect(result.number).toBe(2);
-    expect((result as Record<string, unknown>).pageNumber).toBeUndefined();
+    expect((result as unknown as Record<string, unknown>)['pageNumber']).toBeUndefined();
   });
 });
