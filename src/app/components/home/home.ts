@@ -1,4 +1,4 @@
-import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -9,18 +9,17 @@ import { CartService } from '../../core/services/cart/cart.service';
 import { CategoryResponse } from '../../core/models/category/category-response';
 import { AccessoryResponse } from '../../core/models/accessory/accessory-response';
 import { CartItemRequest } from '../../core/models/cart/items/cart-item-request';
-import { RegisterResponse } from '../../core/models/user/register/register.response';
-import { UserService } from '../../core/services/user/user.service';
 import { Navbar } from "../../shared/components/navbar/navbar";
 import { Footer } from "../../shared/components/footer/footer";
 import { WishlistFacadeService } from '../../core/services/wishlist-facade/wishlist-facade.service';
+import { AccessoryCard } from '../../shared/components/accessory-card/accessory-card';
 
 type LoadState = 'idle' | 'loading' | 'loaded' | 'error';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, RouterLink, Navbar, Footer],
+  imports: [CommonModule, RouterLink, Navbar, Footer, AccessoryCard],
   templateUrl: './home.html',
   styleUrl: './home.scss'
 })
@@ -29,7 +28,6 @@ export class Home implements OnInit {
   private readonly accessoryService = inject(AccessoryService);
   private readonly cartService = inject(CartService);
   protected readonly wishlist = inject(WishlistFacadeService);
-  private readonly userService = inject(UserService);
   protected readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -45,23 +43,32 @@ export class Home implements OnInit {
   protected readonly accessoriesState = signal<LoadState>('idle');
   protected readonly productSkeletons = Array.from({ length: 8 });
 
-  // Auth / theme
-  protected readonly currentUser = signal<RegisterResponse | null>(null);
-  protected readonly isAuthenticated = computed(() => this.currentUser() !== null);
-  protected readonly isDarkTheme = signal(false);
-
   // Add-to-cart state, keyed by accessory id
   protected readonly pendingCartIds = signal<ReadonlySet<number>>(new Set());
   protected readonly addedCartId = signal<number | null>(null);
+  protected readonly cartAnnouncement = signal('');
+
+  // Customer reviews (placeholder scaffold until real review data is available)
+  protected readonly testimonials = [
+    { author: 'Sarah K.', initials: 'SK', quote: 'The charger case fits perfectly and shipping was way faster than expected.' },
+    { author: 'Marco D.', initials: 'MD', quote: 'Great build quality on the earbuds — better than accessories twice the price.' },
+    { author: 'Aya B.', initials: 'AB', quote: 'Easy checkout, real-time stock info was accurate, no surprises at delivery.' },
+  ];
+
+  // Promo countdown — wired to a real sale-end timestamp from the backend
+  // when available; stays hidden (null) until then to avoid a fake countdown.
+  protected readonly saleEndsAt = signal<Date | null>(null);
+  protected readonly countdown = signal({ hours: 0, minutes: 0, seconds: 0 });
+  private countdownInterval?: ReturnType<typeof setInterval>;
 
   ngOnInit(): void {
     this.loadCategories();
     this.loadAccessories();
     this.wishlist.load();
 
-    this.userService.currentUser$
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((user) => this.currentUser.set(user));
+    if (this.saleEndsAt()) {
+      this.startCountdown(this.saleEndsAt()!);
+    }
   }
 
   protected loadCategories(): void {
@@ -92,23 +99,6 @@ export class Home implements OnInit {
       });
   }
 
-  protected isOutOfStock(accessory: AccessoryResponse): boolean {
-    return accessory.stock <= 0;
-  }
-
-  protected isLowStock(accessory: AccessoryResponse): boolean {
-    return accessory.stock > 0 && accessory.stock <= 5;
-  }
-
-  protected isNewArrival(accessory: AccessoryResponse): boolean {
-    const created = new Date(accessory.createdAt).getTime();
-    if (Number.isNaN(created)) {
-      return false;
-    }
-    const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
-    return Date.now() - created <= THIRTY_DAYS_MS;
-  }
-
   protected isCartPending(accessory: AccessoryResponse): boolean {
     return this.pendingCartIds().has(accessory.id);
   }
@@ -117,26 +107,63 @@ export class Home implements OnInit {
   // Cart actions
   // ---------------------------------------------------------------------
   addToCart(accessory: AccessoryResponse): void {
+    if (this.isCartPending(accessory) || accessory.stock <= 0) return;
+
+    this.pendingCartIds.update((set) => new Set(set).add(accessory.id));
+    this.actionError.set(null);
+
     const cartItem: CartItemRequest = {
       accessoryId: accessory.id,
       quantity: 1
     };
+
     this.cartService.addItemToCart(cartItem).subscribe({
+      next: () => {
+        this.pendingCartIds.update((set) => {
+          const next = new Set(set);
+          next.delete(accessory.id);
+          return next;
+        });
+        this.addedCartId.set(accessory.id);
+        this.cartAnnouncement.set(`${accessory.title} added to cart.`);
+        setTimeout(() => {
+          if (this.addedCartId() === accessory.id) this.addedCartId.set(null);
+        }, 1800);
+      },
       error: () => {
-        this.actionError.set('Couldn’t add this accessory to the cart. Please try again.');
+        this.pendingCartIds.update((set) => {
+          const next = new Set(set);
+          next.delete(accessory.id);
+          return next;
+        });
+        this.actionError.set('Could not add this accessory to the cart. Please try again.');
+        this.cartAnnouncement.set('Failed to add item to cart.');
       }
-    })
+    });
+  }
+
+  protected toggleWishlist(event: Event, accessory: AccessoryResponse): void {
+    this.wishlist.toggle(event, accessory, this.router.url);
+  }
+
+  // ---------------------------------------------------------------------
+  // Promo countdown
+  // ---------------------------------------------------------------------
+  private startCountdown(endsAt: Date): void {
+    const tick = () => {
+      const diff = Math.max(0, endsAt.getTime() - Date.now());
+      this.countdown.set({
+        hours: Math.floor(diff / 3_600_000),
+        minutes: Math.floor((diff % 3_600_000) / 60_000),
+        seconds: Math.floor((diff % 60_000) / 1000),
+      });
+    };
+    tick();
+    this.countdownInterval = setInterval(tick, 1000);
+    this.destroyRef.onDestroy(() => clearInterval(this.countdownInterval));
   }
 
   protected categoryInitial(category: CategoryResponse): string {
     return category.name?.charAt(0)?.toUpperCase() ?? '?';
-  }
-
-  protected onSearch(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const keyword = input.value.trim();
-    if (keyword) {
-      this.router.navigate(['/accessories'], { queryParams: { keyword } });
-    }
   }
 }

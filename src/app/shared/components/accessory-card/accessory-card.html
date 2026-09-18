@@ -1,0 +1,76 @@
+<article class="pa-product-card">
+  <div class="pa-product-card__image-wrap">
+    @if (isOutOfStock()) {
+      <span class="pa-product-card__badge pa-product-card__badge--out-of-stock">Out of stock</span>
+    } @else if (isNewArrival()) {
+      <span class="pa-product-card__badge pa-product-card__badge--new">New</span>
+    } @else if (isLowStock()) {
+      <span class="pa-product-card__badge pa-product-card__badge--low-stock">Low stock</span>
+    }
+
+    @if (product.originalPrice && product.originalPrice > product.price) {
+      <span class="pa-product-card__badge pa-product-card__badge--sale">-{{ discountPercent() }}%</span>
+    }
+
+    @if (showWishlist) {
+      <button
+        type="button"
+        class="pa-product-card__wishlist"
+        [class.pa-product-card__wishlist--active]="isWishlisted"
+        [disabled]="isWishlistPending"
+        (click)="onToggleWishlist($event)"
+        [attr.aria-label]="isWishlisted ? 'Remove ' + product.title + ' from wishlist' : 'Add ' + product.title + ' to wishlist'"
+        [attr.aria-pressed]="isWishlisted"
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" [attr.fill]="isWishlisted ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+          <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z"></path>
+        </svg>
+      </button>
+    }
+
+    <img class="pa-product-card__image" [src]="product.imageUrl || '/assets/placeholder-product.svg'" [alt]="product.title" loading="lazy" decoding="async">
+  </div>
+
+  <div class="pa-product-card__content">
+    <span class="pa-product-card__category">{{ product.category?.name }}</span>
+
+    <h3 class="pa-product-card__title">
+      <a class="pa-product-card__stretched-link" [routerLink]="['/accessories', product.id]">{{ product.title }}</a>
+    </h3>
+
+    @if (showRating && product.rating) {
+      <span class="pa-product-card__rating">
+        <span class="pa-product-card__stars" aria-hidden="true">★★★★★</span>
+        <span class="pa-sr-only">Rated {{ product.rating }} out of 5</span>
+        <span>{{ product.rating }}{{ product.reviewCount ? ' (' + product.reviewCount + ')' : '' }}</span>
+      </span>
+    }
+
+    <span class="pa-product-card__footer">
+      <span class="pa-product-card__price">
+        @if (product.originalPrice) {
+          <span class="pa-product-card__price-original">{{ product.originalPrice | currency }}</span>
+        }
+        <span class="pa-product-card__price-current">{{ product.price | currency }}</span>
+      </span>
+
+      <button
+        type="button"
+        class="pa-product-card__add-btn"
+        [class.pa-product-card__add-btn--success]="justAdded"
+        [class.pa-btn--loading]="isCartPending"
+        [disabled]="isOutOfStock() || isCartPending"
+        (click)="onAddToCart($event)"
+        [attr.aria-label]="'Add ' + product.title + ' to cart'"
+      >
+        @if (justAdded) {
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        } @else {
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+        }
+      </button>
+    </span>
+  </div>
+</article>

@@ -9,112 +9,130 @@
 // ============================================
 
 // --------------------------------------------
-// Nav — primary links & avatar
+// Premium hero (split layout)
 // --------------------------------------------
 
-.pa-nav__links {
-  display: none;
-  align-items: center;
-  gap: var(--pa-space-6);
-  flex-shrink: 0;
-
-  @media (min-width: 1024px) {
-    display: flex;
-  }
+.pa-hero--premium {
+  position: relative;
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 20%, var(--pa-primary-glow), transparent 60%),
+    linear-gradient(180deg, var(--pa-bg-sunken) 0%, var(--pa-bg) 100%);
+  isolation: isolate;
 }
 
-.pa-nav__link {
-  font-size: 0.9375rem;
-  font-weight: 500;
-  color: var(--pa-text-secondary);
-  padding: 0.375rem 0;
-  border-bottom: 2px solid transparent;
-  transition: color var(--pa-transition-fast), border-color var(--pa-transition-fast);
+.pa-hero__glow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  z-index: -1;
+  pointer-events: none;
 
-  &:hover {
-    color: var(--pa-text-primary);
+  &--a {
+    width: 420px;
+    height: 420px;
+    top: -10%;
+    right: 5%;
+    background: radial-gradient(circle, var(--pa-primary-glow), transparent 70%);
   }
 
-  &--active {
-    color: var(--pa-text-primary);
-    border-bottom-color: var(--pa-primary);
-  }
-}
-
-.pa-nav__avatar {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 2rem;
-  height: 2rem;
-  border-radius: var(--pa-radius-full);
-  background-color: var(--pa-primary-muted);
-  color: var(--pa-primary);
-  font-size: 0.8125rem;
-  font-weight: 700;
-  flex-shrink: 0;
-  transition: background-color var(--pa-transition-fast);
-
-  &:hover {
-    background-color: var(--pa-primary-subtle);
-  }
-
-  &:focus-visible {
-    outline: none;
-    box-shadow: var(--pa-focus-ring);
-  }
-}
-
-// --------------------------------------------
-// Hero panel (trust card, replaces the default
-// image-based .pa-hero__visual for this page)
-// --------------------------------------------
-
-.pa-hero__panel {
-  display: none;
-
-  @media (min-width: 1024px) {
-    display: flex;
-    flex-direction: column;
-    gap: var(--pa-space-5);
-    position: absolute;
-    right: var(--pa-space-8);
-    top: 50%;
-    transform: translateY(-50%);
+  &--b {
     width: 300px;
-    z-index: 1;
+    height: 300px;
+    bottom: -15%;
+    left: 10%;
+    background: radial-gradient(circle, var(--pa-primary-subtle), transparent 70%);
+    opacity: 0.4;
   }
 }
 
-.pa-hero__panel-item {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--pa-space-3);
+.pa-hero__container--split {
+  display: grid;
+  gap: var(--pa-space-10);
+  align-items: center;
+
+  @media (min-width: 1024px) {
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: var(--pa-space-16);
+  }
 }
 
-.pa-hero__panel-icon {
+.pa-hero__trust-strip {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--pa-space-5);
+  margin-top: var(--pa-space-8);
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: var(--pa-space-2);
+    font-size: 0.875rem;
+    color: var(--pa-text-secondary);
+  }
+
+  svg {
+    color: var(--pa-primary);
+    flex-shrink: 0;
+  }
+}
+
+.pa-hero__visual-panel {
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+
+.pa-hero__product-img {
+  width: 100%;
+  max-width: 460px;
+  height: auto;
+  border-radius: var(--pa-radius-2xl);
+  box-shadow: var(--pa-shadow-hero), var(--pa-shadow-glow);
+}
+
+.pa-hero__floating-badge {
+  position: absolute;
   display: flex;
   align-items: center;
-  justify-content: center;
-  width: 2.25rem;
-  height: 2.25rem;
-  flex-shrink: 0;
-  border-radius: var(--pa-radius-md);
-  background-color: var(--pa-primary-muted);
-  color: var(--pa-primary);
-}
-
-.pa-hero__panel-title {
-  font-size: 0.9375rem;
+  gap: var(--pa-space-2);
+  padding: var(--pa-space-3) var(--pa-space-4);
+  background-color: var(--pa-surface);
+  border: 1px solid var(--pa-border);
+  border-radius: var(--pa-radius-lg);
+  box-shadow: var(--pa-shadow-lg);
+  font-size: 0.8125rem;
   font-weight: 600;
   color: var(--pa-text-primary);
-  line-height: 1.3;
+  animation: pa-fade-up 0.6s var(--pa-ease-smooth) 0.3s backwards;
+
+  &--rating {
+    top: 8%;
+    left: -5%;
+  }
+
+  &--stock {
+    bottom: 8%;
+    right: -5%;
+  }
+
+  @media (max-width: 767px) {
+    position: static;
+    margin-top: var(--pa-space-3);
+  }
 }
 
-.pa-hero__panel-desc {
-  font-size: 0.8125rem;
-  color: var(--pa-text-tertiary);
-  line-height: 1.4;
+.pa-hero__badge-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--pa-success);
+  display: inline-block;
+}
+
+.pa-hero__stars {
+  color: #f59e0b;
+  letter-spacing: -1px;
 }
 
 // --------------------------------------------
@@ -205,13 +223,31 @@
 // Product card additions
 // --------------------------------------------
 
-.pa-product-card__badge--low-stock {
-  background-color: var(--pa-warning);
-}
-
 .pa-product-card__skeleton {
   aspect-ratio: 4 / 3;
   border-radius: var(--pa-radius-lg);
+}
+
+// --------------------------------------------
+// Inline alerts
+// --------------------------------------------
+
+.alert {
+  padding: var(--pa-space-3) var(--pa-space-4);
+  border-radius: var(--pa-radius-md);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  margin-bottom: var(--pa-space-4);
+
+  &:empty {
+    display: none;
+  }
+}
+
+.alert-error {
+  background-color: var(--pa-danger-muted);
+  border: 1px solid var(--pa-danger-subtle);
+  color: var(--pa-danger);
 }
 
 // --------------------------------------------
@@ -241,6 +277,53 @@
 }
 
 // --------------------------------------------
+// Customer reviews
+// --------------------------------------------
+
+.pa-review-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pa-space-3);
+
+  &__quote {
+    color: var(--pa-text-primary);
+    font-size: 0.9375rem;
+    line-height: 1.6;
+  }
+
+  &__author {
+    display: flex;
+    align-items: center;
+    gap: var(--pa-space-3);
+    margin-top: auto;
+
+    strong {
+      display: block;
+      font-size: 0.875rem;
+      color: var(--pa-text-primary);
+    }
+
+    span:last-child {
+      font-size: 0.8125rem;
+    }
+  }
+
+  &__avatar {
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 50%;
+    background-color: var(--pa-primary-muted);
+    color: var(--pa-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+}
+
+// --------------------------------------------
 // Promo banner
 // --------------------------------------------
 
@@ -250,7 +333,7 @@
   align-items: flex-start;
   gap: var(--pa-space-6);
   padding: var(--pa-space-10) var(--pa-space-6);
-  background-color: var(--pa-primary);
+  background: var(--pa-gradient-primary);
   border-radius: var(--pa-radius-2xl);
 
   @media (min-width: 768px) {
@@ -280,8 +363,38 @@
 }
 
 .pa-promo__description {
-  color: rgba(255, 255, 255, 0.85);
+  color: rgba(255, 255, 255, 0.92);
   max-width: 46ch;
+}
+
+.pa-promo__countdown {
+  display: flex;
+  align-items: center;
+  gap: var(--pa-space-2);
+  margin-top: var(--pa-space-2);
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.92);
+
+  strong {
+    color: #ffffff;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+.pa-promo__payment-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--pa-space-2);
+  margin-top: var(--pa-space-4);
+
+  span {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.92);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: var(--pa-radius-sm);
+    padding: 0.25rem 0.625rem;
+  }
 }
 
 .pa-promo__cta {
@@ -298,39 +411,36 @@
 }
 
 // --------------------------------------------
-// Why choose us
+// Stats bar
 // --------------------------------------------
 
-.pa-why-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--pa-space-3);
-  padding: var(--pa-space-6) var(--pa-space-4);
-  text-align: center;
-}
+.pa-stats-bar {
+  background: var(--pa-gradient-primary);
+  padding: var(--pa-space-10) 0;
 
-.pa-why-card__icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 3rem;
-  height: 3rem;
-  border-radius: var(--pa-radius-full);
-  background-color: var(--pa-primary-muted);
-  color: var(--pa-primary);
-  margin-bottom: var(--pa-space-1);
-}
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--pa-space-6);
+    text-align: center;
 
-.pa-why-card__title {
-  font-size: 1.0625rem;
-  font-weight: 600;
-  color: var(--pa-text-primary);
-}
+    @media (min-width: 768px) {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
 
-.pa-why-card__description {
-  font-size: 0.9375rem;
-  color: var(--pa-text-secondary);
-  line-height: 1.6;
-  max-width: 32ch;
+  &__value {
+    display: block;
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    font-weight: 700;
+    color: #fff;
+  }
+
+  &__label {
+    display: block;
+    margin-top: var(--pa-space-1);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: rgb(255 255 255 / 0.92);
+  }
 }
