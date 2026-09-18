@@ -2,59 +2,45 @@
 
 <main id="main-content">
   <!-- Hero -->
-  <section class="pa-hero">
-    <div class="pa-hero__container">
+  <section class="pa-hero pa-hero--premium">
+    <div class="pa-hero__glow pa-hero__glow--a" aria-hidden="true"></div>
+    <div class="pa-hero__glow pa-hero__glow--b" aria-hidden="true"></div>
+
+    <div class="pa-hero__container pa-hero__container--split">
       <div class="pa-hero__content pa-animate-fade-up">
         <span class="pa-hero__eyebrow">New season essentials</span>
-        <h1 class="pa-hero__title">Protect. Power. Upgrade.</h1>
-        <p class="pa-hero__description">Find the perfect accessories for your phone.</p>
+        <h1 class="pa-hero__title">Protect. Power.<br>Upgrade.</h1>
+        <p class="pa-hero__description">
+          Premium chargers, cases, and audio gear engineered for the way you actually use your phone.
+        </p>
         <div class="pa-hero__actions">
           <a routerLink="/accessories" class="pa-btn pa-btn--primary pa-btn--lg">Shop Now</a>
           <a routerLink="/categories" class="pa-btn pa-btn--secondary pa-btn--lg">Explore Categories</a>
         </div>
+
+        <ul class="pa-hero__trust-strip" aria-label="Why shop with us">
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true"><rect x="1" y="3" width="15" height="13"></rect><path d="M16 8h4l3 3v5h-7V8Z"></path></svg> Free shipping $50+</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true"><path d="M12 2 3 6v6c0 5 3.8 8.7 9 10 5.2-1.3 9-5 9-10V6l-9-4Z"></path></svg> Secure checkout</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9"></path><path d="M3 5v7h7"></path></svg> 30-day returns</li>
+        </ul>
       </div>
 
-      <aside class="pa-hero__panel pa-card pa-card--elevated" aria-label="Why shop with us">
-        <div class="pa-hero__panel-item">
-          <span class="pa-hero__panel-icon">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <rect x="1" y="3" width="15" height="13"></rect>
-              <path d="M16 8h4l3 3v5h-7V8Z"></path>
-              <circle cx="5.5" cy="18.5" r="2.5"></circle>
-              <circle cx="18.5" cy="18.5" r="2.5"></circle>
-            </svg>
-          </span>
-          <div>
-            <p class="pa-hero__panel-title">Free shipping</p>
-            <p class="pa-hero__panel-desc">On every order over $50</p>
-          </div>
+      <div class="pa-hero__visual-panel pa-animate-scale-in">
+        <img
+          class="pa-hero__product-img"
+          src="/assets/hero/hero-composition.webp"
+          alt="A charger, phone case, and wireless earbuds arranged together"
+          fetchpriority="high"
+          width="560" height="560"
+        >
+        <div class="pa-hero__floating-badge pa-hero__floating-badge--rating">
+          <span class="pa-hero__stars" aria-hidden="true">★★★★★</span>
+          <span>4.8 <span class="pa-text-tertiary">· 2,000+ reviews</span></span>
         </div>
-
-        <div class="pa-hero__panel-item">
-          <span class="pa-hero__panel-icon">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M12 2 3 6v6c0 5 3.8 8.7 9 10 5.2-1.3 9-5 9-10V6l-9-4Z"></path>
-            </svg>
-          </span>
-          <div>
-            <p class="pa-hero__panel-title">Secure checkout</p>
-            <p class="pa-hero__panel-desc">Encrypted payments, always</p>
-          </div>
+        <div class="pa-hero__floating-badge pa-hero__floating-badge--stock">
+          <span class="pa-hero__badge-dot" aria-hidden="true"></span> In stock, ships today
         </div>
-
-        <div class="pa-hero__panel-item">
-          <span class="pa-hero__panel-icon">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M3 12a9 9 0 1 0 9-9"></path>
-              <path d="M3 5v7h7"></path>
-            </svg>
-          </span>
-          <div>
-            <p class="pa-hero__panel-title">30-day returns</p>
-            <p class="pa-hero__panel-desc">Change your mind, no hassle</p>
-          </div>
-        </div>
-      </aside>
+      </div>
     </div>
   </section>
 
@@ -130,57 +116,25 @@
           <p>No accessories available yet — check back soon.</p>
         </div>
       } @else {
+        @if (actionError()) {
+          <div class="alert alert-error" role="alert" aria-live="assertive">{{ actionError() }}</div>
+        }
+
         <div class="pa-product-grid pa-stagger-children">
           @for (accessory of accessories(); track accessory.id) {
-            <a class="pa-product-card" [routerLink]="['/accessories', accessory.id]">
-              <span class="pa-product-card__image-wrap">
-                @if (isOutOfStock(accessory)) {
-                  <span class="pa-product-card__badge pa-product-card__badge--out-of-stock">Out of stock</span>
-                } @else if (isNewArrival(accessory)) {
-                  <span class="pa-product-card__badge pa-product-card__badge--new">New</span>
-                } @else if (isLowStock(accessory)) {
-                  <span class="pa-product-card__badge pa-product-card__badge--low-stock">Low stock</span>
-                }
-                <button
-                  type="button"
-                  class="pa-product-card__wishlist"
-                  [class.pa-product-card__wishlist--active]="wishlist.wishlistSet().has(accessory.id)"
-                  [disabled]="wishlist.isPending(accessory.id)"
-                  (click)="wishlist.toggle($event, accessory, router.url)"
-                  [attr.aria-label]="wishlist.wishlistSet().has(accessory.id) ? 'Added to wishlist' : 'Add to wishlist'"
-                >
-                  <svg width="16" height="16" viewBox="0 0 24 24" [attr.fill]="wishlist.addedWishlistId() === accessory.id ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z"></path>
-                  </svg>
-                </button>
-                <img class="pa-product-card__image" [src]="accessory.imageUrl || '/assets/placeholder-product.svg'" [alt]="accessory.title" loading="lazy">
-              </span>
-
-              <span class="pa-product-card__content">
-                <span class="pa-product-card__category">{{ accessory.category?.name }}</span>
-                <span class="pa-product-card__title">{{ accessory.title }}</span>
-
-                <span class="pa-product-card__footer">
-                  <span class="pa-product-card__price">
-                    <span class="pa-product-card__price-current">{{ accessory.price | currency }}</span>
-                  </span>
-                  <button
-                    type="button"
-                    class="pa-product-card__add-btn"
-                    [disabled]="isOutOfStock(accessory)"
-                    (click)="addToCart(accessory)"
-                    aria-label="Add to cart"
-                  >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                      <line x1="12" y1="5" x2="12" y2="19"></line>
-                      <line x1="5" y1="12" x2="19" y2="12"></line>
-                    </svg>
-                  </button>
-                </span>
-              </span>
-            </a>
+            <app-accessory-card
+              [product]="accessory"
+              [isWishlisted]="wishlist.wishlistSet().has(accessory.id)"
+              [isWishlistPending]="wishlist.isPending(accessory.id)"
+              [isCartPending]="isCartPending(accessory)"
+              [justAdded]="addedCartId() === accessory.id"
+              (addToCart)="addToCart($event)"
+              (toggleWishlist)="toggleWishlist($event.event, $event.product)"
+            />
           }
         </div>
+
+        <div class="pa-sr-only" role="status" aria-live="polite">{{ cartAnnouncement() }}</div>
       }
 
       <div class="pa-section-footer">
@@ -189,61 +143,74 @@
     </div>
   </section>
 
+  <!-- Customer Reviews -->
+  <section class="pa-py-16">
+    <div class="pa-container">
+      <div class="pa-section-header pa-section-header--centered">
+        <span class="pa-section-header__eyebrow">Loved by customers</span>
+        <h2 class="pa-section-header__title">What people are saying</h2>
+      </div>
+
+      <div class="pa-grid-3 pa-stagger-children">
+        @for (review of testimonials; track review.author) {
+          <article class="pa-review-card pa-card pa-card--elevated">
+            <span class="pa-hero__stars" aria-hidden="true">★★★★★</span>
+            <span class="pa-sr-only">Rated 5 out of 5</span>
+            <p class="pa-review-card__quote">{{ review.quote }}</p>
+            <footer class="pa-review-card__author">
+              <span class="pa-review-card__avatar" aria-hidden="true">{{ review.initials }}</span>
+              <span>
+                <strong>{{ review.author }}</strong>
+                <span class="pa-text-tertiary">Verified buyer</span>
+              </span>
+            </footer>
+          </article>
+        }
+      </div>
+    </div>
+  </section>
+
   <!-- Promo Banner -->
   <section class="pa-py-16">
     <div class="pa-container">
-      <div class="pa-promo">
+      <div class="pa-promo pa-promo--premium">
         <div class="pa-promo__content">
           <span class="pa-promo__eyebrow">Limited time</span>
           <h2 class="pa-promo__title">Up to 30% Off</h2>
           <p class="pa-promo__description">Save on chargers, cases, and audio essentials while supplies last.</p>
+          @if (saleEndsAt()) {
+            <div class="pa-promo__countdown" aria-live="off">
+              <span>Ends in</span>
+              <strong>{{ countdown().hours }}h {{ countdown().minutes }}m {{ countdown().seconds }}s</strong>
+            </div>
+          }
+          <div class="pa-promo__payment-badges" aria-label="Accepted payment methods">
+            <span>Visa</span><span>Mastercard</span><span>PayPal</span>
+          </div>
         </div>
         <a routerLink="/accessories" class="pa-btn pa-btn--lg pa-promo__cta">Shop the sale</a>
       </div>
     </div>
   </section>
 
-  <!-- Why Choose Us -->
-  <section class="pa-py-16">
-    <div class="pa-container">
-      <div class="pa-section-header pa-section-header--centered">
-        <span class="pa-section-header__eyebrow">Why shop with us</span>
-        <h2 class="pa-section-header__title">Built around your trust</h2>
+  <!-- Stats Bar -->
+  <section class="pa-stats-bar">
+    <div class="pa-container pa-stats-bar__grid">
+      <div class="pa-stats-bar__item">
+        <span class="pa-stats-bar__value">10K+</span>
+        <span class="pa-stats-bar__label">Orders shipped</span>
       </div>
-
-      <div class="pa-grid-3">
-        <div class="pa-why-card">
-          <span class="pa-why-card__icon">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <rect x="1" y="3" width="15" height="13"></rect>
-              <path d="M16 8h4l3 3v5h-7V8Z"></path>
-              <circle cx="5.5" cy="18.5" r="2.5"></circle>
-              <circle cx="18.5" cy="18.5" r="2.5"></circle>
-            </svg>
-          </span>
-          <h3 class="pa-why-card__title">Fast Delivery</h3>
-          <p class="pa-why-card__description">Most orders ship within 24 hours and arrive in 2–4 business days, fully tracked.</p>
-        </div>
-
-        <div class="pa-why-card">
-          <span class="pa-why-card__icon">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M12 2 3 6v6c0 5 3.8 8.7 9 10 5.2-1.3 9-5 9-10V6l-9-4Z"></path>
-            </svg>
-          </span>
-          <h3 class="pa-why-card__title">Secure Shopping</h3>
-          <p class="pa-why-card__description">Every transaction is encrypted end-to-end, so your details stay yours.</p>
-        </div>
-
-        <div class="pa-why-card">
-          <span class="pa-why-card__icon">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <polygon points="12 2 15 9 22 9.5 17 14.5 18.5 22 12 18 5.5 22 7 14.5 2 9.5 9 9 12 2"></polygon>
-            </svg>
-          </span>
-          <h3 class="pa-why-card__title">Quality Products</h3>
-          <p class="pa-why-card__description">Every accessory is tested for durability before it ever reaches your cart.</p>
-        </div>
+      <div class="pa-stats-bar__item">
+        <span class="pa-stats-bar__value">4.8/5</span>
+        <span class="pa-stats-bar__label">Average rating</span>
+      </div>
+      <div class="pa-stats-bar__item">
+        <span class="pa-stats-bar__value">24h</span>
+        <span class="pa-stats-bar__label">Dispatch time</span>
+      </div>
+      <div class="pa-stats-bar__item">
+        <span class="pa-stats-bar__value">30-day</span>
+        <span class="pa-stats-bar__label">Returns</span>
       </div>
     </div>
   </section>

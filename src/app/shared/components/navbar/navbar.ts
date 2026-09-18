@@ -60,7 +60,7 @@ export class Navbar {
     const input = event.target as HTMLInputElement;
     const query = input.value.trim();
     if (query) {
-      this.router.navigate(['/accessories'], { queryParams: { search: query } });
+      this.router.navigate(['/accessories'], { queryParams: { keyword: query } });
     }
   }
 

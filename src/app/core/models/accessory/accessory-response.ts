@@ -6,9 +6,12 @@ export interface AccessoryResponse {
     title: string;
     description: string;
     price: number;
+    originalPrice?: number;
     stock: number;
     category: CategoryResponse;
     productCode: string;
+    rating?: number;
+    reviewCount?: number;
     createdAt: string;
     updatedAt: string;
 }

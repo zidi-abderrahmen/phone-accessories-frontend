@@ -114,6 +114,13 @@
   --pa-focus-ring: 0 0 0 3px rgb(13 148 136 / 0.2);
   --pa-focus-ring-offset: 2px;
   --pa-focus-ring-danger: 0 0 0 3px rgb(220 38 38 / 0.2);
+
+  // Layered "premium" shadow for hero visuals / featured cards
+  --pa-shadow-hero: 0 30px 60px -15px rgb(13 148 136 / 0.25), 0 10px 20px -8px rgb(0 0 0 / 0.15);
+
+  // Gradient tokens
+  --pa-gradient-primary: linear-gradient(135deg, var(--pa-primary) 0%, var(--pa-primary-hover) 100%);
+  --pa-gradient-surface: linear-gradient(180deg, var(--pa-surface) 0%, var(--pa-bg-sunken) 100%);
 }
 
 // === DARK MODE ===
@@ -166,6 +173,8 @@
 
   --pa-focus-ring: 0 0 0 3px rgb(45 212 191 / 0.2);
   --pa-focus-ring-danger: 0 0 0 3px rgb(248 113 113 / 0.2);
+
+  --pa-shadow-hero: 0 30px 60px -15px rgb(45 212 191 / 0.15), 0 10px 20px -8px rgb(0 0 0 / 0.4);
 }
 
 // --------------------------------------------
@@ -1288,6 +1297,28 @@ input[type="radio"] {
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border-width: 0;
+}
+
+// Skip-to-content link (first focusable element in the page shell)
+.pa-skip-link {
+  position: absolute;
+  top: var(--pa-space-3);
+  left: var(--pa-space-3);
+  z-index: var(--pa-z-fixed);
+  padding: 0.625rem 1.25rem;
+  background-color: var(--pa-surface);
+  color: var(--pa-text-primary);
+  border: 1px solid var(--pa-border-strong);
+  border-radius: var(--pa-radius-md);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  text-decoration: none;
+  transform: translateY(-200%);
+
+  &:focus-visible {
+    transform: translateY(0);
+    @include focus-ring;
+  }
 }
 
 // Text utilities
