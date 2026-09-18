@@ -86,6 +86,7 @@ The storefront is designed to convert: skeleton loading states, stock badges (lo
 - **Forgot / reset password** workflows.
 - Profile management (`getCurrentUser`, update profile, change password).
 - Session persistence via HttpOnly cookies with **automatic access-token refresh**.
+- **Error feedback** — server or network failures surface non-intrusive toast notifications instead of silent errors.
 
 ### Admin Suite (roles `ADMIN` / `SUPER_ADMIN`)
 
@@ -472,7 +473,7 @@ npx wrangler deploy
 
 ### Continuous Integration
 
-A GitHub Actions workflow (`.github/workflows/ci.yml`) runs on every push/PR to `main`. The `build-and-test` job executes the quality gates in order: `npm ci` → `npm run lint` → `npm test -- --watch=false` → `npm run build`. On a `main` push, once the gates pass, the `deploy-worker` job stages the production build and runs `npx wrangler deploy`, shipping the app to Cloudflare Workers (`CLOUDFLARE_API_TOKEN` / `CLOUDFLARE_ACCOUNT_ID` from repo secrets). Because `src/environments/environment.development.ts` is git-ignored, the pipeline creates it from `environment.development.ts.example` before running the unit tests. The Playwright suite is intentionally left out of CI — it requires a live backend, a database, and a seeded super-admin.
+A GitHub Actions workflow (`.github/workflows/ci.yml`) runs on every push/PR to `main`. The `build-and-test` job executes the quality gates in order: `npm ci` → `npm run lint` → `npm test -- --watch=false` → `npm run build`. On a `main` push, once the gates pass, the `deploy-worker` job stages the production build and runs `npx wrangler deploy`, shipping the app to Cloudflare Workers (`CLOUDFLARE_API_TOKEN` / `CLOUDFLARE_ACCOUNT_ID` from repo secrets). Because `src/environments/environment.development.ts` is git-ignored, the pipeline creates it from `environment.development.ts.example` before running the unit tests. An `e2e` job then boots the real stack via the committed `docker-compose.yml` (`postgres` + backend + frontend) and runs the Playwright happy path. It checks out the sibling backend repo — currently private — using the `BACKEND_ACCESS_TOKEN` PAT secret, points the compose build at it via `BACKEND_CONTEXT`, waits for `GET /api/actuator/health`, seeds the super-admin through the compose environment, and uploads the Playwright report on failure.
 
 ---
 
@@ -540,8 +541,8 @@ Based on current functionality and natural next steps:
 - [ ] **Order confirmation emails** — surface email status and resend actions.
 - [ ] **Analytics & observability** — error reporting (Sentry) and anonymized shopping analytics.
 - [ ] **PWA** — complete the manifest with a service worker for offline + installability.
-- [ ] **Docker build pipeline** — containerized static hosting as an alternative to Worker deployment.
-- [x] **CI/CD** — GitHub Actions pipeline for lint → test → build, which auto-deploys to Cloudflare Workers on push to `main`.
+- [x] **Containerized stack** — `Dockerfile` (nginx static build) plus `docker-compose.yml` boot a postgres + backend + frontend stack, used as the full-stack Playwright e2e gate.
+- [x] **CI/CD** — GitHub Actions pipeline for lint → test → build + full-stack Playwright e2e gate, which auto-deploys to Cloudflare Workers on push to `main`.
 
 ---
 
