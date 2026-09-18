@@ -21,7 +21,7 @@ export default defineConfig({
   webServer: {
     command: 'npm start -- --port 4200',
     url: BASE_URL,
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: true,
     timeout: 120_000,
   },
 });

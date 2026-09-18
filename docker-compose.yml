@@ -1,0 +1,77 @@
+# Full-stack stack for the Playwright e2e happy path.
+#
+# `docker compose up --build -d` bootstraps a real gate:
+#   - PostgreSQL 16 (fresh database, schema created by Flyway)
+#   - the Spring Boot backend in the `prod` profile, seeded with a super-admin
+#   - the production frontend build served by nginx (static + `/api/*` proxy)
+#
+# The frontend is reachable at http://localhost:4200 and the API at
+# http://localhost:8080/api — exactly the defaults in `e2e/support/config.ts`.
+
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: phone_accessories
+      POSTGRES_USER: e2e
+      POSTGRES_PASSWORD: e2e
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U e2e -d phone_accessories"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    # No host port — Postgres is only reached over the compose network.
+
+  backend:
+    build:
+      # Defaults to the sibling `backend` repo. CI overrides BACKEND_CONTEXT to
+      # point at the PAT-secret checkout of the private backend repository.
+      context: ${BACKEND_CONTEXT:-../backend}
+    environment:
+      PROFILE: prod
+      PORT: "8080"
+      DATABASE_URL: jdbc:postgresql://db:5432/phone_accessories
+      DATABASE_USERNAME: e2e
+      DATABASE_PASSWORD: e2e
+      JWT_SECRET: dGVzdHNlY3JldGtleWZvcmNpMTIzNDU2Nzg5MDEyMzQ1Ng==
+      JWT_EXPIRATION_MS: "900000"
+      JWT_REFRESH_EXPIRATION_MS: "604800000"
+      JWT_REMEMBER_ME_EXPIRATION_MS: "2592000000"
+      COOKIES_SECURE: "false"
+      COOKIES_SAME_SITE: Lax
+      SUPER_ADMIN_FIRST_NAME: E2E
+      SUPER_ADMIN_LAST_NAME: Admin
+      SUPER_ADMIN_EMAIL: e2e-admin@example.com
+      SUPER_ADMIN_PASSWORD: E2eAdminPassword123!
+      FRONTEND_URL: http://localhost:4200
+      TOKEN_PEPPER: 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcd
+      OPENAPI_TITLE: "Phone Accessories API"
+      OPENAPI_DESCRIPTION: "API for Phone Accessories E-commerce"
+      OPENAPI_VERSION: "0.1"
+      OPENAPI_NAME: E2E
+      OPENAPI_EMAIL: e2e@example.com
+      MAIL_API_KEY: dummy
+      MAIL_FROM: e2e@example.com
+      MAIL_FROM_NAME: E2E
+      IMAGEKIT_PRIVATE_KEY: dummy
+      CORS_ALLOWED_ORIGINS: http://localhost:4200
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c '</dev/tcp/localhost/8080'"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 60s
+    ports:
+      - "8080:8080"
+
+  frontend:
+    build:
+      context: .
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "4200:80"
