@@ -15,6 +15,14 @@ export default {
       const headers = new Headers(request.headers);
       headers.delete("host");
 
+      const connectingIp = request.headers.get("CF-Connecting-IP");
+      headers.delete("X-Forwarded-For");
+      headers.delete("X-Real-IP");
+      if (connectingIp) {
+        headers.set("X-Forwarded-For", connectingIp);
+        headers.set("X-Real-IP", connectingIp);
+      }
+
       const proxyRequest = new Request(backendUrl, {
         method: request.method,
         headers,
