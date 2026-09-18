@@ -53,7 +53,7 @@ describe('AboutContact', () => {
     fixture.detectChanges();
 
     const text = fixture.nativeElement.textContent as string;
-    expect(component.submitStatus()).toBe('success');
+    expect(component.submitStatus()).toBe('demo');
     expect(text).toContain('Nothing was sent.');
     expect(text).toContain("isn't connected to an inbox yet");
   });

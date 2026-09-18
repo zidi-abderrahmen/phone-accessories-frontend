@@ -6,7 +6,7 @@ import { Navbar } from "../../shared/components/navbar/navbar";
 import { DemoBanner } from '../../shared/components/demo-banner/demo-banner';
 import { environment } from '../../../environments/environment';
 
-type SubmitStatus = 'idle' | 'submitting' | 'success' | 'error';
+type SubmitStatus = 'idle' | 'submitting' | 'success' | 'error' | 'demo';
 
 interface HeroStat {
   readonly value: string;
@@ -191,7 +191,7 @@ export class AboutContact {
     }
 
     this.errorMessage.set('');
-    this.submitStatus.set('success');
+    this.submitStatus.set(this.demoContactForm ? 'demo' : 'success');
   }
 
   dismissStatus(): void {
