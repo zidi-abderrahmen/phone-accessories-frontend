@@ -1,37 +1,53 @@
-import { Component, computed, DestroyRef, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  ElementRef,
+  ViewChild,
+  computed,
+  inject,
+  OnInit,
+  signal,
+} from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { Location, CommonModule } from '@angular/common';
-import { Subject, takeUntil } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { HttpErrorResponse } from '@angular/common/http';
+import { FormsModule } from '@angular/forms';
+
 import { AccessoryResponse } from '../../../core/models/accessory/accessory-response';
 import { AccessoryService } from '../../../core/services/accessory/accessory.service';
 import { CartService } from '../../../core/services/cart/cart.service';
 import { CartItemRequest } from '../../../core/models/cart/items/cart-item-request';
 import { UserService } from '../../../core/services/user/user.service';
-import { HttpErrorResponse } from '@angular/common/http';
-import { FormsModule } from '@angular/forms';
-
 import { ReviewService } from '../../../core/services/review/review.service';
 import { ReviewRequest } from '../../../core/models/review/review-request';
 import { ReviewResponse } from '../../../core/models/review/review-response';
 import { Page } from '../../../core/models/page/page';
 import { RegisterResponse } from '../../../core/models/user/register/register.response';
 import { WishlistFacadeService } from '../../../core/services/wishlist-facade/wishlist-facade.service';
+import { AccessoryCard } from '../../../shared/components/accessory-card/accessory-card';
 
 type PageState = 'loading' | 'loaded' | 'not-found' | 'error';
 type ReviewsState = 'idle' | 'loading' | 'loading-more' | 'loaded' | 'error';
 type ReviewFormMode = 'create' | 'edit' | null;
+type RelatedState = 'idle' | 'loading' | 'loaded' | 'error';
 
 const REVIEWS_PAGE_SIZE = 10;
 const REVIEWS_SORT = 'createdAt,desc';
+const RELATED_PAGE_SIZE = 4;
+const RELATED_SORT = 'createdAt,desc';
+const QUANTITY_HARD_CAP = 20;
+const CART_FEEDBACK_MS = 2000;
+const CART_ERROR_MS = 5000;
 
 @Component({
   selector: 'app-accessories-details',
   standalone: true,
-  imports: [RouterModule, CommonModule, FormsModule],
+  imports: [RouterModule, CommonModule, FormsModule, AccessoryCard],
   templateUrl: './accessory-details.html',
   styleUrl: './accessory-details.scss',
 })
-export class AccessoriesDetails implements OnInit, OnDestroy {
+export class AccessoriesDetails implements OnInit {
   private readonly route = inject(ActivatedRoute);
   protected readonly router = inject(Router);
   private readonly location = inject(Location);
@@ -40,20 +56,53 @@ export class AccessoriesDetails implements OnInit, OnDestroy {
   private readonly cartService = inject(CartService);
   protected readonly wishlist = inject(WishlistFacadeService);
   private readonly reviewService = inject(ReviewService);
-  private readonly destroy$ = new Subject<void>();
   private readonly destroyRef = inject(DestroyRef);
 
-  state = signal<PageState>('loading');
-  accessory: AccessoryResponse | null = null;
+  readonly state = signal<PageState>('loading');
+  readonly accessory = signal<AccessoryResponse | null>(null);
   accessoryId: number | null = null;
   errorMessage: string | null = null;
 
-  isAuthenticated = signal(false);
+  readonly isAuthenticated = signal(false);
 
+  // ---------------------------------------------------------------------
+  // Quantity stepper
+  // ---------------------------------------------------------------------
+  readonly quantity = signal(1);
+  readonly maxQuantity = computed(() => {
+    const stock = this.accessory()?.stock ?? 0;
+    return Math.max(1, Math.min(stock, QUANTITY_HARD_CAP));
+  });
+
+  // ---------------------------------------------------------------------
   // Add-to-cart feedback state
-  addingToCart = signal(false);
-  addedToCart = signal(false);
+  // ---------------------------------------------------------------------
+  readonly addingToCart = signal(false);
+  readonly addedToCart = signal(false);
+  readonly cartError = signal<string | null>(null);
+  readonly cartAnnouncement = signal('');
   private addedToCartTimeout: ReturnType<typeof setTimeout> | null = null;
+  private cartErrorTimeout: ReturnType<typeof setTimeout> | null = null;
+
+  // ---------------------------------------------------------------------
+  // Buy Now state
+  // ---------------------------------------------------------------------
+  readonly buyingNow = signal(false);
+  readonly buyNowError = signal<string | null>(null);
+
+  // ---------------------------------------------------------------------
+  // Pricing / discount
+  // ---------------------------------------------------------------------
+  readonly hasDiscount = computed(() => {
+    const a = this.accessory();
+    return !!a?.originalPrice && a.originalPrice > a.price;
+  });
+
+  readonly discountPercent = computed(() => {
+    const a = this.accessory();
+    if (!a?.originalPrice) return 0;
+    return Math.round((1 - a.price / a.originalPrice) * 100);
+  });
 
   // ---------------------------------------------------------------------
   // Reviews
@@ -83,6 +132,17 @@ export class AccessoriesDetails implements OnInit, OnDestroy {
     Math.round(this.averageRating() * 10) / 10
   );
 
+  // Phase 1 — prefer backend aggregate values over locally-computed ones.
+  // The backend `rating` / `reviewCount` reflect ALL reviews; the computed
+  // fallbacks only know about the currently-loaded page.
+  readonly displayRating = computed(
+    () => this.accessory()?.rating ?? this.averageRatingRounded()
+  );
+
+  readonly displayReviewCount = computed(
+    () => this.accessory()?.reviewCount ?? this.reviewCount()
+  );
+
   protected readonly hasOwnReview = computed(() => this.reviews().some((r) => r.mine));
 
   protected readonly ratingStars = [1, 2, 3, 4, 5];
@@ -96,45 +156,58 @@ export class AccessoriesDetails implements OnInit, OnDestroy {
   protected readonly isSubmittingReview = signal(false);
   protected readonly reviewFormError = signal<string | null>(null);
 
+  @ViewChild('reviewForm') private reviewFormRef?: ElementRef<HTMLElement>;
+  private reviewFormTrigger: HTMLElement | null = null;
+
   // Delete confirmation state
   protected readonly reviewPendingDelete = signal<ReviewResponse | null>(null);
   protected readonly isDeletingReview = signal(false);
   protected readonly reviewDeleteError = signal<string | null>(null);
+  private deleteTrigger: HTMLElement | null = null;
+
+  // ---------------------------------------------------------------------
+  // Related products
+  // ---------------------------------------------------------------------
+  protected readonly related = signal<AccessoryResponse[]>([]);
+  protected readonly relatedState = signal<RelatedState>('idle');
+  protected readonly relatedSkeletons = Array.from({ length: 4 });
+
+  // Related-card cart feedback (mirrors the Home page pattern)
+  protected readonly pendingRelatedCartIds = signal<ReadonlySet<number>>(new Set());
+  protected readonly addedRelatedCartId = signal<number | null>(null);
+
+  constructor() {
+    this.destroyRef.onDestroy(() => {
+      if (this.addedToCartTimeout) clearTimeout(this.addedToCartTimeout);
+      if (this.cartErrorTimeout) clearTimeout(this.cartErrorTimeout);
+    });
+  }
 
   ngOnInit(): void {
     this.extractAccessoryId();
     this.wishlist.load();
 
     this.userService.currentUser$
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((user) => this.isAuthenticated.set(!!user));
   }
 
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-    if (this.addedToCartTimeout) {
-      clearTimeout(this.addedToCartTimeout);
-    }
-  }
-
   private extractAccessoryId(): void {
-    this.route.paramMap
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((params) => {
-        const idParam = params.get('id');
-        const id = idParam ? parseInt(idParam, 10) : NaN;
+    this.route.paramMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
+      const idParam = params.get('id');
+      const id = idParam ? parseInt(idParam, 10) : NaN;
 
-        if (!idParam || isNaN(id)) {
-          this.state.set('not-found');
-          this.errorMessage = 'Invalid accessory identifier.';
-          return;
-        }
+      if (!idParam || isNaN(id)) {
+        this.state.set('not-found');
+        this.errorMessage = 'Invalid accessory identifier.';
+        return;
+      }
 
-        this.accessoryId = id;
-        this.loadAccessory(id);
-        this.loadReviews(id, 0);
-      });
+      this.accessoryId = id;
+      this.quantity.set(1);
+      this.loadAccessory(id);
+      this.loadReviews(id, 0);
+    });
   }
 
   loadAccessory(id: number): void {
@@ -143,11 +216,13 @@ export class AccessoriesDetails implements OnInit, OnDestroy {
 
     this.accessoryService
       .getAccessoryById(id)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (accessory) => {
-          this.accessory = accessory;
+          this.accessory.set(accessory);
+          this.quantity.set(1);
           this.state.set('loaded');
+          this.loadRelated(accessory);
         },
         error: (err: HttpErrorResponse) => {
           this.handleLoadError(err);
@@ -161,39 +236,72 @@ export class AccessoriesDetails implements OnInit, OnDestroy {
       this.errorMessage = 'The accessory you are looking for does not exist.';
     } else if (err.status === 0) {
       this.state.set('error');
-      this.errorMessage =
-        'Unable to connect to the server. Please check your connection.';
+      this.errorMessage = 'Unable to connect to the server. Please check your connection.';
     } else if (err.error?.message) {
       this.state.set('error');
       this.errorMessage = err.error.message;
     } else {
       this.state.set('error');
-      this.errorMessage =
-        'Failed to load accessory details. Please try again later.';
+      this.errorMessage = 'Failed to load accessory details. Please try again later.';
     }
   }
 
   // ------------------------------------------------------------------
-  // Cart / wishlist actions (unchanged)
+  // Quantity stepper
+  // ------------------------------------------------------------------
+
+  increaseQuantity(): void {
+    if (this.quantity() < this.maxQuantity()) {
+      this.quantity.update((q) => q + 1);
+    }
+  }
+
+  decreaseQuantity(): void {
+    if (this.quantity() > 1) {
+      this.quantity.update((q) => q - 1);
+    }
+  }
+
+  // ------------------------------------------------------------------
+  // Cart / wishlist actions
   // ------------------------------------------------------------------
 
   buyNow(): void {
-    if (this.accessoryId == null) return;
+    const accessory = this.accessory();
+    if (!accessory || accessory.stock <= 0 || this.buyingNow()) return;
+
+    if (!this.isAuthenticated()) {
+      this.router.navigate(['/login'], {
+        queryParams: { returnUrl: this.router.url },
+      });
+      return;
+    }
+
+    this.buyingNow.set(true);
+    this.buyNowError.set(null);
+
     const cartItem: CartItemRequest = {
-      accessoryId: this.accessoryId,
-      quantity: 1
+      accessoryId: accessory.id,
+      quantity: this.quantity(),
     };
-    this.cartService.addItemToCart(cartItem).subscribe({
-      next: () => {
-        this.router.navigate(['/checkout']);
-      }
-    });
+
+    this.cartService
+      .addItemToCart(cartItem)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.router.navigate(['/checkout']);
+        },
+        error: () => {
+          this.buyingNow.set(false);
+          this.buyNowError.set('Could not start checkout. Please try again.');
+        },
+      });
   }
 
   addToCart(): void {
-    if (!this.accessory || this.accessory.stock <= 0 || this.addingToCart()) {
-      return;
-    }
+    const accessory = this.accessory();
+    if (!accessory || accessory.stock <= 0 || this.addingToCart()) return;
 
     if (!this.isAuthenticated()) {
       this.router.navigate(['/login'], {
@@ -203,33 +311,121 @@ export class AccessoriesDetails implements OnInit, OnDestroy {
     }
 
     this.addingToCart.set(true);
+    this.cartError.set(null);
 
     const payload: CartItemRequest = {
-      accessoryId: this.accessory.id,
-      quantity: 1,
+      accessoryId: accessory.id,
+      quantity: this.quantity(),
     };
 
     this.cartService
       .addItemToCart(payload)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
           this.addingToCart.set(false);
-          this.flashAdded();
+          this.flashAdded(accessory);
         },
-        error: (err: HttpErrorResponse) => {
+        error: () => {
           this.addingToCart.set(false);
-          console.error('Failed to add to cart:', err);
+          this.showCartError('Could not add this item to the cart. Please try again.');
         },
       });
   }
 
-  private flashAdded(): void {
+  private flashAdded(accessory: AccessoryResponse): void {
     this.addedToCart.set(true);
-    if (this.addedToCartTimeout) {
-      clearTimeout(this.addedToCartTimeout);
+    this.cartAnnouncement.set(
+      `${accessory.title} (quantity ${this.quantity()}) added to cart.`
+    );
+    if (this.addedToCartTimeout) clearTimeout(this.addedToCartTimeout);
+    this.addedToCartTimeout = setTimeout(
+      () => this.addedToCart.set(false),
+      CART_FEEDBACK_MS
+    );
+  }
+
+  private showCartError(message: string): void {
+    this.cartError.set(message);
+    this.cartAnnouncement.set('Failed to add item to cart.');
+    if (this.cartErrorTimeout) clearTimeout(this.cartErrorTimeout);
+    this.cartErrorTimeout = setTimeout(() => this.cartError.set(null), CART_ERROR_MS);
+  }
+
+  // ------------------------------------------------------------------
+  // Related products
+  // ------------------------------------------------------------------
+
+  private loadRelated(accessory: AccessoryResponse): void {
+    if (!accessory.category) {
+      this.related.set([]);
+      this.relatedState.set('loaded');
+      return;
     }
-    this.addedToCartTimeout = setTimeout(() => this.addedToCart.set(false), 2000);
+
+    this.relatedState.set('loading');
+
+    this.accessoryService
+      .searchAccessories(
+        {
+          categoryId: accessory.category.id,
+          keyword: null,
+          minPrice: null,
+          maxPrice: null,
+          inStock: null,
+        },
+        0,
+        RELATED_PAGE_SIZE,
+        RELATED_SORT
+      )
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (page) => {
+          // Exclude the current accessory — request size is PAGE_SIZE + 0,
+          // so filtering keeps at most RELATED_PAGE_SIZE items.
+          this.related.set(page.content.filter((item) => item.id !== accessory.id));
+          this.relatedState.set('loaded');
+        },
+        error: () => this.relatedState.set('error'),
+      });
+  }
+
+  retryLoadRelated(): void {
+    const accessory = this.accessory();
+    if (accessory) this.loadRelated(accessory);
+  }
+
+  addToCartFromRelated(item: AccessoryResponse): void {
+    if (this.pendingRelatedCartIds().has(item.id) || item.stock <= 0) return;
+
+    this.pendingRelatedCartIds.update((set) => new Set(set).add(item.id));
+    this.cartError.set(null);
+
+    this.cartService
+      .addItemToCart({ accessoryId: item.id, quantity: 1 })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.pendingRelatedCartIds.update((set) => {
+            const next = new Set(set);
+            next.delete(item.id);
+            return next;
+          });
+          this.addedRelatedCartId.set(item.id);
+          this.cartAnnouncement.set(`${item.title} added to cart.`);
+          setTimeout(() => {
+            if (this.addedRelatedCartId() === item.id) this.addedRelatedCartId.set(null);
+          }, 1800);
+        },
+        error: () => {
+          this.pendingRelatedCartIds.update((set) => {
+            const next = new Set(set);
+            next.delete(item.id);
+            return next;
+          });
+          this.showCartError('Could not add this item to the cart. Please try again.');
+        },
+      });
   }
 
   // ------------------------------------------------------------------
@@ -241,11 +437,10 @@ export class AccessoriesDetails implements OnInit, OnDestroy {
 
     this.reviewService
       .getAllReviewsByAccessoryId(accessoryId, page, REVIEWS_PAGE_SIZE, REVIEWS_SORT)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
-          // See the class-level ASSUMPTIONS note: the DTO says this is a
-          // single ReviewResponse, but it's actually paginated.
+          // The DTO is typed as a single ReviewResponse, but it's actually paginated.
           const pageResponse = response as Page<ReviewResponse> | ReviewResponse[];
           const content: ReviewResponse[] = Array.isArray(pageResponse)
             ? pageResponse
@@ -286,9 +481,11 @@ export class AccessoriesDetails implements OnInit, OnDestroy {
   // ------------------------------------------------------------------
 
   reviewerName(review: ReviewResponse): string {
-    const user = review.user as RegisterResponse;
-    const fullName = `${user.firstName} ${user.lastName}`;
-    return fullName ?? 'Anonymous';
+    const user = review.user as RegisterResponse | undefined;
+    const first = user?.firstName?.trim();
+    const last = user?.lastName?.trim();
+    const fullName = [first, last].filter(Boolean).join(' ');
+    return fullName || 'Anonymous';
   }
 
   isEdited(review: ReviewResponse): boolean {
@@ -315,26 +512,41 @@ export class AccessoriesDetails implements OnInit, OnDestroy {
   // Reviews — create / edit form
   // ------------------------------------------------------------------
 
-  openCreateForm(): void {
+  openCreateForm(event?: Event): void {
     if (!this.isAuthenticated()) {
       this.router.navigate(['/login'], { queryParams: { returnUrl: this.router.url } });
       return;
     }
+    this.reviewFormTrigger = (event?.target as HTMLElement | null) ?? null;
     this.reviewFormMode.set('create');
     this.editingReviewId.set(null);
     this.formRating.set(0);
     this.hoverRating.set(0);
     this.formComment = '';
     this.reviewFormError.set(null);
+    this.focusReviewFormFirstControl();
   }
 
-  openEditForm(review: ReviewResponse): void {
+  openEditForm(review: ReviewResponse, event?: Event): void {
+    this.reviewFormTrigger = (event?.target as HTMLElement | null) ?? null;
     this.reviewFormMode.set('edit');
     this.editingReviewId.set(review.id);
     this.formRating.set(review.rating);
     this.hoverRating.set(0);
     this.formComment = review.comment;
     this.reviewFormError.set(null);
+    this.focusReviewFormFirstControl();
+  }
+
+  /** Move focus into the freshly-opened form: first star, else the textarea. */
+  private focusReviewFormFirstControl(): void {
+    // Wait a tick so the @if block has rendered before querying.
+    setTimeout(() => {
+      const host = this.reviewFormRef?.nativeElement;
+      const firstStar = host?.querySelector<HTMLElement>('.review-form__star-btn');
+      const textarea = host?.querySelector<HTMLElement>('.review-form__textarea');
+      (firstStar ?? textarea)?.focus();
+    });
   }
 
   cancelReviewForm(): void {
@@ -344,6 +556,8 @@ export class AccessoriesDetails implements OnInit, OnDestroy {
     this.hoverRating.set(0);
     this.formComment = '';
     this.reviewFormError.set(null);
+    this.reviewFormTrigger?.focus();
+    this.reviewFormTrigger = null;
   }
 
   setFormRating(value: number): void {
@@ -390,7 +604,7 @@ export class AccessoriesDetails implements OnInit, OnDestroy {
         ? this.reviewService.updateReview(editingId, payload)
         : this.reviewService.createReview(this.accessoryId, payload);
 
-    request$.pipe(takeUntil(this.destroy$)).subscribe({
+    request$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (saved) => {
         this.isSubmittingReview.set(false);
 
@@ -403,30 +617,42 @@ export class AccessoriesDetails implements OnInit, OnDestroy {
           this.reviewsTotalElements.update((n) => n + 1);
         }
 
-        this.cancelReviewForm();
+        this.closeReviewForm();
       },
       error: (err: HttpErrorResponse) => {
         this.isSubmittingReview.set(false);
         this.reviewFormError.set(
-          err?.error?.message ?? 'Something went wrong while saving your review. Please try again.'
+          err?.error?.message ??
+            'Something went wrong while saving your review. Please try again.'
         );
       },
     });
+  }
+
+  private closeReviewForm(): void {
+    this.reviewFormMode.set(null);
+    this.editingReviewId.set(null);
+    this.formRating.set(0);
+    this.hoverRating.set(0);
+    this.formComment = '';
+    this.reviewFormError.set(null);
+    this.reviewFormTrigger?.focus();
+    this.reviewFormTrigger = null;
   }
 
   // ------------------------------------------------------------------
   // Reviews — delete
   // ------------------------------------------------------------------
 
-  requestDeleteReview(review: ReviewResponse): void {
+  requestDeleteReview(review: ReviewResponse, event?: Event): void {
+    this.deleteTrigger = (event?.target as HTMLElement | null) ?? null;
     this.reviewPendingDelete.set(review);
     this.reviewDeleteError.set(null);
   }
 
   cancelDeleteReview(): void {
     if (this.isDeletingReview()) return;
-    this.reviewPendingDelete.set(null);
-    this.reviewDeleteError.set(null);
+    this.closeDeleteModal();
   }
 
   confirmDeleteReview(): void {
@@ -438,19 +664,26 @@ export class AccessoriesDetails implements OnInit, OnDestroy {
 
     this.reviewService
       .deleteReview(review.id)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
           this.reviews.update((list) => list.filter((r) => r.id !== review.id));
           this.reviewsTotalElements.update((n) => Math.max(0, n - 1));
           this.isDeletingReview.set(false);
-          this.reviewPendingDelete.set(null);
+          this.closeDeleteModal();
         },
         error: () => {
           this.isDeletingReview.set(false);
           this.reviewDeleteError.set('Couldn’t delete this review. Please try again.');
         },
       });
+  }
+
+  private closeDeleteModal(): void {
+    this.reviewPendingDelete.set(null);
+    this.reviewDeleteError.set(null);
+    this.deleteTrigger?.focus();
+    this.deleteTrigger = null;
   }
 
   // ------------------------------------------------------------------

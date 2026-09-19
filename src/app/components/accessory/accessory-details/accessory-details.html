@@ -1,5 +1,6 @@
 <!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<!-- eslint-disable @angular-eslint/template/no-autofocus -->
 <div class="accessory-details-page">
   <main class="accessory-details-main" id="main-content">
     <!-- Breadcrumb -->
@@ -42,7 +43,7 @@
           </svg>
         </li>
         <li class="breadcrumb-item breadcrumb-item--current" aria-current="page">
-          {{ accessory?.title || 'Accessory' }}
+          {{ accessory()?.title || 'Accessory' }}
         </li>
       </ol>
     </nav>
@@ -136,16 +137,20 @@
     }
 
     <!-- Product Details -->
-    @if (state() === 'loaded' && accessory) {
-      <article class="product-details" aria-label="Product details for {{ accessory.title }}">
+    @if (state() === 'loaded' && accessory(); as a) {
+      <article class="product-details" aria-label="Product details for {{ a.title }}">
         <!-- Image Section -->
         <div class="product-image-section">
           <div class="product-image-main">
             <img
-              [src]="accessory.imageUrl || '/assets/placeholder-product.svg'"
-              [alt]="accessory.title"
+              [src]="a.imageUrl || '/assets/placeholder-product.svg'"
+              [alt]="a.title"
               class="product-image"
-              loading="lazy"
+              loading="eager"
+              fetchpriority="high"
+              decoding="async"
+              width="800"
+              height="800"
               (error)="$any($event.target).src = '/assets/placeholder-product.svg'"
             />
           </div>
@@ -155,34 +160,72 @@
         <div class="product-info-section">
           <!-- Category & Code -->
           <div class="product-meta-header">
-            @if (accessory.category) {
-              <a [routerLink]="['/categories', accessory.category.id]" class="product-category">
-                {{ accessory.category.name }}
+            @if (a.category) {
+              <a [routerLink]="['/categories', a.category.id]" class="product-category">
+                {{ a.category.name }}
               </a>
             }
-            <span class="product-code">{{ accessory.productCode }}</span>
+            <span class="product-code">{{ a.productCode }}</span>
           </div>
 
           <!-- Title -->
-          <h1 class="product-title">{{ accessory.title }}</h1>
+          <h1 class="product-title">{{ a.title }}</h1>
+
+          <!-- Rating summary (from backend aggregate when available) -->
+          @if (displayReviewCount() > 0) {
+            <div class="product-rating-row">
+              <span
+                class="reviews-stars reviews-stars--sm"
+                [attr.aria-label]="displayRating() + ' out of 5 stars'"
+              >
+                @for (star of ratingStars; track star) {
+                  <svg
+                    class="reviews-star"
+                    [class.reviews-star--filled]="starState(displayRating(), star) === 'filled'"
+                    viewBox="0 0 24 24"
+                    [attr.fill]="
+                      starState(displayRating(), star) === 'filled' ? 'currentColor' : 'none'
+                    "
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <polygon
+                      points="12 2 15 9 22 9.5 17 14.5 18.5 22 12 18 5.5 22 7 14.5 2 9.5 9 9 12 2"
+                    />
+                  </svg>
+                }
+              </span>
+              <span class="product-rating-value">{{ displayRating() }}</span>
+              <a class="product-rating-count" href="#reviews">
+                {{ displayReviewCount() }} review{{ displayReviewCount() === 1 ? '' : 's' }}
+              </a>
+            </div>
+          }
 
           <!-- Price & Stock -->
           <div class="product-price-row">
-            <span class="product-price">{{ accessory.price | currency }}</span>
+            <span class="product-price">{{ a.price | currency }}</span>
+            @if (hasDiscount()) {
+              <s class="product-price-original">{{ a.originalPrice | currency }}</s>
+              <span class="save-badge">Save {{ discountPercent() }}%</span>
+            }
             <span
               class="stock-badge"
-              [class.in-stock]="getStockLabel(accessory.stock).variant === 'in'"
-              [class.low-stock]="getStockLabel(accessory.stock).variant === 'low'"
-              [class.out-stock]="getStockLabel(accessory.stock).variant === 'out'"
+              [class.in-stock]="getStockLabel(a.stock).variant === 'in'"
+              [class.low-stock]="getStockLabel(a.stock).variant === 'low'"
+              [class.out-stock]="getStockLabel(a.stock).variant === 'out'"
             >
-              {{ getStockLabel(accessory.stock).text }}
+              {{ getStockLabel(a.stock).text }}
             </span>
           </div>
 
           <!-- Description -->
           <div class="product-description">
             <h2 class="section-label">Description</h2>
-            <p>{{ accessory.description }}</p>
+            <p>{{ a.description }}</p>
           </div>
 
           <!-- Specifications -->
@@ -191,79 +234,69 @@
             <dl class="specs-list">
               <div class="spec-item">
                 <dt>Product Code</dt>
-                <dd>{{ accessory.productCode }}</dd>
+                <dd>{{ a.productCode }}</dd>
               </div>
               <div class="spec-item">
                 <dt>Category</dt>
-                <dd>{{ accessory.category?.name || 'Uncategorized' }}</dd>
+                <dd>{{ a.category?.name || 'Uncategorized' }}</dd>
               </div>
               <div class="spec-item">
                 <dt>Price</dt>
-                <dd>{{ accessory.price | currency }}</dd>
+                <dd>{{ a.price | currency }}</dd>
               </div>
               <div class="spec-item">
                 <dt>Stock</dt>
-                <dd>{{ accessory.stock }} units</dd>
+                <dd>{{ a.stock }} units</dd>
               </div>
             </dl>
           </div>
 
-          <!-- Actions -->
-          <div class="product-actions">
-            <button
-              type="button"
-              class="pa-btn pa-btn--primary action-buy"
-              [disabled]="accessory.stock <= 0"
-              (click)="buyNow()"
+          <!-- Quantity + Actions -->
+          <div class="product-purchase">
+            <div
+              class="quantity-stepper"
+              [class.quantity-stepper--disabled]="a.stock <= 0"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                aria-hidden="true"
+              <button
+                type="button"
+                class="quantity-stepper__btn"
+                [disabled]="a.stock <= 0 || quantity() <= 1"
+                (click)="decreaseQuantity()"
+                aria-label="Decrease quantity"
               >
-                <circle cx="9" cy="21" r="1" />
-                <circle cx="20" cy="21" r="1" />
-                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
-              </svg>
-              {{ accessory.stock <= 0 ? 'Out of Stock' : 'Buy Now' }}
-            </button>
-            <button
-              type="button"
-              class="pa-btn pa-btn--secondary action-cart"
-              [class.action-cart--added]="addedToCart()"
-              [disabled]="accessory.stock <= 0 || addingToCart()"
-              (click)="addToCart()"
-              [attr.aria-label]="addedToCart() ? 'Added to cart' : 'Add to cart'"
-            >
-              @if (addingToCart()) {
-                <span class="pa-spinner" aria-hidden="true"></span>
-              } @else if (addedToCart()) {
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  width="18"
-                  height="18"
+                  width="16"
+                  height="16"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
-                  stroke-width="2.25"
+                  stroke-width="2"
                   stroke-linecap="round"
                   stroke-linejoin="round"
                   aria-hidden="true"
                 >
-                  <path d="M20 6 9 17l-5-5" />
+                  <path d="M5 12h14" />
                 </svg>
-              } @else {
+              </button>
+              <span
+                class="quantity-stepper__value"
+                aria-live="polite"
+                aria-atomic="true"
+                [attr.aria-label]="'Quantity: ' + quantity()"
+                >{{ quantity() }}</span
+              >
+              <button
+                type="button"
+                class="quantity-stepper__btn"
+                [disabled]="a.stock <= 0 || quantity() >= maxQuantity()"
+                (click)="increaseQuantity()"
+                aria-label="Increase quantity"
+              >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  width="18"
-                  height="18"
+                  width="16"
+                  height="16"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
@@ -275,41 +308,122 @@
                   <path d="M5 12h14" />
                   <path d="M12 5v14" />
                 </svg>
-              }
-              {{ addingToCart() ? 'Adding…' : addedToCart() ? 'Added to Cart' : 'Add to Cart' }}
-            </button>
-            <button
-              type="button"
-              class="pa-btn pa-btn--secondary pa-btn--icon action-wishlist"
-              [class.action-wishlist--added]="wishlist.wishlistSet().has(accessoryId || -1)"
-              [disabled]="wishlist.isPending(accessoryId || -1)"
-              (click)="wishlist.toggle($event, accessory, router.url)"
-              [attr.aria-label]="
-                wishlist.wishlistSet().has(accessoryId || -1) ? 'Added to wishlist' : 'Add to wishlist'
-              "
-              title="Add to wishlist"
-            >
-              @if (wishlist.isPending(accessoryId || -1)) {
-                <span class="pa-spinner" aria-hidden="true"></span>
-              } @else {
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  [attr.fill]="wishlist.wishlistSet().has(accessoryId || -1) ? 'currentColor' : 'none'"
-                  stroke="currentColor"
-                  stroke-width="1.75"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  aria-hidden="true"
-                >
-                  <path
-                    d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z"
-                  />
-                </svg>
-              }
-            </button>
+              </button>
+            </div>
+
+            <!-- Inline action errors -->
+            @if (cartError()) {
+              <p class="action-alert action-alert--error" role="alert">{{ cartError() }}</p>
+            }
+            @if (buyNowError()) {
+              <p class="action-alert action-alert--error" role="alert">{{ buyNowError() }}</p>
+            }
+
+            <div class="product-actions">
+              <button
+                type="button"
+                class="pa-btn pa-btn--primary action-buy"
+                [class.pa-btn--loading]="buyingNow()"
+                [disabled]="a.stock <= 0 || buyingNow()"
+                (click)="buyNow()"
+              >
+                @if (!buyingNow()) {
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <circle cx="9" cy="21" r="1" />
+                    <circle cx="20" cy="21" r="1" />
+                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+                  </svg>
+                }
+                {{ a.stock <= 0 ? 'Out of Stock' : buyingNow() ? 'Processing…' : 'Buy Now' }}
+              </button>
+              <button
+                type="button"
+                class="pa-btn pa-btn--secondary action-cart"
+                [class.action-cart--added]="addedToCart()"
+                [disabled]="a.stock <= 0 || addingToCart()"
+                (click)="addToCart()"
+                [attr.aria-label]="addedToCart() ? 'Added to cart' : 'Add to cart'"
+              >
+                @if (addingToCart()) {
+                  <span class="pa-spinner" aria-hidden="true"></span>
+                } @else if (addedToCart()) {
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.25"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M20 6 9 17l-5-5" />
+                  </svg>
+                } @else {
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M5 12h14" />
+                    <path d="M12 5v14" />
+                  </svg>
+                }
+                {{ addingToCart() ? 'Adding…' : addedToCart() ? 'Added to Cart' : 'Add to Cart' }}
+              </button>
+              <button
+                type="button"
+                class="pa-btn pa-btn--secondary pa-btn--icon action-wishlist"
+                [class.action-wishlist--added]="wishlist.wishlistSet().has(a.id)"
+                [disabled]="wishlist.isPending(a.id)"
+                (click)="wishlist.toggle($event, a, router.url)"
+                [attr.aria-label]="
+                  wishlist.wishlistSet().has(a.id) ? 'Added to wishlist' : 'Add to wishlist'
+                "
+                title="Add to wishlist"
+              >
+                @if (wishlist.isPending(a.id)) {
+                  <span class="pa-spinner" aria-hidden="true"></span>
+                } @else {
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    [attr.fill]="wishlist.wishlistSet().has(a.id) ? 'currentColor' : 'none'"
+                    stroke="currentColor"
+                    stroke-width="1.75"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z"
+                    />
+                  </svg>
+                }
+              </button>
+            </div>
           </div>
         </div>
       </article>
@@ -317,24 +431,24 @@
       <!-- ============================================================ -->
       <!-- REVIEWS SECTION                                                -->
       <!-- ============================================================ -->
-      <section class="reviews-section" aria-label="Customer reviews">
+      <section class="reviews-section" id="reviews" aria-label="Customer reviews">
         <div class="reviews-header">
           <div class="reviews-header__titles">
             <h2 class="reviews-header__title">Customer Reviews</h2>
 
-            @if (reviewCount() > 0) {
+            @if (displayReviewCount() > 0) {
               <div class="reviews-header__summary">
                 <span
                   class="reviews-stars"
-                  [attr.aria-label]="averageRatingRounded() + ' out of 5 stars'"
+                  [attr.aria-label]="displayRating() + ' out of 5 stars'"
                 >
                   @for (star of ratingStars; track star) {
                     <svg
                       class="reviews-star"
-                      [class.reviews-star--filled]="starState(averageRating(), star) === 'filled'"
+                      [class.reviews-star--filled]="starState(displayRating(), star) === 'filled'"
                       viewBox="0 0 24 24"
                       [attr.fill]="
-                        starState(averageRating(), star) === 'filled' ? 'currentColor' : 'none'
+                        starState(displayRating(), star) === 'filled' ? 'currentColor' : 'none'
                       "
                       stroke="currentColor"
                       stroke-width="1.5"
@@ -348,9 +462,9 @@
                     </svg>
                   }
                 </span>
-                <span class="reviews-header__avg">{{ averageRatingRounded() }}</span>
+                <span class="reviews-header__avg">{{ displayRating() }}</span>
                 <span class="reviews-header__count">
-                  · {{ reviewCount() }} review{{ reviewCount() === 1 ? '' : 's' }}
+                  · {{ displayReviewCount() }} review{{ displayReviewCount() === 1 ? '' : 's' }}
                 </span>
               </div>
             }
@@ -360,7 +474,7 @@
             <button
               type="button"
               class="pa-btn pa-btn--primary pa-btn--sm"
-              (click)="openCreateForm()"
+              (click)="openCreateForm($event)"
             >
               Write a review
             </button>
@@ -369,13 +483,15 @@
 
         <!-- Create / Edit form -->
         @if (reviewFormMode() !== null) {
-          <div class="review-form pa-card">
+          <div class="review-form pa-card" #reviewForm>
             <h3 class="review-form__title">
               {{ reviewFormMode() === 'edit' ? 'Edit your review' : 'Write a review' }}
             </h3>
 
             <div class="review-form__field">
-              <label for="review-rating" class="review-form__label" id="review-rating-label">Rating</label>
+              <label for="review-rating" class="review-form__label" id="review-rating-label"
+                >Rating</label
+              >
               <div
                 class="review-form__stars"
                 role="radiogroup"
@@ -514,14 +630,14 @@
                       <button
                         type="button"
                         class="pa-btn pa-btn--text pa-btn--sm"
-                        (click)="openEditForm(review)"
+                        (click)="openEditForm(review, $event)"
                       >
                         Edit
                       </button>
                       <button
                         type="button"
                         class="pa-btn pa-btn--text pa-btn--sm review-card__delete"
-                        (click)="requestDeleteReview(review)"
+                        (click)="requestDeleteReview(review, $event)"
                       >
                         Delete
                       </button>
@@ -574,15 +690,75 @@
           }
         }
       </section>
+
+      <!-- ============================================================ -->
+      <!-- RELATED PRODUCTS                                               -->
+      <!-- ============================================================ -->
+      @if (relatedState() !== 'idle') {
+        <section class="related-section" aria-label="Related products">
+          @switch (relatedState()) {
+            @case ('loading') {
+              <div class="pa-section-header">
+                <h2 class="pa-section-header__title">More from this category</h2>
+              </div>
+              <div class="pa-product-grid" aria-busy="true" aria-label="Loading related products">
+                @for (item of relatedSkeletons; track item) {
+                  <div class="pa-skeleton related-skeleton-card"></div>
+                }
+              </div>
+            }
+            @case ('error') {
+              <div class="reviews-state-message" role="alert">
+                <p>We couldn’t load related products right now.</p>
+                <button
+                  type="button"
+                  class="pa-btn pa-btn--secondary pa-btn--sm"
+                  (click)="retryLoadRelated()"
+                >
+                  Try again
+                </button>
+              </div>
+            }
+            @case ('loaded') {
+              @if (related().length > 0) {
+                <div class="pa-section-header">
+                  <span class="pa-section-header__eyebrow">
+                    {{ a.category?.name || 'Category' }}
+                  </span>
+                  <h2 class="pa-section-header__title">More from {{ a.category?.name }}</h2>
+                </div>
+
+                <div class="pa-product-grid pa-stagger-children">
+                  @for (item of related(); track item.id) {
+                    <app-accessory-card
+                      [product]="item"
+                      [isWishlisted]="wishlist.wishlistSet().has(item.id)"
+                      [isWishlistPending]="wishlist.isPending(item.id)"
+                      [isCartPending]="pendingRelatedCartIds().has(item.id)"
+                      [justAdded]="addedRelatedCartId() === item.id"
+                      (addToCart)="addToCartFromRelated(item)"
+                      (toggleWishlist)="wishlist.toggle($event.event, $event.product, router.url)"
+                    />
+                  }
+                </div>
+              }
+            }
+          }
+        </section>
+      }
     }
   </main>
 </div>
+
+<!-- Screen-reader announcements for cart interactions -->
+<div class="pa-sr-only" role="status" aria-live="polite">{{ cartAnnouncement() }}</div>
 
 <!-- Delete review confirmation modal -->
 @if (reviewPendingDelete(); as reviewToDelete) {
   <div
     class="modal-overlay"
     (click)="cancelDeleteReview()"
+    (keydown.escape)="cancelDeleteReview()"
     role="dialog"
     aria-modal="true"
     aria-labelledby="delete-review-modal-title"
@@ -618,13 +794,17 @@
 
       <div class="modal-actions">
         <button
+          #cancelDeleteBtn
+          type="button"
           class="pa-btn pa-btn--secondary"
           (click)="cancelDeleteReview()"
           [disabled]="isDeletingReview()"
+          autofocus
         >
           Cancel
         </button>
         <button
+          type="button"
           class="pa-btn pa-btn--danger"
           (click)="confirmDeleteReview()"
           [disabled]="isDeletingReview()"

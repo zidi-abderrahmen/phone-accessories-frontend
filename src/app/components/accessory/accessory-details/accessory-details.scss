@@ -126,6 +126,8 @@
   gap: var(--pa-space-4);
 }
 
+// Fixed aspect-ratio box prevents layout shift (CLS) while the hero
+// image streams in with eager loading + high fetch priority.
 .product-image-main {
   width: 100%;
   aspect-ratio: 1 / 1;
@@ -206,6 +208,38 @@
   margin: 0;
 }
 
+// --------------------------------------------
+// RATING ROW (hero summary — links to #reviews)
+// --------------------------------------------
+
+.product-rating-row {
+  display: flex;
+  align-items: center;
+  gap: var(--pa-space-2);
+}
+
+.product-rating-value {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--pa-text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.product-rating-count {
+  font-size: 0.875rem;
+  color: var(--pa-text-tertiary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+
+  &:hover {
+    color: var(--pa-primary);
+  }
+}
+
+// --------------------------------------------
+// PRICE & DISCOUNT
+// --------------------------------------------
+
 .product-price-row {
   display: flex;
   align-items: center;
@@ -218,6 +252,22 @@
   font-weight: 700;
   color: var(--pa-text-primary);
   letter-spacing: -0.02em;
+}
+
+.product-price-original {
+  font-size: 1rem;
+  color: var(--pa-text-muted);
+}
+
+// "Save X%" badge — reuse the sale-badge language from .pa-product-card
+.save-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: var(--pa-radius-sm);
+  background-color: var(--pa-danger);
+  color: #ffffff;
+  letter-spacing: 0.02em;
 }
 
 .stock-badge {
@@ -313,6 +363,108 @@
 }
 
 // --------------------------------------------
+// QUANTITY STEPPER
+// --------------------------------------------
+
+.product-purchase {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pa-space-4);
+  margin-top: var(--pa-space-2);
+}
+
+.quantity-stepper {
+  display: inline-flex;
+  align-items: stretch;
+  align-self: flex-start;
+  border: 1px solid var(--pa-border);
+  border-radius: var(--pa-radius-md);
+  background-color: var(--pa-surface);
+  overflow: hidden;
+  transition: border-color var(--pa-transition-fast), box-shadow var(--pa-transition-fast);
+
+  &:hover {
+    border-color: var(--pa-border-strong);
+  }
+
+  &:focus-within {
+    border-color: var(--pa-primary);
+    box-shadow: var(--pa-focus-ring);
+  }
+
+  &--disabled {
+    opacity: 0.55;
+  }
+
+  &__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border: none;
+    background-color: transparent;
+    color: var(--pa-text-secondary);
+    cursor: pointer;
+    transition: background-color var(--pa-transition-fast), color var(--pa-transition-fast);
+
+    &:hover:not(:disabled) {
+      background-color: var(--pa-bg-sunken);
+      color: var(--pa-text-primary);
+    }
+
+    &:active:not(:disabled) {
+      background-color: var(--pa-surface-active);
+      transition-duration: 50ms;
+    }
+
+    &:focus-visible {
+      outline: none;
+      box-shadow: var(--pa-focus-ring);
+    }
+
+    &:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+  }
+
+  &__value {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 3rem;
+    padding: 0 var(--pa-space-3);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--pa-text-primary);
+    font-variant-numeric: tabular-nums;
+    border-left: 1px solid var(--pa-border);
+    border-right: 1px solid var(--pa-border);
+    user-select: none;
+  }
+}
+
+// --------------------------------------------
+// INLINE ACTION ALERTS
+// --------------------------------------------
+
+.action-alert {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  border-radius: var(--pa-radius-md);
+  padding: var(--pa-space-3) var(--pa-space-4);
+  animation: pa-fade-up 0.3s var(--pa-ease-out) forwards;
+
+  &--error {
+    background-color: var(--pa-danger-muted);
+    border: 1px solid var(--pa-danger-subtle);
+    color: var(--pa-danger);
+  }
+}
+
+// --------------------------------------------
 // ACTIONS
 // --------------------------------------------
 
@@ -320,7 +472,6 @@
   display: flex;
   flex-direction: column;
   gap: var(--pa-space-3);
-  margin-top: var(--pa-space-2);
 
   @media (min-width: 480px) {
     flex-direction: row;
@@ -557,6 +708,7 @@
   margin-top: var(--pa-space-16);
   padding-top: var(--pa-space-12);
   border-top: 1px solid var(--pa-border);
+  scroll-margin-top: var(--pa-space-16);
 }
 
 .reviews-header {
@@ -829,6 +981,21 @@
 }
 
 // --------------------------------------------
+// RELATED PRODUCTS
+// --------------------------------------------
+
+.related-section {
+  margin-top: var(--pa-space-16);
+  padding-top: var(--pa-space-12);
+  border-top: 1px solid var(--pa-border);
+}
+
+.related-skeleton-card {
+  aspect-ratio: 4 / 3;
+  border-radius: var(--pa-radius-lg);
+}
+
+// --------------------------------------------
 // DELETE REVIEW MODAL
 // --------------------------------------------
 
@@ -907,6 +1074,7 @@
   .details-skeleton,
   .state-message,
   .review-form,
+  .action-alert,
   .modal-overlay,
   .modal-content {
     animation: none;
@@ -919,5 +1087,10 @@
     &:hover {
       transform: none;
     }
+  }
+
+  .quantity-stepper__btn,
+  .review-form__star-btn {
+    transition: none;
   }
 }
