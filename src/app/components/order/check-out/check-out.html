@@ -671,11 +671,11 @@
                     shippingLabel(checkoutForm.value.shippingMethod ?? ShippingMethod.STANDARD)
                   }})</span
                 >
-                <span>{{ shippingFee() | number: '1.2-2' }} TND</span>
+                <span>${{ shippingFee() | number: '1.2-2' }}</span>
               </div>
               <div class="pa-order-summary__row pa-order-summary__row--total">
                 <span>Total</span>
-                <span>{{ estimatedTotal() | number: '1.2-2' }} TND</span>
+                <span>${{ estimatedTotal() | number: '1.2-2' }}</span>
               </div>
             </div>
             <div class="pa-order-summary__trust">
