@@ -1,165 +1,164 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
-import { Router, RouterModule } from '@angular/router';
+import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CategoryResponse } from '../../core/models/category/category-response';
-import { Page } from '../../core/models/page/page';
 import { CategoryService } from '../../core/services/category/category.service';
-import { CommonModule, DatePipe } from '@angular/common';
-import { AuthService } from '../../core/services/auth/auth.service';
 import { UserService } from '../../core/services/user/user.service';
-import { Navbar } from "../../shared/components/navbar/navbar";
-import { Footer } from "../../shared/components/footer/footer";
+import { Navbar } from '../../shared/components/navbar/navbar';
+import { Footer } from '../../shared/components/footer/footer';
+
+type LoadState = 'loading' | 'loaded' | 'error';
+
+const PLACEHOLDER_IMAGE = '/assets/placeholder-product.svg';
+const PAGE_SIZE = 12;
+const SORT = 'name,asc';
 
 @Component({
   selector: 'app-categories',
   standalone: true,
-  imports: [RouterModule, DatePipe, CommonModule, Navbar, Footer],
+  imports: [RouterLink, Navbar, Footer],
   templateUrl: './categories.html',
   styleUrl: './categories.scss',
 })
 export class Categories implements OnInit {
-  private categoryService = inject(CategoryService);
-  private router = inject(Router);
-  authService = inject(AuthService);
-  userService = inject(UserService);
+  private readonly categoryService = inject(CategoryService);
+  private readonly userService = inject(UserService);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly isAdmin = computed(() => this.userService.hasAnyRole(['SUPER_ADMIN', 'ADMIN']));
 
   // Data state
-  categories = signal<CategoryResponse[]>([]);
-  filteredCategories: CategoryResponse[] = [];
-  page: Page<CategoryResponse> | null = null;
+  protected readonly categories = signal<CategoryResponse[]>([]);
+  protected readonly state = signal<LoadState>('loading');
+  protected readonly isEmpty = computed(() => this.state() === 'loaded' && this.categories().length === 0);
 
   // Pagination state
-  currentPage = 0;
-  pageSize = 10;
-  totalElements = 0;
-  totalPages = 0;
+  protected readonly currentPage = signal(0);
+  protected readonly totalPages = signal(0);
+  protected readonly totalElements = signal(0);
+  protected readonly pageSize = PAGE_SIZE;
 
-  // UI state
-  loading = signal(false);
-  successMessage = signal('');
-  errorMessage = signal('');
+  // Notifications
+  protected readonly successMessage = signal('');
+  protected readonly errorMessage = signal('');
 
   // Delete modal state
-  showDeleteModal = signal(false);
-  categoryToDelete: CategoryResponse | null = null;
-  deleting = signal(false);
+  protected readonly showDeleteModal = signal(false);
+  protected readonly categoryToDelete = signal<CategoryResponse | null>(null);
+  protected readonly deleting = signal(false);
+
+  protected readonly placeholderImage = PLACEHOLDER_IMAGE;
+  protected readonly skeletonPlaceholders = Array.from({ length: 8 });
 
   ngOnInit(): void {
     this.loadCategories();
   }
 
-  loadCategories(page = 0, size = 10): void {
-    this.loading.set(true);
+  protected loadCategories(page: number = this.currentPage()): void {
+    this.state.set('loading');
     this.clearMessages();
 
-    this.categoryService.getAllCategories(page, size).subscribe({
-      next: (response) => {
-        this.page = response;
-        this.categories.set(response.content);
-        this.filteredCategories = [...response.content];
-        this.currentPage = response.number ?? 0;
-        this.pageSize = response.size;
-        this.totalElements = response.totalElements;
-        this.totalPages = response.totalPages;
-        this.loading.set(false);
-      },
-      error: () => {
-        this.loading.set(false);
-        this.errorMessage.set('Failed to load categories. Please try again later.');
-      }
-    });
+    this.categoryService
+      .getAllCategories(page, this.pageSize, SORT)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          this.categories.set(response.content);
+          this.currentPage.set(response.number ?? 0);
+          this.totalElements.set(response.totalElements);
+          this.totalPages.set(response.totalPages);
+          this.state.set('loaded');
+        },
+        error: () => {
+          this.state.set('error');
+        },
+      });
   }
 
-  // Navigate to category details
-  viewCategory(category: CategoryResponse): void {
-    this.router.navigate(['/categories', category.id]);
+  // Falls back to the shared placeholder artwork when a category image is
+  // missing or fails to load, mirroring Category Details' image handling.
+  protected onImageError(event: Event): void {
+    const img = event.target as HTMLImageElement;
+    if (img.src.endsWith(PLACEHOLDER_IMAGE)) return;
+    img.src = PLACEHOLDER_IMAGE;
   }
 
-  editCategory(event: Event, category: CategoryResponse): void {
+  // ---------------------------------------------------------------------
+  // Delete flow
+  // ---------------------------------------------------------------------
+  protected confirmDelete(event: Event, category: CategoryResponse): void {
+    event.preventDefault();
     event.stopPropagation();
     if (!this.isAdmin()) return;
-    this.router.navigate(['/admin/categories/edit', category.id]);
-  }
 
-  // Open delete confirmation modal
-  confirmDelete(event: Event, category: CategoryResponse): void {
-    event.stopPropagation(); // Prevent card navigation
-    if (!this.isAdmin()) return;
-    this.categoryToDelete = category;
+    this.categoryToDelete.set(category);
     this.showDeleteModal.set(true);
     this.clearMessages();
   }
 
-  // Close modal without deleting
-  cancelDelete(): void {
+  protected cancelDelete(): void {
     this.showDeleteModal.set(false);
-    this.categoryToDelete = null;
+    this.categoryToDelete.set(null);
   }
 
-  // Execute deletion
-  deleteCategory(): void {
-    if (!this.categoryToDelete) {
-      return;
-    }
+  protected deleteCategory(): void {
+    const category = this.categoryToDelete();
+    if (!category) return;
 
     this.deleting.set(true);
     this.clearMessages();
 
-    this.categoryService.deleteCategory(this.categoryToDelete.id).subscribe({
-      next: () => {
-        // Remove from both arrays
-        const id = this.categoryToDelete!.id;
-        this.categories.set(this.categories().filter(c => c.id !== id));
-        this.filteredCategories = this.filteredCategories.filter(c => c.id !== id);
-
-        this.successMessage.set(`Category "${this.categoryToDelete!.name}" deleted successfully.`);
-        this.closeDeleteModal();
-
-        // If current page is now empty and not the first page, reload previous page
-        if (this.filteredCategories.length === 0 && this.currentPage > 0) {
-          this.loadCategories(this.currentPage - 1, this.pageSize);
-        } else if (this.filteredCategories.length === 0 && this.totalElements > 1) {
-          // Edge case: reload current page to fetch new data
-          this.loadCategories(this.currentPage, this.pageSize);
-        }
-      },
-      error: (err) => {
-        this.deleting.set(false);
-        if (err.status === 403) {
-          this.errorMessage.set('You do not have permission to delete this category.');
-        } else if (err.status === 404) {
-          this.errorMessage.set('Category not found. It may have already been deleted.');
-          // Remove from local state since it's already gone
-          const id = this.categoryToDelete!.id;
-          this.categories.set(this.categories().filter(c => c.id !== id));
-          this.filteredCategories = this.filteredCategories.filter(c => c.id !== id);
+    this.categoryService
+      .deleteCategory(category.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.categories.update((list) => list.filter((c) => c.id !== category.id));
+          this.successMessage.set(`Category "${category.name}" deleted successfully.`);
           this.closeDeleteModal();
-        } else {
-          this.errorMessage.set('Failed to delete category. Please try again later.');
-        }
-      }
-    });
+
+          if (this.categories().length === 0 && this.currentPage() > 0) {
+            // Current page is now empty — step back to the previous page.
+            this.loadCategories(this.currentPage() - 1);
+          } else if (this.categories().length === 0 && this.totalElements() > 1) {
+            // Edge case: refetch the current page to pull in the next item.
+            this.loadCategories(this.currentPage());
+          }
+        },
+        error: (err) => {
+          this.deleting.set(false);
+          if (err.status === 403) {
+            this.errorMessage.set('You do not have permission to delete this category.');
+          } else if (err.status === 404) {
+            this.errorMessage.set('Category not found. It may have already been deleted.');
+            this.categories.update((list) => list.filter((c) => c.id !== category.id));
+            this.closeDeleteModal();
+          } else {
+            this.errorMessage.set('Failed to delete category. Please try again later.');
+          }
+        },
+      });
   }
 
-  // Pagination controls
-  goToPage(page: number): void {
-    // Eagerly parse to number in case a URL param injected a string
-    const targetPage = Number(page); 
-    
+  // ---------------------------------------------------------------------
+  // Pagination
+  // ---------------------------------------------------------------------
+  protected goToPage(page: number): void {
+    const targetPage = Number(page);
+
     if (
-      !this.loading() && // Prevent triggers if currently fetching
-      targetPage >= 0 && 
-      targetPage < this.totalPages && 
-      targetPage !== this.currentPage
+      this.state() !== 'loading' &&
+      targetPage >= 0 &&
+      targetPage < this.totalPages() &&
+      targetPage !== this.currentPage()
     ) {
-      this.loadCategories(targetPage, this.pageSize);
+      this.loadCategories(targetPage);
     }
   }
 
   private closeDeleteModal(): void {
     this.showDeleteModal.set(false);
-    this.categoryToDelete = null;
+    this.categoryToDelete.set(null);
     this.deleting.set(false);
   }
 
