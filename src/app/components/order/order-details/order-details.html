@@ -97,7 +97,7 @@
           <div class="pa-order-details__fact">
             <span class="pa-order-details__fact-label">Total</span>
             <span class="pa-order-details__fact-value pa-order-details__fact-value--strong">
-              {{ order.totalAmount | number: '1.2-2' }} TND
+              ${{ order.totalAmount | number: '1.2-2' }}
             </span>
           </div>
         </div>
@@ -174,12 +174,12 @@
                   <div class="pa-order-items__info">
                     <span class="pa-order-items__title">{{ itemTitle(item) }}</span>
                     <span class="pa-order-items__qty"
-                      >Qty {{ item.quantity }} · {{ item.unitPrice | number: '1.2-2' }} TND
+                      >Qty {{ item.quantity }} · ${{ item.unitPrice | number: '1.2-2' }}
                       each</span
                     >
                   </div>
                   <span class="pa-order-items__total"
-                    >{{ lineTotal(item.unitPrice, item.quantity) | number: '1.2-2' }} TND</span
+                    >${{ lineTotal(item.unitPrice, item.quantity) | number: '1.2-2' }}</span
                   >
                 </li>
               }
@@ -196,7 +196,7 @@
             </div>
             <div class="pa-order-summary-card__row">
               <span>Subtotal</span>
-              <span>{{ subtotal() | number: '1.2-2' }} TND</span>
+              <span>${{ subtotal() | number: '1.2-2' }}</span>
             </div>
             <div class="pa-order-summary-card__row">
               <span>Delivery</span>
@@ -205,7 +205,7 @@
             <hr class="pa-divider" />
             <div class="pa-order-summary-card__row pa-order-summary-card__row--total">
               <span>Total</span>
-              <span>{{ order.totalAmount | number: '1.2-2' }} TND</span>
+              <span>${{ order.totalAmount | number: '1.2-2' }}</span>
             </div>
             @if (order.paymentReference) {
               <div class="pa-order-summary-card__row">

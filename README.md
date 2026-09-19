@@ -537,7 +537,7 @@ Based on current functionality and natural next steps:
 - [x] **E2E test suite** — Playwright happy path covering browse → cart → checkout → order success → admin dashboard. Further journeys (returns, wishlist, admin CRUD) can be added to `e2e/`.
 - [ ] **State management hardening** — introduce signal stores (e.g. `@ngrx/signals` or `ngxtension`) for cart/wishlist if cross-component state grows.
 - [ ] **Real payment gateway** — the checkout already runs Card/PayPal through a mock gateway with a demo banner; swap in a live provider behind the same step.
-- [ ] **i18n / RTL** — the checkout already formats `TND`; localize strings and add Arabic locale support for the Tunisian market.
+- [ ] **i18n / RTL** — the checkout already formats `$`; localize strings and add Arabic locale support for the Tunisian market.
 - [ ] **Order confirmation emails** — surface email status and resend actions.
 - [ ] **Analytics & observability** — error reporting (Sentry) and anonymized shopping analytics.
 - [ ] **PWA** — complete the manifest with a service worker for offline + installability.
