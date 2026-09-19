@@ -43,4 +43,79 @@
     border-color: var(--pa-success) !important;
     animation: pa-scale-in 0.25s var(--pa-ease-spring);
   }
+
+  // --------------------------------------------
+  // ADMIN ACTIONS
+  // Sits in the opposite corner from the badges
+  // (top-left) and the wishlist toggle (top-right),
+  // above the card's stretched link (z-index: 1) so
+  // clicks always reach these buttons first.
+  // --------------------------------------------
+
+  &__admin-actions {
+    position: absolute;
+    bottom: var(--pa-space-3);
+    right: var(--pa-space-3);
+    z-index: 2;
+    display: flex;
+    gap: var(--pa-space-2);
+    opacity: 0;
+    transform: translateY(4px);
+    transition:
+      opacity var(--pa-transition-fast),
+      transform var(--pa-transition-fast);
+
+    .pa-product-card:hover &,
+    .pa-product-card:focus-within & {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    // Always visible on touch devices — there's no hover state to reveal them.
+    @media (pointer: coarse) {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  &__admin-btn {
+    width: 2rem;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--pa-radius-full);
+    background-color: var(--pa-surface);
+    border: 1px solid var(--pa-border);
+    color: var(--pa-text-muted);
+    box-shadow: var(--pa-shadow-sm);
+    cursor: pointer;
+    transition: all var(--pa-transition-fast);
+
+    &:hover {
+      transform: translateY(-1px);
+    }
+
+    &:focus-visible {
+      outline: none;
+      box-shadow: var(--pa-focus-ring);
+    }
+
+    &:active {
+      transform: translateY(0) scale(0.96);
+      transition-duration: 50ms;
+    }
+
+    &--edit:hover {
+      background-color: var(--pa-primary-muted);
+      color: var(--pa-primary);
+      border-color: var(--pa-primary-subtle);
+    }
+
+    &--delete:hover {
+      background-color: var(--pa-danger-muted);
+      color: var(--pa-danger);
+      border-color: var(--pa-danger-subtle);
+    }
+  }
 }

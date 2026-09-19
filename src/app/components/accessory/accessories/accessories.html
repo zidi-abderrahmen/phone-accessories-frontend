@@ -1,125 +1,156 @@
+<!-- eslint-disable @angular-eslint/template/no-autofocus -->
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 <!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
 <app-navbar />
 
-<div class="accessory-list-container">
-  <main class="accessory-main" id="main-content">
-    <!-- Page Header -->
-    <header class="page-header">
-      <div class="page-header__content">
-        <h1 class="page-header__title">Accessories</h1>
-        <p class="page-header__subtitle">Browse our collection of phone accessories</p>
-      </div>
-      <div class="page-header__actions">
-        <!-- Search -->
-        <div class="search-wrapper">
-          <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <circle cx="11" cy="11" r="8" />
-            <path d="m21 21-4.3-4.3" />
+<main class="accessory-list-container" id="main-content">
+  <!-- Page Header -->
+  <header class="page-header">
+    <div class="page-header__content">
+      <span class="page-header__eyebrow">Catalog</span>
+      <h1 class="page-header__title">Accessories</h1>
+      <p class="page-header__subtitle">
+        Search, filter, and compare chargers, cases, and audio gear to find the right fit for your device.
+      </p>
+    </div>
+    @if (isAdmin()) {
+      <a routerLink="/admin/accessories/create" class="pa-btn pa-btn--primary page-header__cta">
+        Create Accessory
+      </a>
+    }
+  </header>
+
+  <!-- Search & Filters -->
+  <form class="filters-bar" (ngSubmit)="onSearchClick()">
+    <div class="search-wrapper">
+      <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="11" cy="11" r="8" />
+        <path d="m21 21-4.3-4.3" />
+      </svg>
+      <label for="accessory-search" class="pa-sr-only">Search accessories</label>
+      <input
+        id="accessory-search"
+        type="search"
+        class="search-input"
+        placeholder="Search accessories…"
+        [value]="searchQuery()"
+        (input)="onSearchInput($event)"
+      />
+      @if (searchQuery()) {
+        <button type="button" class="search-clear" (click)="clearSearch()" aria-label="Clear search">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M18 6 6 18" />
+            <path d="m6 6 12 12" />
           </svg>
-          <input
-            type="search"
-            class="search-input"
-            placeholder="Search accessories..."
-            [value]="searchQuery()"
-            (input)="onSearchInput($event)"
-            aria-label="Search accessories"
-          />
-          @if (searchQuery()) {
-            <button type="button" class="search-clear" (click)="clearSearch()" aria-label="Clear search">
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="M18 6 6 18" />
-                <path d="m6 6 12 12" />
-              </svg>
-            </button>
-          }
-        </div>
-
-        <!-- Category filter -->
-        <select
-          class="filter-select"
-          [ngModel]="selectedCategoryId()"
-          (ngModelChange)="onCategoryChange($event)"
-          aria-label="Filter by category"
-        >
-          <option [ngValue]="null">All categories</option>
-          @for (category of categories(); track category.id) {
-            <option [ngValue]="category.id">{{ category.name }}</option>
-          }
-        </select>
-
-        <!-- Price range -->
-        <div class="price-filter">
-          <input
-            type="number"
-            class="price-input"
-            placeholder="Min price"
-            min="0"
-            [ngModel]="minPrice()"
-            (ngModelChange)="onMinPriceChange($event)"
-            aria-label="Minimum price"
-          />
-          <span class="price-separator">–</span>
-          <input
-            type="number"
-            class="price-input"
-            placeholder="Max price"
-            min="0"
-            [ngModel]="maxPrice()"
-            (ngModelChange)="onMaxPriceChange($event)"
-            aria-label="Maximum price"
-          />
-        </div>
-
-        <!-- In stock toggle -->
-        <label class="stock-filter">
-          <input
-            type="checkbox"
-            [checked]="inStockOnly() === true"
-            (change)="onInStockChange($any($event.target).checked)"
-          />
-          In stock only
-        </label>
-
-        <!-- Search Button (explicit) -->
-        <button type="button" class="pa-btn pa-btn--primary" (click)="onSearchClick()">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <circle cx="11" cy="11" r="8" />
-            <path d="m21 21-4.3-4.3" />
-          </svg>
-          Search
         </button>
+      }
+    </div>
 
-        @if (hasActiveFilters()) {
-          <button type="button" class="pa-btn pa-btn--secondary pa-btn--sm" (click)="clearAllFilters()">
-            Clear filters
-          </button>
-        }
+    <label for="accessory-category" class="pa-sr-only">Filter by category</label>
+    <select
+      id="accessory-category"
+      class="filter-select"
+      [ngModel]="selectedCategoryId()"
+      name="categoryId"
+      (ngModelChange)="onCategoryChange($event)"
+    >
+      <option [ngValue]="null">All categories</option>
+      @for (category of categories(); track category.id) {
+        <option [ngValue]="category.id">{{ category.name }}</option>
+      }
+    </select>
 
-        @if (isAdmin()) {
-          <a routerLink="/admin/accessories/create" class="pa-btn pa-btn--primary">
-            Create Accessory
-          </a>
-        }
-      </div>
-    </header>
+    <div class="price-filter">
+      <label for="accessory-min-price" class="pa-sr-only">Minimum price</label>
+      <input
+        id="accessory-min-price"
+        type="number"
+        class="price-input"
+        placeholder="Min"
+        min="0"
+        name="minPrice"
+        [ngModel]="minPrice()"
+        (ngModelChange)="onMinPriceChange($event)"
+      />
+      <span class="price-separator" aria-hidden="true">–</span>
+      <label for="accessory-max-price" class="pa-sr-only">Maximum price</label>
+      <input
+        id="accessory-max-price"
+        type="number"
+        class="price-input"
+        placeholder="Max"
+        min="0"
+        name="maxPrice"
+        [ngModel]="maxPrice()"
+        (ngModelChange)="onMaxPriceChange($event)"
+      />
+    </div>
 
-    <!-- Notifications -->
-    @if (successMessage()) {
-      <div class="alert alert-success" role="status" aria-live="polite">
-        {{ successMessage() }}
-      </div>
+    <label class="stock-filter">
+      <input
+        type="checkbox"
+        name="inStockOnly"
+        [checked]="inStockOnly() === true"
+        (change)="onInStockChange($any($event.target).checked)"
+      />
+      In stock only
+    </label>
+
+    <button type="submit" class="pa-btn pa-btn--primary">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="11" cy="11" r="8" />
+        <path d="m21 21-4.3-4.3" />
+      </svg>
+      Search
+    </button>
+
+    @if (hasActiveFilters()) {
+      <button type="button" class="pa-btn pa-btn--ghost pa-btn--sm clear-filters-btn" (click)="clearAllFilters()">
+        Clear filters
+      </button>
     }
-    @if (errorMessage()) {
-      <div class="alert alert-error" role="alert" aria-live="assertive">
-        {{ errorMessage() }}
-      </div>
-    }
+  </form>
 
-    <!-- Loading State: Skeleton Grid -->
-    @if (loading()) {
+  <!-- Results meta: count + sort -->
+  <div class="results-bar">
+    <p class="results-count">
+      @if (state() === 'loaded') {
+        {{ totalElements() }} result{{ totalElements() === 1 ? '' : 's' }}
+      }
+    </p>
+
+    <label class="sort-control">
+      <span>Sort by</span>
+      <select
+        class="filter-select"
+        [ngModel]="sortOption()"
+        (ngModelChange)="onSortChange($event)"
+        aria-label="Sort accessories"
+      >
+        @for (option of sortOptions; track option.value) {
+          <option [value]="option.value">{{ option.label }}</option>
+        }
+      </select>
+    </label>
+  </div>
+
+  <!-- Notifications -->
+  @if (successMessage()) {
+    <div class="alert alert-success" role="status" aria-live="polite">
+      {{ successMessage() }}
+    </div>
+  }
+  @if (errorMessage()) {
+    <div class="alert alert-error" role="alert" aria-live="assertive">
+      {{ errorMessage() }}
+    </div>
+  }
+  <div class="pa-sr-only" role="status" aria-live="polite">{{ cartAnnouncement() }}</div>
+
+  @switch (state()) {
+    @case ('loading') {
       <div class="skeleton-grid" aria-busy="true" aria-label="Loading accessories">
-        @for (item of [1,2,3,4,5,6]; track item) {
+        @for (item of [1, 2, 3, 4, 5, 6, 7, 8]; track item) {
           <div class="skeleton-card">
             <div class="skeleton-card__image"></div>
             <div class="skeleton-card__body">
@@ -133,162 +164,121 @@
       </div>
     }
 
-    <!-- Empty State -->
-    @if (!loading() && accessories().length === 0) {
-      <div class="empty-state">
-        <div class="empty-state__icon">
-          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="m7.5 4.27 9 5.15" />
-            <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z" />
-            <path d="m3.3 7 8.7 5 8.7-5" />
-            <path d="M12 22V12" />
+    @case ('error') {
+      <div class="error-state" role="alert">
+        <div class="error-state__icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="8" x2="12" y2="12" />
+            <line x1="12" y1="16" x2="12.01" y2="16" />
           </svg>
         </div>
-        <h3 class="empty-state__title">No accessories found</h3>
-        <p class="empty-state__description">
-          @if (searchQuery()) {
-            No accessories match your search. Try a different term.
-          } @else {
-            Get started by adding your first accessory.
-          }
+        <h3 class="error-state__title">We couldn't load accessories</h3>
+        <p class="error-state__description">
+          Something went wrong while fetching results. Please check your connection and try again.
         </p>
-        @if (isAdmin() && !searchQuery()) {
-          <a routerLink="/admin/accessories/create" class="pa-btn pa-btn--primary">
-            Create Accessory
-          </a>
-        }
+        <button type="button" class="pa-btn pa-btn--secondary" (click)="search(currentPage())">
+          Try again
+        </button>
       </div>
     }
 
-    <!-- Accessory Cards Grid -->
-    @if (!loading() && accessories().length > 0) {
-      <div class="cards-grid">
-        @for (accessory of accessories(); track accessory.id; let i = $index) {
-          <article
-            class="accessory-card"
-            (click)="viewAccessory(accessory)"
-            [style.animation-delay.ms]="i * 60"
-            role="button"
-            tabindex="0"
-            (keydown.enter)="viewAccessory(accessory)"
-            [attr.aria-label]="'View ' + accessory.title + ' accessory'"
-          >
-            <div class="card-image">
-              <img
-                [src]="accessory.imageUrl || '/assets/placeholder-product.svg'"
-                [alt]="accessory.title"
-                loading="lazy"
-                (error)="$any($event.target).src = '/assets/placeholder-product.svg'"
-              />
-              <div class="card-actions-overlay">
-                <button
-                  class="pa-btn pa-btn--sm pa-btn--icon action-wishlist"
-                  [class.action-wishlist--added]="wishlist.wishlistSet().has(accessory.id)"
-                  [disabled]="wishlist.isPending(accessory.id)"
-                  (click)="wishlist.toggle($event, accessory, router.url)"
-                  [attr.aria-label]="wishlist.wishlistSet().has(accessory.id) ? 'Added to wishlist' : 'Add ' + accessory.title + ' to wishlist'"
-                  title="Add to wishlist"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" [attr.fill]="wishlist.addedWishlistId() === accessory.id ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z" />
-                  </svg>
-                </button>
+    @default {
+      @if (isEmpty()) {
+        <div class="empty-state">
+          <div class="empty-state__icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="m7.5 4.27 9 5.15" />
+              <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z" />
+              <path d="m3.3 7 8.7 5 8.7-5" />
+              <path d="M12 22V12" />
+            </svg>
+          </div>
+          <h3 class="empty-state__title">No accessories found</h3>
+          <p class="empty-state__description">
+            @if (hasActiveFilters()) {
+              No accessories match your search. Try different filters.
+            } @else {
+              Get started by adding your first accessory.
+            }
+          </p>
+          @if (hasActiveFilters()) {
+            <button type="button" class="pa-btn pa-btn--secondary" (click)="clearAllFilters()">
+              Clear filters
+            </button>
+          } @else if (isAdmin()) {
+            <a routerLink="/admin/accessories/create" class="pa-btn pa-btn--primary">
+              Create Accessory
+            </a>
+          }
+        </div>
+      } @else {
+        <div class="pa-product-grid pa-stagger-children">
+          @for (accessory of accessories(); track accessory.id) {
+            <app-accessory-card
+              [product]="accessory"
+              [showAdminActions]="isAdmin()"
+              [isWishlisted]="wishlist.wishlistSet().has(accessory.id)"
+              [isWishlistPending]="wishlist.isPending(accessory.id)"
+              [isCartPending]="isCartPending(accessory)"
+              [justAdded]="addedCartId() === accessory.id"
+              (addToCart)="addToCart($event)"
+              (toggleWishlist)="onToggleWishlist($event)"
+              (edit)="editAccessory($event)"
+              (delete)="confirmDelete($event)"
+            />
+          }
+        </div>
 
-                @if (isAdmin()) {
-                  <button
-                    class="pa-btn pa-btn--sm pa-btn--icon action-edit"
-                    (click)="editAccessory($event, accessory)"
-                    [attr.aria-label]="'Edit ' + accessory.title"
-                    title="Edit accessory"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
-                    </svg>
-                  </button>
-                  <button
-                    class="pa-btn pa-btn--sm pa-btn--icon action-delete"
-                    (click)="confirmDelete($event, accessory)"
-                    [attr.aria-label]="'Delete ' + accessory.title"
-                    title="Delete accessory"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M3 6h18" />
-                      <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
-                      <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-                    </svg>
-                  </button>
-                }
-              </div>
-            </div>
-            <div class="card-body">
-              <div class="card-badges">
-                <span class="card-category">{{ accessory.category?.name }}</span>
-                <span
-                  class="stock-badge"
-                  [class.in-stock]="getStockLabel(accessory.stock).variant === 'in'"
-                  [class.low-stock]="getStockLabel(accessory.stock).variant === 'low'"
-                  [class.out-stock]="getStockLabel(accessory.stock).variant === 'out'"
-                >
-                  {{ getStockLabel(accessory.stock).text }}
-                </span>
-              </div>
-              <h3 class="card-title">{{ accessory.title }}</h3>
-              <p class="card-description">{{ accessory.description }}</p>
-              <div class="card-footer">
-                <span class="card-price">{{ accessory.price | currency }}</span>
-                <span class="card-code">{{ accessory.productCode }}</span>
-              </div>
-            </div>
-          </article>
+        <!-- Pagination -->
+        @if (totalPages() > 1) {
+          <nav class="pagination" aria-label="Accessory pagination">
+            <button
+              class="pa-btn pa-btn--secondary pa-btn--sm"
+              [disabled]="currentPage() === 0"
+              (click)="goToPage(currentPage() - 1)"
+              aria-label="Previous page"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m15 18-6-6 6-6" />
+              </svg>
+              Previous
+            </button>
+
+            <span class="page-info">
+              Page <strong>{{ currentPage() + 1 }}</strong> of
+              <strong>{{ totalPages() }}</strong>
+              <span class="page-info__total">({{ totalElements() }} total)</span>
+            </span>
+
+            <button
+              class="pa-btn pa-btn--secondary pa-btn--sm"
+              [disabled]="currentPage() === totalPages() - 1"
+              (click)="goToPage(currentPage() + 1)"
+              aria-label="Next page"
+            >
+              Next
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m9 18 6-6-6-6" />
+              </svg>
+            </button>
+          </nav>
         }
-      </div>
+      }
     }
-
-    <!-- Pagination -->
-    @if (!loading() && totalPages > 1) {
-      <nav class="pagination" aria-label="Accessory pagination">
-        <button
-          class="pa-btn pa-btn--secondary pa-btn--sm"
-          [disabled]="currentPage === 0"
-          (click)="goToPage(currentPage - 1)"
-          aria-label="Previous page"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="m15 18-6-6 6-6" />
-          </svg>
-          Previous
-        </button>
-
-        <span class="page-info">
-          Page <strong>{{ currentPage + 1 }}</strong> of
-          <strong>{{ totalPages }}</strong>
-          <span class="page-info__total">({{ totalElements }} total)</span>
-        </span>
-
-        <button
-          class="pa-btn pa-btn--secondary pa-btn--sm"
-          [disabled]="currentPage === totalPages - 1"
-          (click)="goToPage(currentPage + 1)"
-          aria-label="Next page"
-        >
-          Next
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="m9 18 6-6-6-6" />
-          </svg>
-        </button>
-      </nav>
-    }
-  </main>
-</div>
+  }
+</main>
 
 <!-- Delete Confirmation Modal -->
 @if (showDeleteModal()) {
   <div
     class="modal-overlay"
     (click)="cancelDelete()"
+    (keydown.escape)="cancelDelete()"
     role="dialog"
     aria-modal="true"
     aria-labelledby="delete-modal-title"
+    aria-describedby="delete-modal-desc"
   >
     <div class="modal-content" (click)="$event.stopPropagation()">
       <div class="modal-content__icon modal-content__icon--danger">
@@ -301,17 +291,18 @@
         </svg>
       </div>
       <h3 id="delete-modal-title" class="modal-content__title">Delete Accessory</h3>
-      <p class="modal-content__text">
+      <p id="delete-modal-desc" class="modal-content__text">
         Are you sure you want to delete
-        <strong>"{{ accessoryToDelete?.title }}"</strong>? This action cannot
+        <strong>"{{ accessoryToDelete()?.title }}"</strong>? This action cannot
         be undone and will permanently remove this accessory.
       </p>
       <div class="modal-actions">
         <button
-        type="button"
-        class="pa-btn pa-btn--secondary"
-        (click)="cancelDelete()"
-        [disabled]="deleting()"
+          type="button"
+          class="pa-btn pa-btn--secondary"
+          (click)="cancelDelete()"
+          [disabled]="deleting()"
+          autofocus
         >
           Cancel
         </button>

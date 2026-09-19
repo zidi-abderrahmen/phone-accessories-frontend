@@ -1,99 +1,137 @@
-import { CommonModule, CurrencyPipe } from '@angular/common';
-import { Component, inject, OnInit, signal, computed, DestroyRef } from '@angular/core';
-import { Router, RouterModule, ActivatedRoute } from '@angular/router';
+import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
+import { Router, ActivatedRoute, RouterLink } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { distinctUntilChanged, map } from 'rxjs';
+
 import { AccessoryResponse } from '../../../core/models/accessory/accessory-response';
 import { CategoryResponse } from '../../../core/models/category/category-response';
-import { Page } from '../../../core/models/page/page';
+import { SearchRequest } from '../../../core/models/accessory/search/search-request';
+import { CartItemRequest } from '../../../core/models/cart/items/cart-item-request';
 import { AccessoryService } from '../../../core/services/accessory/accessory.service';
 import { CategoryService } from '../../../core/services/category/category.service';
-import { AuthService } from '../../../core/services/auth/auth.service';
-import { FormsModule } from '@angular/forms';
-import { SearchRequest } from '../../../core/models/accessory/search/search-request';
+import { CartService } from '../../../core/services/cart/cart.service';
 import { UserService } from '../../../core/services/user/user.service';
-import { Navbar } from "../../../shared/components/navbar/navbar";
-import { Footer } from "../../../shared/components/footer/footer";
 import { WishlistFacadeService } from '../../../core/services/wishlist-facade/wishlist-facade.service';
+import { Navbar } from '../../../shared/components/navbar/navbar';
+import { Footer } from '../../../shared/components/footer/footer';
+import { AccessoryCard } from '../../../shared/components/accessory-card/accessory-card';
+
+type LoadState = 'idle' | 'loading' | 'loaded' | 'error';
+
+const PAGE_SIZE = 12;
+
+const SORT_OPTIONS = [
+  { value: 'createdAt,desc', label: 'Newest' },
+  { value: 'price,asc', label: 'Price: Low to High' },
+  { value: 'price,desc', label: 'Price: High to Low' },
+  { value: 'title,asc', label: 'Name: A to Z' },
+] as const;
 
 @Component({
   selector: 'app-accessories',
   standalone: true,
-  imports: [RouterModule, CurrencyPipe, CommonModule, FormsModule, Navbar, Footer],
+  imports: [RouterLink, FormsModule, Navbar, Footer, AccessoryCard],
   templateUrl: './accessories.html',
   styleUrl: './accessories.scss',
 })
 export class Accessories implements OnInit {
-  private accessoryService = inject(AccessoryService);
-  private categoryService = inject(CategoryService);
-  protected readonly wishlist = inject(WishlistFacadeService);
-  protected router = inject(Router);
-  private activateRoute = inject(ActivatedRoute);
-  authService = inject(AuthService);
-  userService = inject(UserService);
+  private readonly accessoryService = inject(AccessoryService);
+  private readonly categoryService = inject(CategoryService);
+  private readonly cartService = inject(CartService);
+  private readonly userService = inject(UserService);
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
 
+  protected readonly wishlist = inject(WishlistFacadeService);
   protected readonly isAdmin = computed(() => this.userService.hasAnyRole(['SUPER_ADMIN', 'ADMIN']));
 
+  // ---------------------------------------------------------------------
   // Data state
-  accessories = signal<AccessoryResponse[]>([]);
-  categories = signal<CategoryResponse[]>([]);
-  page: Page<AccessoryResponse> | null = null;
+  // ---------------------------------------------------------------------
+  protected readonly accessories = signal<AccessoryResponse[]>([]);
+  protected readonly categories = signal<CategoryResponse[]>([]);
+  protected readonly state = signal<LoadState>('idle');
+  protected readonly isEmpty = computed(() => this.state() === 'loaded' && this.accessories().length === 0);
 
   // Pagination state
-  currentPage = 0;
-  pageSize = 12;
-  totalElements = 0;
-  totalPages = 0;
+  protected readonly currentPage = signal(0);
+  protected readonly totalPages = signal(0);
+  protected readonly totalElements = signal(0);
+  protected readonly pageSize = PAGE_SIZE;
 
   // Filter state (server-side)
-  searchQuery = signal('');
-  selectedCategoryId = signal<number | null>(null);
-  minPrice = signal<number | null>(null);
-  maxPrice = signal<number | null>(null);
-  inStockOnly = signal<boolean | null>(null);
+  protected readonly searchQuery = signal('');
+  protected readonly selectedCategoryId = signal<number | null>(null);
+  protected readonly minPrice = signal<number | null>(null);
+  protected readonly maxPrice = signal<number | null>(null);
+  protected readonly inStockOnly = signal<boolean | null>(null);
+  protected readonly sortOption = signal<string>(SORT_OPTIONS[0].value);
+  protected readonly sortOptions = SORT_OPTIONS;
 
-  // UI state
-  loading = signal(false);
-  successMessage = signal('');
-  errorMessage = signal('');
+  protected readonly hasActiveFilters = computed(
+    () =>
+      !!this.searchQuery() ||
+      this.selectedCategoryId() !== null ||
+      this.minPrice() !== null ||
+      this.maxPrice() !== null ||
+      this.inStockOnly() !== null,
+  );
+
+  // Notifications
+  protected readonly successMessage = signal('');
+  protected readonly errorMessage = signal('');
 
   // Delete modal state
-  showDeleteModal = signal(false);
-  accessoryToDelete: AccessoryResponse | null = null;
-  deleting = signal(false);
+  protected readonly showDeleteModal = signal(false);
+  protected readonly accessoryToDelete = signal<AccessoryResponse | null>(null);
+  protected readonly deleting = signal(false);
 
-  // Computed: are any filters active?
-  hasActiveFilters = computed(() =>
-    !!this.searchQuery() ||
-    this.selectedCategoryId() !== null ||
-    this.minPrice() !== null ||
-    this.maxPrice() !== null ||
-    this.inStockOnly() !== null
-  );
+  // Cart feedback state (mirrors Home)
+  protected readonly pendingCartIds = signal<ReadonlySet<number>>(new Set());
+  protected readonly addedCartId = signal<number | null>(null);
+  protected readonly cartAnnouncement = signal('');
 
   ngOnInit(): void {
     this.loadCategories();
     this.wishlist.load();
 
-    const keyword = this.activateRoute.snapshot.queryParams['keyword'];
-    if (keyword) {
-      this.searchQuery.set(String(keyword).trim());
-    }
-
-    this.search(0);
+    // Reactive navbar search: the navbar writes ?keyword= on the URL and
+    // this subscription is the single source of truth for reacting to it —
+    // on first load AND on every subsequent search triggered from the
+    // navbar while already on this page. distinctUntilChanged prevents a
+    // duplicate request when the query params fire but the keyword itself
+    // hasn't actually changed (e.g. other query params changing later).
+    this.route.queryParams
+      .pipe(
+        map((params) => (params['keyword'] ?? '').toString().trim()),
+        distinctUntilChanged(),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((keyword) => {
+        this.searchQuery.set(keyword);
+        this.search(0);
+      });
   }
 
   private loadCategories(): void {
-    this.categoryService.getAllCategories().subscribe({
-      next: (response) => {
-        const categories = Array.isArray(response) ? response : response.content ?? [];
-        this.categories.set(categories);
-      }
-    });
+    this.categoryService
+      .getAllCategories()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          const categories = Array.isArray(response) ? response : (response.content ?? []);
+          this.categories.set(categories);
+        },
+      });
   }
 
-  // Central method: runs the server-side search with current filter state
-  search(page = 0): void {
-    this.loading.set(true);
+  // ---------------------------------------------------------------------
+  // Search
+  // ---------------------------------------------------------------------
+  protected search(page = 0): void {
+    this.state.set('loading');
     this.clearMessages();
 
     const request: SearchRequest = {
@@ -104,57 +142,61 @@ export class Accessories implements OnInit {
       inStock: this.inStockOnly(),
     };
 
-    this.accessoryService.searchAccessories(request, page, this.pageSize).subscribe({
-      next: (response) => {
-        this.page = response;
-        this.accessories.set(response.content);
-        this.currentPage = response.number ?? 0;
-        this.pageSize = response.size;
-        this.totalElements = response.totalElements;
-        this.totalPages = response.totalPages;
-        this.loading.set(false);
-      },
-      error: () => {
-        this.loading.set(false);
-        this.errorMessage.set('Failed to load accessories. Please try again later.');
-      },
-    });
+    this.accessoryService
+      .searchAccessories(request, page, this.pageSize, this.sortOption())
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          this.accessories.set(response.content);
+          this.currentPage.set(response.number ?? 0);
+          this.totalElements.set(response.totalElements);
+          this.totalPages.set(response.totalPages);
+          this.state.set('loaded');
+        },
+        error: () => {
+          this.state.set('error');
+        },
+      });
   }
 
-  // ── Explicit filter setters (NO auto-search) ──
+  // ── Explicit filter setters (no auto-search — Search button commits them) ──
 
-  onSearchInput(event: Event): void {
+  protected onSearchInput(event: Event): void {
     this.searchQuery.set((event.target as HTMLInputElement).value.trim());
   }
 
-  clearSearch(): void {
+  protected clearSearch(): void {
     this.searchQuery.set('');
   }
 
-  onCategoryChange(categoryId: string): void {
+  protected onCategoryChange(categoryId: string): void {
     this.selectedCategoryId.set(categoryId ? Number(categoryId) : null);
   }
 
-  onMinPriceChange(value: string): void {
+  protected onMinPriceChange(value: string): void {
     this.minPrice.set(value ? Number(value) : null);
   }
 
-  onMaxPriceChange(value: string): void {
+  protected onMaxPriceChange(value: string): void {
     this.maxPrice.set(value ? Number(value) : null);
   }
 
-  onInStockChange(checked: boolean): void {
+  protected onInStockChange(checked: boolean): void {
     this.inStockOnly.set(checked ? true : null);
   }
 
-  // ── Explicit actions ──
-
-  /** Triggered only by the Search button */
-  onSearchClick(): void {
+  // Sorting is immediate — it's a display preference, not a filter commit.
+  protected onSortChange(value: string): void {
+    this.sortOption.set(value);
     this.search(0);
   }
 
-  clearAllFilters(): void {
+  /** Triggered by the search form submit (button click or Enter). */
+  protected onSearchClick(): void {
+    this.search(0);
+  }
+
+  protected clearAllFilters(): void {
     this.searchQuery.set('');
     this.selectedCategoryId.set(null);
     this.minPrice.set(null);
@@ -163,87 +205,134 @@ export class Accessories implements OnInit {
     this.search(0);
   }
 
-  // ── Navigation & CRUD ──
-
-  viewAccessory(accessory: AccessoryResponse): void {
-    this.router.navigate(['/accessories', accessory.id]);
+  // ---------------------------------------------------------------------
+  // Cart
+  // ---------------------------------------------------------------------
+  protected isCartPending(accessory: AccessoryResponse): boolean {
+    return this.pendingCartIds().has(accessory.id);
   }
 
-  editAccessory(event: Event, accessory: AccessoryResponse): void {
-    event.stopPropagation();
+  protected addToCart(accessory: AccessoryResponse): void {
+    if (this.isCartPending(accessory) || accessory.stock <= 0) return;
+
+    this.pendingCartIds.update((set) => new Set(set).add(accessory.id));
+
+    const cartItem: CartItemRequest = {
+      accessoryId: accessory.id,
+      quantity: 1,
+    };
+
+    this.cartService
+      .addItemToCart(cartItem)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.pendingCartIds.update((set) => {
+            const next = new Set(set);
+            next.delete(accessory.id);
+            return next;
+          });
+          this.addedCartId.set(accessory.id);
+          this.cartAnnouncement.set(`${accessory.title} added to cart.`);
+          setTimeout(() => {
+            if (this.addedCartId() === accessory.id) this.addedCartId.set(null);
+          }, 1800);
+        },
+        error: () => {
+          this.pendingCartIds.update((set) => {
+            const next = new Set(set);
+            next.delete(accessory.id);
+            return next;
+          });
+          this.errorMessage.set('Could not add this accessory to the cart. Please try again.');
+          this.cartAnnouncement.set('Failed to add item to cart.');
+        },
+      });
+  }
+
+  // ---------------------------------------------------------------------
+  // Wishlist
+  // ---------------------------------------------------------------------
+  protected onToggleWishlist(event: { event: Event; product: AccessoryResponse }): void {
+    this.wishlist.toggle(event.event, event.product, this.router.url);
+  }
+
+  // ---------------------------------------------------------------------
+  // Admin CRUD
+  // ---------------------------------------------------------------------
+  protected editAccessory(accessory: AccessoryResponse): void {
     if (!this.isAdmin()) return;
     this.router.navigate(['/admin/accessories/edit', accessory.id]);
   }
 
-  confirmDelete(event: Event, accessory: AccessoryResponse): void {
-    event.stopPropagation();
+  protected confirmDelete(accessory: AccessoryResponse): void {
     if (!this.isAdmin()) return;
-    this.accessoryToDelete = accessory;
+    this.accessoryToDelete.set(accessory);
     this.showDeleteModal.set(true);
     this.clearMessages();
   }
 
-  cancelDelete(): void {
+  protected cancelDelete(): void {
     this.showDeleteModal.set(false);
-    this.accessoryToDelete = null;
+    this.accessoryToDelete.set(null);
   }
 
-  deleteAccessory(): void {
-    if (!this.accessoryToDelete) return;
+  protected deleteAccessory(): void {
+    const accessory = this.accessoryToDelete();
+    if (!accessory) return;
 
     this.deleting.set(true);
     this.clearMessages();
 
-    this.accessoryService.deleteAccessory(this.accessoryToDelete.id).subscribe({
-      next: () => {
-        const title = this.accessoryToDelete!.title;
-        this.successMessage.set(`Accessory "${title}" deleted successfully.`);
-        this.closeDeleteModal();
-
-        const remainingOnPage = this.accessories().length - 1;
-        if (remainingOnPage === 0 && this.currentPage > 0) {
-          this.search(this.currentPage - 1);
-        } else {
-          this.search(this.currentPage);
-        }
-      },
-      error: (err) => {
-        this.deleting.set(false);
-        if (err.status === 403) {
-          this.errorMessage.set('You do not have permission to delete this accessory.');
-        } else if (err.status === 404) {
-          this.errorMessage.set('Accessory not found. It may have already been deleted.');
+    this.accessoryService
+      .deleteAccessory(accessory.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.successMessage.set(`Accessory "${accessory.title}" deleted successfully.`);
           this.closeDeleteModal();
-          this.search(this.currentPage);
-        } else {
-          this.errorMessage.set('Failed to delete accessory. Please try again later.');
-        }
-      },
-    });
+
+          const remainingOnPage = this.accessories().length - 1;
+          if (remainingOnPage === 0 && this.currentPage() > 0) {
+            this.search(this.currentPage() - 1);
+          } else {
+            this.search(this.currentPage());
+          }
+        },
+        error: (err) => {
+          this.deleting.set(false);
+          if (err.status === 403) {
+            this.errorMessage.set('You do not have permission to delete this accessory.');
+          } else if (err.status === 404) {
+            this.errorMessage.set('Accessory not found. It may have already been deleted.');
+            this.closeDeleteModal();
+            this.search(this.currentPage());
+          } else {
+            this.errorMessage.set('Failed to delete accessory. Please try again later.');
+          }
+        },
+      });
   }
 
-  goToPage(page: number): void {
-    const targetPage = Number(page); 
-    
+  // ---------------------------------------------------------------------
+  // Pagination
+  // ---------------------------------------------------------------------
+  protected goToPage(page: number): void {
+    const targetPage = Number(page);
+
     if (
-      !this.loading() && // Prevent triggers if currently fetching
-      targetPage >= 0 && 
-      targetPage < this.totalPages && 
-      targetPage !== this.currentPage
+      this.state() !== 'loading' &&
+      targetPage >= 0 &&
+      targetPage < this.totalPages() &&
+      targetPage !== this.currentPage()
     ) {
-      this.search(page);
+      this.search(targetPage);
     }
-  }
-
-  getStockLabel(stock: number): { text: string; variant: 'in' | 'low' | 'out' } {
-    if (stock <= 0) return { text: 'Out of stock', variant: 'out' };
-    if (stock <= 5) return { text: 'Low stock', variant: 'low' };
-    return { text: 'In stock', variant: 'in' };
   }
 
   private closeDeleteModal(): void {
     this.showDeleteModal.set(false);
-    this.accessoryToDelete = null;
+    this.accessoryToDelete.set(null);
     this.deleting.set(false);
   }
 

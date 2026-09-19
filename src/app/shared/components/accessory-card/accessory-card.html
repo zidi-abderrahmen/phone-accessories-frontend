@@ -28,6 +28,35 @@
       </button>
     }
 
+    @if (showAdminActions) {
+      <div class="pa-product-card__admin-actions">
+        <button
+          type="button"
+          class="pa-product-card__admin-btn pa-product-card__admin-btn--edit"
+          (click)="onEdit($event)"
+          [attr.aria-label]="'Edit ' + product.title"
+          title="Edit"
+        >
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+          </svg>
+        </button>
+        <button
+          type="button"
+          class="pa-product-card__admin-btn pa-product-card__admin-btn--delete"
+          (click)="onDelete($event)"
+          [attr.aria-label]="'Delete ' + product.title"
+          title="Delete"
+        >
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M3 6h18" />
+            <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+            <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+          </svg>
+        </button>
+      </div>
+    }
+
     <img class="pa-product-card__image" [src]="product.imageUrl || '/assets/placeholder-product.svg'" [alt]="product.title" loading="lazy" decoding="async">
   </div>
 

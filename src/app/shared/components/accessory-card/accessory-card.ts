@@ -21,8 +21,17 @@ export class AccessoryCard {
   @Input() isCartPending = false;
   @Input() justAdded = false;
 
+  // New — opt-in admin action cluster. Defaults to false, so every
+  // existing usage of <app-accessory-card> (Home, etc.) is unaffected.
+  @Input() showAdminActions = false;
+
   @Output() addToCart = new EventEmitter<AccessoryResponse>();
   @Output() toggleWishlist = new EventEmitter<{ product: AccessoryResponse; event: Event }>();
+
+  // New — emit the product only. Both events already stopPropagation
+  // internally, so callers never need to touch the raw DOM event.
+  @Output() edit = new EventEmitter<AccessoryResponse>();
+  @Output() delete = new EventEmitter<AccessoryResponse>();
 
   protected isOutOfStock(): boolean {
     return this.product.stock <= 0;
@@ -55,5 +64,17 @@ export class AccessoryCard {
 
   protected onToggleWishlist(event: Event): void {
     this.toggleWishlist.emit({ product: this.product, event });
+  }
+
+  protected onEdit(event: Event): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.edit.emit(this.product);
+  }
+
+  protected onDelete(event: Event): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.delete.emit(this.product);
   }
 }
