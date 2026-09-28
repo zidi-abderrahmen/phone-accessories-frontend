@@ -7,6 +7,8 @@ An end-to-end e-commerce storefront for phone accessories (cases, chargers, cabl
 > **Note:** This repository contains the frontend project only.
 > The backend is available at [phone-accessories-backend](https://github.com/zidi-abderrahmen/phone-accessories-backend).
 
+[![CI](https://github.com/zidi-abderrahmen/phone-accessories-frontend/actions/workflows/ci.yml/badge.svg)](https://github.com/zidi-abderrahmen/phone-accessories-frontend/actions/workflows/ci.yml)
+[![E2E](https://github.com/zidi-abderrahmen/phone-accessories-frontend/actions/workflows/ci.yml/badge.svg?job=e2e)](https://github.com/zidi-abderrahmen/phone-accessories-frontend/actions/workflows/ci.yml)
 ![Angular](https://img.shields.io/badge/Angular-v22-0F121C?logo=angular&logoColor=white&color=%23c3002f)
 ![TypeScript](https://img.shields.io/badge/TypeScript-v6.0-007ACC?logo=typescript&logoColor=white)
 ![Runtime](https://img.shields.io/badge/Shipped%20on-Cloudflare%20Workers-F38020?logo=cloudflare)
